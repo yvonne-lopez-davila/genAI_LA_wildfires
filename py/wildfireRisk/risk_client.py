@@ -19,7 +19,7 @@ from typing import Dict, Optional
 load_dotenv()
 
 
-class HomeRiskReport():
+class HomeRiskClient():
     """
     Wraps LLMProxy to produce cohesive risk assessment 
     for prospective homeowners, considering wildfire proximity, market trends, and insurance trends
@@ -152,7 +152,7 @@ if __name__ == "__main__":
  
     print(f"Analyzing wildfire risk for ({TEST_LAT}, {TEST_LON})...\n")
  
-    client = HomeRiskReport(session_id="test_session")
+    client = HomeRiskClient(session_id="test_session")
     result = client.analyze(TEST_LAT, TEST_LON)
  
     if "error" in result:

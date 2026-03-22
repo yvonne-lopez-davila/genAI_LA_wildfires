@@ -1,0 +1,163 @@
+<!--User facing interface for risk analysis-->
+<!--Interactive map, supports geospatial querying-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wildfire Risk Report: California</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+</head>
+
+<body>
+    <header>Wildfire Risk Report: California</header>
+    <main>
+        <div id="map-container">            
+            <div id="select-dirs"> Click to select a location</div>
+        </div>
+        <button id="analyze-loc-btn" onclick="openModal()">Generate Risk Report</button>
+    </main>
+
+    <div id="risk-report-modal">
+        <div id="modal">
+            <button id="modal-close" onclick="closeModal()">&times</button>
+
+            <h2>Wildfire Risk Report</h2>
+            <div id="modal-coords"></div>
+
+            <div id="modal-loading">Analyzing location...</div>
+
+            <div id="modal-results">
+
+                <div id="response-confidence"></div>
+                
+                <div class="results">
+                    <h3>Home Value Impact</h3>
+                    <p id="result-val"></p>
+                </div>
+
+                <div class="results">
+                    <h3>Insurability Info</h3>
+                    <p id="result-insurability"></p>
+                </div>
+                
+                <div class="results">
+                    <h3>Financial/Value Info</h3>
+                    <p id="result-affordability"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <script>
+        var marker = null;
+
+        // TODO maybe set a more meaninful  default value 
+        // Default/start coords (change upon user selection)
+        var selectedLat = null;
+        var selectedLon = null;
+        
+        // Initialize map UI with interactive coord selection    
+        var map = L.map('map-container').setView([34.0522, -118.2437], 9);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        map.on('click', function(e) {
+            selectedLat = e.latlng.lat;
+            selectedLon = e.latlng.lng;
+
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+
+            document.getElementById('select-dirs').textContent =
+                `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+        });
+
+
+        // Define interactive methods
+        function openModal() {
+            if (selectedLat === null) {
+                alert('Please click a location on the map first.');
+                return;
+            }
+
+            document.getElementById('modal-coords').textContent = `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+
+            document.getElementById('modal-loading').style.display = 'block';
+            document.getElementById('modal-results').style.display = 'none';
+            document.getElementById('risk-report-modal').classList.add('active');
+
+            fetchRiskReport(selectedLat, selectedLon);
+        }
+
+        function closeModal() {
+            document.getElementById('risk-report-modal').classList.remove('active');
+        }
+
+        document.getElementById('risk-report-modal').addEventListener('click', function(e) {
+            if (e.target == this) {
+                closeModal();
+            }
+        }); 
+
+        // connects to risk report generation backend logic
+        async function fetchRiskReport(lat, lon) {
+            try {
+                // Connect with risk analysis endpt
+                const response = await fetch('/analyzeFireRisk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat, lon })
+                });
+                
+                const data = await response.json();
+ 
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+ 
+                renderReport(data);
+ 
+            } catch (err) {
+                showError('Failed to reach the server.');
+            }
+        }
+        
+        // display generated report details
+        function renderReport(data) {
+            // Confidence 
+            const score = document.getElementById('response-confidence');
+            const confidence = (data.confidence || 'low').toLowerCase();
+            score.textContent = `Confidence: ${confidence}`;
+            score.className = '';
+            score.classList.add(confidence);
+ 
+            // Text fields
+            document.getElementById('result-val').textContent =
+                data.home_value_impact || '—';
+            document.getElementById('result-insurability').textContent =
+                data.insurance_outlook || '—';
+            document.getElementById('result-affordability').textContent =
+                data.affordability_score || '—';
+ 
+            // Swtich from loading state to results state
+            document.getElementById('modal-loading').style.display = 'none';
+            document.getElementById('modal-results').style.display = 'block';
+        }
+ 
+        function showError(msg) {
+            document.getElementById('modal-loading').textContent = `Error: ${msg}`;
+        }
+
+    </script>
+</body>
+
+</html>
