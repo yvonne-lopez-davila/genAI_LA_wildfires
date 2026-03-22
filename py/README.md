@@ -1,18 +1,36 @@
-# LLMProxy Python SDK
+# LLMProxy Python Client
 
-Python client for the LLMProxy backend, with examples for text generation, media generation, retrieval, uploads, and model discovery.
+This directory contains the **Python client** for interacting with the LLMProxy backend, including examples for text generation, media generation, retrieval, uploads, and model discovery.
 
-## Install
+## Installation
 
-From `py/`:
+From `py/` directory:
 
 ```bash
 pip install .
 ```
 
-## Configure
+This installs the `llm proxy` package into your environment (recommend using venv). 
 
-Create a `.env` file in the directory where you run Python:
+
+## Install from Git (internal)
+
+Install directly from the repo using a tag:
+
+``` bash
+pip install "llmproxy @ git+https://github.com/<ORG>/<REPO>.git@py-v0.1.3#subdirectory=py"
+```
+
+For private/internal repos, use a token with read access:
+
+``` bash
+pip install "llmproxy @ git+https://<TOKEN>@github.com/<ORG>/<REPO>.git@py-v0.1.3#subdirectory=py"
+```
+
+
+## Initial Configuration with API Key
+
+Create a `.env` file in the directory where you run Python (ie: project folder):
 
 ```env
 LLMPROXY_API_KEY=your-api-key
@@ -21,7 +39,7 @@ LLMPROXY_ENDPOINT=https://a061igc186.execute-api.us-east-1.amazonaws.com/prod
 
 Important: this SDK loads `.env` from the current working directory (`Path.cwd()`), not from the package directory.
 
-## Quickstart
+## Quickstart for LLM proxy 
 
 ```python
 from llmproxy import LLMProxy
@@ -42,7 +60,8 @@ response = client.generate(
 print(response)
 ```
 
-## Core Methods
+## Core Methods 
+(TODO update for risk analysis client)
 
 ### `generate(...)`
 

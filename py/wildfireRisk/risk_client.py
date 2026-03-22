@@ -4,13 +4,13 @@
 """
 LA Wildfires: Homeowner Risk Analysis (Core logic)
 
-TODO description
+TODO more detailed description
 
 """
 
 import json
-import re
 
+import re
 
 from llmproxy import LLMProxy
 from dotenv import load_dotenv
