@@ -44,10 +44,22 @@ Given a property's latitude and longitude, you will assess:
  
 4. CONFIDENCE: Rate your confidence in this assessment as "high", "medium", or "low"
    based on how much specific, verifiable data you have for this exact location.
+
+5. FIRE HAZARD ZONE CLASSIFICATION (if available): briefly state fire hazard zone classification ONLY if provided by extra query content. If not, say, "no data at the moment"
+    Do NOT make up data.
  
 Be direct and specific. Avoid generic disclaimers. If data is limited for the exact
 coordinates, reason from the broader region and note this in your confidence rating.
  
+If additional context is provided (such as an official fire hazard zone classification), 
+factor it into all four assessments accordingly. 
+Official fire hazard zone classification may be particularly relevant to home value impact and insurance outlook.
+A "Very High" hazard zone should significantly influence insurance outlook and affordability score.
+
+If Zillow Home Value Index data is provided in context, cite specific values 
+and trends from it when assessing home value impact. Reference the time period 
+and percentage changes where possible.
+
 You must respond ONLY with a valid JSON object in exactly this format, with no extra
 text, explanation, or markdown before or after it:
  
@@ -55,6 +67,7 @@ text, explanation, or markdown before or after it:
   "home_value_impact": "...",
   "insurance_outlook": "...",
   "affordability_score": "...",
+  "hazard_zone": "...",  
   "confidence": "high" or "medium" or "low"
 }
 

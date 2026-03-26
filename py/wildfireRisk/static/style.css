@@ -189,3 +189,44 @@ main {
 #modal-results {
     display: none;
 }
+
+/* ── Search bar ── */
+#search-container {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 12px;
+}
+
+#address-input {
+    flex: 1;
+    padding: 10px 16px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#address-input:focus {
+    border-color: #1a1a2e;
+}
+
+#search-btn {
+    background: purple;
+    /* background: #1a1a2e; */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: background 0.2s;
+}
+
+#search-btn:hover {
+    background: #2d2d4e;
+}

@@ -13,6 +13,12 @@
 <body>
     <header>Wildfire Risk Report: California</header>
     <main>
+
+        <div id="search-container">
+            <input type="text" id="address-input" placeholder="Enter address" />
+            <button id="search-btn">Search</button>
+        </div>
+
         <div id="map-container">            
             <div id="select-dirs"> Click to select a location</div>
         </div>
@@ -46,6 +52,11 @@
                     <h3>Financial/Value Info</h3>
                     <p id="result-affordability"></p>
                 </div>
+
+                <div class="results">
+                    <h3>Official Hazard Zone</h3>
+                    <p id="result-hazard-zone"></p>
+                </div>
             </div>
         </div>
     </div>
@@ -66,9 +77,14 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
+
         map.on('click', function(e) {
             selectedLat = e.latlng.lat;
             selectedLon = e.latlng.lng;
+
+            // See lat/lon on map and nat lang address  
+            updateMarker(selectedLat, selectedLon);
+            reverseGeocode(selectedLat, selectedLon);
 
             if (marker) {
                 marker.setLatLng(e.latlng);
@@ -80,6 +96,52 @@
                 `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
         });
 
+        // Bind search button
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const address = document.getElementById('address-input').value;
+            geocodeAddressInput(address);
+        });
+
+        // Extracts and sets lat and lon coords from natural lang address query
+        // Valid Inputs (supports different levels of specificity):
+            // 1600 Amphitheatre Parkway, Mountain View, CA
+            // 123 Main St, Los Angeles, CA
+            // Pasadena, CA
+            // 90210
+        async function geocodeAddressInput(address) {
+            // handle no typed address (and selected lat/lon)
+            if (!address) {
+                if (selectedLat == null && selectedLon == null) {
+                    return alert('Please enter address')
+                } else {
+                    return;
+                }
+            }
+            const query = encodeURIComponent(address + ", California, USA");
+            try {
+                // Uses (opensource) OpenStreeMap/Nominatim API for geocoding 
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
+                const results = await response.json();
+                if (results.length === 0) {
+                    return alert('Address not found');
+                }
+
+                selectedLat = parseFloat(results[0].lat);
+                selectedLon = parseFloat(results[0].lon);
+
+                const latlng = [selectedLat, selectedLon];
+                if (marker) marker.setLatLng(latlng);
+                else marker = L.marker(latlng).addTo(map);
+
+                map.setView(latlng, 15);
+
+                document.getElementById('select-dirs').textContent =
+                    `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+
+            } catch (err) {
+                alert('Failed to geocode the address.');
+            }
+        }
 
         // Define interactive methods
         function openModal() {
@@ -136,6 +198,17 @@
             // Confidence 
             const score = document.getElementById('response-confidence');
             const confidence = (data.confidence || 'low').toLowerCase();
+            const zone = data.hazard_zone || 'Unknown';
+            
+            // color based on zone
+            const colors = {
+                'Very High': '#d73027',
+                'High': '#fc8d59', 
+                'Moderate': '#fee08b',
+                'Unknown': '#aaaaaa'
+            };
+            const color = colors[zone] || '#aaaaaa';
+
             score.textContent = `Confidence: ${confidence}`;
             score.className = '';
             score.classList.add(confidence);
@@ -147,14 +220,65 @@
                 data.insurance_outlook || '—';
             document.getElementById('result-affordability').textContent =
                 data.affordability_score || '—';
- 
+            document.getElementById('result-hazard-zone').textContent =
+                data.hazard_zone || 'Unknown';
+
             // Swtich from loading state to results state
             document.getElementById('modal-loading').style.display = 'none';
             document.getElementById('modal-results').style.display = 'block';
+        
+            if (window.hazardCircle) {
+                map.removeLayer(window.hazardCircle);
+            }
+            window.hazardCircle = L.circle([selectedLat, selectedLon], {
+                radius: 1000,
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.35,
+                weight: 2
+            }).addTo(map);
+
         }
  
         function showError(msg) {
             document.getElementById('modal-loading').textContent = `Error: ${msg}`;
+        }
+
+        ///////////////////////
+        // Map selection/view helper funcs
+        //////////////////////
+
+        // View lat/lon selection on map
+        function updateMarker(lat, lon) {
+            const latlng = [lat, lon];
+
+            if (marker) {
+                marker.setLatLng(latlng);
+            } else {
+                marker = L.marker(latlng).addTo(map);
+            }
+
+            map.setView(latlng, 15);
+
+            document.getElementById('select-dirs').textContent =
+                `Selected: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        }
+
+        // extract address from lat/lon selection
+        async function reverseGeocode(lat, lon) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data && data.display_name) {
+                    document.getElementById('address-input').value = data.display_name;
+                } else {
+                    document.getElementById('address-input').value = '';
+                }
+            } catch (err) {
+                console.error('Reverse geocode failed', err);
+                document.getElementById('address-input').value = '';
+            }
         }
 
     </script>
