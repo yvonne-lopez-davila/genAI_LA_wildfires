@@ -32,7 +32,13 @@
             <h2>Wildfire Risk Report</h2>
             <div id="modal-coords"></div>
 
-            <div id="modal-loading">Analyzing location...</div>
+            <div id="modal-loading">
+                <div>Analyzing location...</div>
+                <div style="margin-top: 10px; font-size: 12px; line-height: 1.4; color: #777;">
+                    Uses AI and LLM-generated outputs. Results may be inaccurate or incomplete and are not
+                    insurance, financial, or safety advice. Verify with official sources.
+                </div>
+            </div>
 
             <div id="modal-results">
 
@@ -192,7 +198,29 @@
                 showError('Failed to reach the server.');
             }
         }
-        
+
+       // highlight: percentages + a few hedge/trend phrases (LLM text only).
+        function highlightReportText(text) {
+            const s = String(text ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+
+            const re = /\b(likelihood|probability|chance|increasingly|decreasingly|significantly|sharply|substantially)\b|\d+(?:\.\d+)?(?:\s*(?:[–-]|to)\s*\d+(?:\.\d+)?)?\s*%/gi;
+
+            return s.replace(re, '<mark class="report-highlight">$&</mark>');
+        }
+
+        function setResultHtml(id, text) {
+            const el = document.getElementById(id);
+            if (text == null || text === '') {
+                el.textContent = '—';
+                return;
+            }
+            el.innerHTML = highlightReportText(text);
+        }
+
         // display generated report details
         function renderReport(data) {
             // Confidence 
@@ -213,15 +241,11 @@
             score.className = '';
             score.classList.add(confidence);
  
-            // Text fields
-            document.getElementById('result-val').textContent =
-                data.home_value_impact || '—';
-            document.getElementById('result-insurability').textContent =
-                data.insurance_outlook || '—';
-            document.getElementById('result-affordability').textContent =
-                data.affordability_score || '—';
-            document.getElementById('result-hazard-zone').textContent =
-                data.hazard_zone || 'Unknown';
+            // Text fields (highlight key terms in narrative sections)
+            setResultHtml('result-val', data.home_value_impact);
+            setResultHtml('result-insurability', data.insurance_outlook);
+            setResultHtml('result-affordability', data.affordability_score);
+            setResultHtml('result-hazard-zone', data.hazard_zone || 'Unknown');
 
             // Swtich from loading state to results state
             document.getElementById('modal-loading').style.display = 'none';

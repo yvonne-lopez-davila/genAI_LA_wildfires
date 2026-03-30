@@ -178,6 +178,14 @@ main {
     color: #333;
 }
 
+.results mark.report-highlight {
+    background: #fff3cd;
+    padding: 0 3px;
+    border-radius: 3px;
+    font-weight: 700;
+    color: inherit;
+}
+
 /* ── Loading state ── */
 #modal-loading {
     text-align: center;
