@@ -48,6 +48,7 @@
                     <h3>Home Value Impact</h3>
                     <p id="result-val"></p>
                     <canvas id="zhvi-chart" height="180" style="display:none; margin-top:12px;"></canvas>
+                    <canvas id="fire-history-chart" height="120" style="display:none; margin-top:12px;"></canvas>
                 </div>
 
                 <div class="results">
@@ -259,6 +260,71 @@
             });
         }
 
+
+        var fireHistoryChartInstance = null;
+
+        function renderFireHistoryChart(fireHistory) {
+            const canvas = document.getElementById('fire-history-chart');
+            if (!fireHistory || !fireHistory.found || !fireHistory.fires.length) {
+                canvas.style.display = 'none';
+                return;
+            }
+
+            // Aggregate fires by year — pick the closest fire per year
+            const byYear = {};
+            fireHistory.fires
+                .filter(f => f.distance_miles !== null)
+                .forEach(f => {
+                    if (!byYear[f.year] || f.distance_miles < byYear[f.year].distance_miles) {
+                        byYear[f.year] = f;
+                    }
+                });
+
+            const labels = Object.keys(byYear).sort();
+            const distances = labels.map(y => byYear[y].distance_miles);
+            const names = labels.map(y => byYear[y].fire_name);
+
+            canvas.style.display = 'block';
+
+            if (fireHistoryChartInstance) fireHistoryChartInstance.destroy();
+
+            fireHistoryChartInstance = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Closest fire distance (miles)',
+                        data: distances,
+                        backgroundColor: distances.map(d =>
+                            d < 5  ? 'rgba(215, 48, 39, 0.8)'  :  // very close - red
+                            d < 15 ? 'rgba(252, 141, 89, 0.8)' :  // close - orange
+                                    'rgba(254, 224, 139, 0.8)'   // far - yellow
+                        ),
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: ctx => `${ctx[0].label} — ${names[ctx[0].dataIndex]} Fire`,
+                                label: ctx => `${ctx.parsed.y} miles away`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            reverse: true,  // closer = higher bar
+                            title: { display: true, text: 'Miles from location' },
+                            ticks: { callback: val => `${val}mi` }
+                        }
+                    }
+                }
+            });
+        }
+
        // highlight: percentages + a few hedge/trend phrases (LLM text only).
         function highlightReportText(text) {
             const s = String(text ?? '')
@@ -286,6 +352,7 @@
             console.log("zhvi:", data.zhvi);
 
             renderHomeValChart(data.zhvi);
+            renderFireHistoryChart(data.fire_history);
 
             // Confidence 
             const score = document.getElementById('response-confidence');

@@ -24,6 +24,9 @@ from fire_hazard_service import query_fire_hazard_zone
 ## Home value data
 from zhvi_service import get_home_value_timeseries
 
+## Proximity to fire events via zipcode
+from fire_history_service import get_nearby_fires
+
 app = FastAPI()
 
 
@@ -60,7 +63,10 @@ def analyze(body: AnalysisRequest):
 
     # Query zillow home value for zipcode associated with location
     zhvi = get_home_value_timeseries(body.zipcode) if body.zipcode else {"found": False}
-
+    
+    # Query CalFire perimeters API 
+    fire_history = get_nearby_fires(body.lat, body.lon)
+    
     result = client.analyze(body.lat, body.lon, extra_context=extra_context)
 
     if "error" in result:
@@ -79,6 +85,7 @@ def analyze(body: AnalysisRequest):
             "hazard_attributes": hazard.get("attributes", {}),
             "source_layer": hazard.get("source_layer"),
             "zhvi": zhvi,
+            "fire_history": fire_history,
         }
     else:
         response = {
@@ -88,6 +95,7 @@ def analyze(body: AnalysisRequest):
             "hazard_attributes": hazard.get("attributes", {}),
             "source_layer": hazard.get("source_layer"),
             "zhvi": zhvi,
+            "fire_history": fire_history,
         }
 
     return response
