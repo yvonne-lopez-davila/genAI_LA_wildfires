@@ -16,10 +16,13 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from pydantic import BaseModel
+from typing import Optional
 
 from risk_client import HomeRiskClient 
 from fire_hazard_service import query_fire_hazard_zone
 
+## Home value data
+from zhvi_service import get_home_value_timeseries
 
 app = FastAPI()
 
@@ -35,6 +38,7 @@ client = HomeRiskClient(session_id="LA_risk_analysis")
 class AnalysisRequest(BaseModel):
     lat: float
     lon: float
+    zipcode: Optional[str] = None
 
 
 ## ENDPOINTS
@@ -54,6 +58,9 @@ def analyze(body: AnalysisRequest):
             f"Official hazard lookup for these coordinates indicates zone: {hazard_zone}."
         )
 
+    # Query zillow home value for zipcode associated with location
+    zhvi = get_home_value_timeseries(body.zipcode) if body.zipcode else {"found": False}
+
     result = client.analyze(body.lat, body.lon, extra_context=extra_context)
 
     if "error" in result:
@@ -71,6 +78,7 @@ def analyze(body: AnalysisRequest):
             "hazard_lookup_error": hazard_error,
             "hazard_attributes": hazard.get("attributes", {}),
             "source_layer": hazard.get("source_layer"),
+            "zhvi": zhvi,
         }
     else:
         response = {
@@ -79,6 +87,7 @@ def analyze(body: AnalysisRequest):
             "hazard_lookup_error": hazard_error,
             "hazard_attributes": hazard.get("attributes", {}),
             "source_layer": hazard.get("source_layer"),
+            "zhvi": zhvi,
         }
 
     return response

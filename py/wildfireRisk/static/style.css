@@ -106,7 +106,7 @@ main {
     background: white;
     border-radius: 14px;
     padding: 32px;
-    width: 540px;
+    width: 90vw;
     max-width: 90vw;
     max-height: 80vh;
     overflow-y: auto;
@@ -194,8 +194,18 @@ main {
     font-size: 15px;
 }
 
+#response-confidence {
+    grid-column: 1 / -1;
+}
+
+.results.full-width {
+    grid-column: 1 / -1;
+}
+
 #modal-results {
-    display: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
 }
 
 /* ── Search bar ── */

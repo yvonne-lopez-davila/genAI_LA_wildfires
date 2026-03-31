@@ -47,6 +47,7 @@
                 <div class="results">
                     <h3>Home Value Impact</h3>
                     <p id="result-val"></p>
+                    <canvas id="zhvi-chart" height="180" style="display:none; margin-top:12px;"></canvas>
                 </div>
 
                 <div class="results">
@@ -54,12 +55,12 @@
                     <p id="result-insurability"></p>
                 </div>
                 
-                <div class="results">
+                <div class="results full-width">
                     <h3>Financial/Value Info</h3>
                     <p id="result-affordability"></p>
                 </div>
 
-                <div class="results">
+                <div class="results full-width">
                     <h3>Official Hazard Zone</h3>
                     <p id="result-hazard-zone"></p>
                 </div>
@@ -76,6 +77,7 @@
         // Default/start coords (change upon user selection)
         var selectedLat = null;
         var selectedLon = null;
+        var selectedZip = null;
         
         // Initialize map UI with interactive coord selection    
         var map = L.map('map-container').setView([34.0522, -118.2437], 9);
@@ -143,7 +145,8 @@
 
                 document.getElementById('select-dirs').textContent =
                     `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
-
+                
+                reverseGeocode(selectedLat, selectedLon);
             } catch (err) {
                 alert('Failed to geocode the address.');
             }
@@ -177,12 +180,14 @@
 
         // connects to risk report generation backend logic
         async function fetchRiskReport(lat, lon) {
+            console.log("zip:", selectedZip);
+
             try {
                 // Connect with risk analysis endpt
                 const response = await fetch('/analyzeFireRisk', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ lat, lon })
+                    body: JSON.stringify({ lat, lon, zipcode: selectedZip})
                 });
                 
                 const data = await response.json();
@@ -197,6 +202,61 @@
             } catch (err) {
                 showError('Failed to reach the server.');
             }
+        }
+
+        var zhviChartInstance = null;
+
+        // Render home value chart
+        function renderHomeValChart(zhvi) {
+            const canvas = document.getElementById('zhvi-chart');
+            if (!zhvi || !zhvi.found || !zhvi.timeseries) {
+                canvas.style.display = 'none';
+                return;
+            }
+
+            const labels = Object.keys(zhvi.timeseries);
+            const values = Object.values(zhvi.timeseries);
+
+            canvas.style.display = 'block';
+
+            if (zhviChartInstance) {
+                zhviChartInstance.destroy();
+            }
+
+            zhviChartInstance = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Home Values — ${zhvi.zipcode} (${zhvi.city})`,
+                        data: values,
+                        borderColor: '#e63946',
+                        backgroundColor: 'rgba(230, 57, 70, 0.08)',
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => `$${ctx.parsed.y.toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: val => `$${(val/1000).toFixed(0)}k`
+                            }
+                        }
+                    }
+                }
+            });
         }
 
        // highlight: percentages + a few hedge/trend phrases (LLM text only).
@@ -223,6 +283,10 @@
 
         // display generated report details
         function renderReport(data) {
+            console.log("zhvi:", data.zhvi);
+
+            renderHomeValChart(data.zhvi);
+
             // Confidence 
             const score = document.getElementById('response-confidence');
             const confidence = (data.confidence || 'low').toLowerCase();
@@ -249,7 +313,7 @@
 
             // Swtich from loading state to results state
             document.getElementById('modal-loading').style.display = 'none';
-            document.getElementById('modal-results').style.display = 'block';
+            document.getElementById('modal-results').style.display = 'grid';
         
             if (window.hazardCircle) {
                 map.removeLayer(window.hazardCircle);
@@ -288,6 +352,7 @@
                 `Selected: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
         }
 
+
         // extract address from lat/lon selection
         async function reverseGeocode(lat, lon) {
             try {
@@ -299,6 +364,8 @@
                 } else {
                     document.getElementById('address-input').value = '';
                 }
+                // extract zip from address object
+                selectedZip = data.address?.postcode || null;
             } catch (err) {
                 console.error('Reverse geocode failed', err);
                 document.getElementById('address-input').value = '';
@@ -306,6 +373,7 @@
         }
 
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </body>
 
 </html>
