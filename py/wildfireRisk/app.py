@@ -27,6 +27,9 @@ from zhvi_service import get_home_value_timeseries
 ## Proximity to fire events via zipcode
 from fire_history_service import get_nearby_fires
 
+## Analyze historical trends (statistical analysis) 
+from trend_analysis import analyze_trends
+
 app = FastAPI()
 
 
@@ -54,12 +57,6 @@ def analyze(body: AnalysisRequest):
     hazard = query_fire_hazard_zone(body.lat, body.lon)
     hazard_zone = hazard.get("hazard_zone", "Unknown")
     hazard_error = hazard.get("error")
-    extra_context = None
-    if hazard_zone and not hazard_error and hazard_zone != "Unknown":
-        # this gets passed into LLM call so it has extra content from official fire hazard source
-        extra_context = (
-            f"Official hazard lookup for these coordinates indicates zone: {hazard_zone}."
-        )
 
     # Query zillow home value for zipcode associated with location
     zhvi = get_home_value_timeseries(body.zipcode) if body.zipcode else {"found": False}
@@ -67,6 +64,44 @@ def analyze(body: AnalysisRequest):
     # Query CalFire perimeters API 
     fire_history = get_nearby_fires(body.lat, body.lon)
     
+    # Analyze trends from services' data
+    trends = analyze_trends(fire_history, zhvi, hazard_zone=hazard_zone)
+
+
+    context_parts = []
+
+    if hazard_zone and not hazard_error and hazard_zone != "Unknown":
+        context_parts.append(f"Official fire hazard zone: {hazard_zone}.")
+
+    if fire_history.get("found") and fire_history.get("fires"):
+        total = fire_history.get("total", 0)
+        context_parts.append(f"{total} fires recorded within 30 miles historically.")
+        
+        # Add closest recent fire
+        recent = [f for f in fire_history["fires"] if f["year"] >= 2015]
+        if recent:
+            closest = min(recent, key=lambda f: f.get("distance_miles") or 999)
+            context_parts.append(
+                f"Most notable recent fire: {closest['fire_name']} ({closest['year']}, "
+                f"{closest['acres']} acres, {closest['distance_miles']} miles away)."
+            )
+
+    if trends.get("composite"):
+        composite = trends["composite"]
+        context_parts.append(f"Risk trend assessment: {composite['composite_label']}.")
+        for signal in composite.get("signals", []):
+            context_parts.append(signal)
+
+    if zhvi.get("found"):
+        traj = trends.get("price_trajectory", {})
+        if traj.get("current_value"):
+            context_parts.append(
+                f"Current median home value: ${traj['current_value']:,}. "
+                f"5-year change: {traj.get('pct_change_5yr', 'N/A')}% ({traj.get('trend_label', '')})."
+            )
+
+    extra_context = "\n".join(context_parts) if context_parts else None
+
     result = client.analyze(body.lat, body.lon, extra_context=extra_context)
 
     if "error" in result:
@@ -86,6 +121,7 @@ def analyze(body: AnalysisRequest):
             "source_layer": hazard.get("source_layer"),
             "zhvi": zhvi,
             "fire_history": fire_history,
+            "trends": trends,
         }
     else:
         response = {
@@ -96,6 +132,7 @@ def analyze(body: AnalysisRequest):
             "source_layer": hazard.get("source_layer"),
             "zhvi": zhvi,
             "fire_history": fire_history,
+            "trends": trends,
         }
 
     return response

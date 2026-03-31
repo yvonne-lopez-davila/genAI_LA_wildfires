@@ -15,7 +15,8 @@
     <main>
 
         <div id="search-container">
-            <input type="text" id="address-input" placeholder="Enter address" />
+            <input type="text" id="address-input" placeholder="Ex: 1440 N Topanga Canyon Blvd, Topanga, CA 90290
+" />
             <button id="search-btn">Search</button>
         </div>
 
@@ -43,19 +44,44 @@
             <div id="modal-results">
 
                 <div id="response-confidence"></div>
-                
-                <div class="results">
-                    <h3>Home Value Impact</h3>
-                    <p id="result-val"></p>
-                    <canvas id="zhvi-chart" height="180" style="display:none; margin-top:12px;"></canvas>
-                    <canvas id="fire-history-chart" height="120" style="display:none; margin-top:12px;"></canvas>
+
+                <!-- Top row: gauge left, charts right -->
+                <div id="top-row" style="display: grid; grid-template-columns: 45% 55%; gap: 24px; margin-top: -24px;"></div>
+                    <div id="risk-gauge-section">
+                        <h3>Risk Trend Summary</h3>
+                        <svg id="risk-gauge-svg" viewBox="0 0 200 120" width="200" height="120">
+                            <!-- Background arcs -->
+                            <path d="M 20 100 A 80 80 0 0 1 60 27" fill="none" stroke="#d4edda" stroke-width="18" stroke-linecap="round"/>
+                            <path d="M 60 27 A 80 80 0 0 1 140 27" fill="none" stroke="#fff3cd" stroke-width="18" stroke-linecap="round"/>
+                            <path d="M 140 27 A 80 80 0 0 1 178 100" fill="none" stroke="#f8d7da" stroke-width="18" stroke-linecap="round"/>
+                            <!-- Needle -->
+                            <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="100" cy="100" r="5" fill="#1a1a2e"/>
+                            <!-- Labels -->
+                            <text x="14" y="118" font-size="9" fill="#666">Low</text>
+                            <text x="88" y="18" font-size="9" fill="#666" text-anchor="middle">Moderate</text>
+                            <text x="172" y="118" font-size="9" fill="#666" text-anchor="end">High</text>
+                        </svg>
+                        <div id="composite-label"></div>
+                        <ul id="risk-signals"></ul>
+                        <p id="result-val" style="font-size:13px; line-height:1.6; color:#333; margin-top:12px;"></p>
+                    </div>
+
+                    <div id="charts-section">
+                        <div class="results">
+                            <h3>Home Value Impact</h3>
+                            <canvas id="zhvi-chart" height="180" style="display:none; margin-top:12px;"></canvas>
+                            <canvas id="fire-history-chart" height="120" style="display:none; margin-top:12px;"></canvas>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="results">
+                <!-- Full width sections -->
+                <div class="results full-width">
                     <h3>Insurability Info</h3>
                     <p id="result-insurability"></p>
                 </div>
-                
+
                 <div class="results full-width">
                     <h3>Financial/Value Info</h3>
                     <p id="result-affordability"></p>
@@ -65,6 +91,7 @@
                     <h3>Official Hazard Zone</h3>
                     <p id="result-hazard-zone"></p>
                 </div>
+
             </div>
         </div>
     </div>
@@ -325,17 +352,23 @@
             });
         }
 
-       // highlight: percentages + a few hedge/trend phrases (LLM text only).
         function highlightReportText(text) {
+            // First escape everything
             const s = String(text ?? '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;');
 
+            // Restore <strong> tags the LLM inserted (they got escaped above)
+            const withStrong = s
+                .replace(/&lt;strong&gt;/g, '<strong>')
+                .replace(/&lt;\/strong&gt;/g, '</strong>');
+
+            // Apply your existing highlight regex
             const re = /\b(likelihood|probability|chance|increasingly|decreasingly|significantly|sharply|substantially)\b|\d+(?:\.\d+)?(?:\s*(?:[–-]|to)\s*\d+(?:\.\d+)?)?\s*%/gi;
 
-            return s.replace(re, '<mark class="report-highlight">$&</mark>');
+            return withStrong.replace(re, '<mark class="report-highlight">$&</mark>');
         }
 
         function setResultHtml(id, text) {
@@ -347,12 +380,46 @@
             el.innerHTML = highlightReportText(text);
         }
 
+        function renderGauge(trends) {
+            if (!trends || !trends.composite) return;
+
+            const composite = trends.composite;
+            const label = composite.composite_label || "insufficient data";
+            const signals = composite.signals || [];
+
+            // Map label to needle angle (-90 = far left, 90 = far right)
+            const angles = {
+                "lower risk based on available data": -80,
+                "moderate risk": -20,
+                "moderate to high risk": 30,
+                "high and increasing risk": 80,
+            };
+            const angle = angles[label] ?? 0;
+
+            // Rotate needle
+            const needle = document.getElementById('gauge-needle');
+            needle.setAttribute('transform', `rotate(${angle}, 100, 100)`);
+
+            // Set label
+            document.getElementById('composite-label').textContent = label;
+
+            // Populate signals
+            const ul = document.getElementById('risk-signals');
+            ul.innerHTML = '';
+            signals.forEach(s => {
+                const li = document.createElement('li');
+                li.textContent = s;
+                ul.appendChild(li);
+            });
+        }
+
         // display generated report details
         function renderReport(data) {
             console.log("zhvi:", data.zhvi);
 
             renderHomeValChart(data.zhvi);
             renderFireHistoryChart(data.fire_history);
+            renderGauge(data.trends);
 
             // Confidence 
             const score = document.getElementById('response-confidence');

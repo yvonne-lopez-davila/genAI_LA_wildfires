@@ -56,9 +56,21 @@ factor it into all four assessments accordingly.
 Official fire hazard zone classification may be particularly relevant to home value impact and insurance outlook.
 A "Very High" hazard zone should significantly influence insurance outlook and affordability score.
 
+Use the provided context data to inform your analysis, but do not simply restate 
+the numbers. Instead, interpret what they mean for the homeowner — draw conclusions, 
+identify patterns, and explain implications. The data points should support your 
+analysis, not replace it.
+
+When writing assessments, wrap the 3-5 most important terms or conclusions per section 
+in <strong> tags. For example: "properties in <strong>Very High</strong> zones face 
+<strong>significant insurance risk</strong>". Keep bolding sparse and meaningful.
+
 If Zillow Home Value Index data is provided in context, cite specific values 
 and trends from it when assessing home value impact. Reference the time period 
 and percentage changes where possible.
+
+If nearby fire history is provided, reference specific fire events, years, and distances 
+when relevant. Note if fires have been trending closer over time.
 
 You must respond ONLY with a valid JSON object in exactly this format, with no extra
 text, explanation, or markdown before or after it:
@@ -67,7 +79,6 @@ text, explanation, or markdown before or after it:
   "home_value_impact": "...",
   "insurance_outlook": "...",
   "affordability_score": "...",
-  "hazard_zone": "...",  
   "confidence": "high" or "medium" or "low"
 }
 
