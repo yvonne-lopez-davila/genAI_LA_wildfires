@@ -11,8 +11,27 @@
 </head>
 
 <body>
-    <header>Wildfire Risk Report: California</header>
-    <main>
+    <!-- <header>Wildfire Risk Report: California</header> -->
+    
+    <section id="hero">
+        <div id="hero-content">
+            <p id="hero-welcome">Welcome to AI-assisted</p>
+            <h1 id="hero-title">California Homeowner<br>Wildfire Risk Analysis Tool</h1>
+            <p id="hero-desc">Select any location in California to generate an AI-powered assessment of property considering wildfire risk, home value trends, insurance outlook, and affordability.</p>
+        </div>
+        <a id="hero-arrow" href="#main-content">
+            <svg viewBox="0 0 40 40" width="40" height="40">
+                <polyline points="8,15 20,27 32,15" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </section>
+
+    <div id="map-intro">
+        <h2>Analyze a property</h2>
+        <span>Search by address or click anywhere on the map to select a location, then generate your risk report.</span>
+    </div>
+    
+    <main id="main-content">
 
         <div id="search-container">
             <input type="text" id="address-input" placeholder="Ex: 1440 N Topanga Canyon Blvd, Topanga, CA 90290
@@ -99,6 +118,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     
     <script>
+        document.getElementById('hero-arrow').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
+        });
+
         var marker = null;
 
         // TODO maybe set a more meaninful  default value 
