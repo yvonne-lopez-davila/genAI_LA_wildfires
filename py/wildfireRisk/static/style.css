@@ -97,19 +97,20 @@ body {
 #map-intro {
     /* background: #1a1a2e; */
     background: #e2c483;
-    color: #845b01;
-    padding-top: 30px;
-    padding-bottom: 40px;
+    color: #3c331f;
+    padding-top: 50px;
+    padding-bottom: 30px;
     padding-left: 8%;
     padding-right: 8%;
-    text-align: left;
+    text-align: center;
 }
 
 #map-intro h2 {
-    font-size: 24px;
+    font-size: 30px;
     font-weight:600;
     margin-bottom: 10px;
     letter-spacing: 0.03em;
+    color:rgb(255, 246, 223);
 }
 
 #map-intro span {
