@@ -414,3 +414,50 @@ main {
 #charts-section {
     min-width: 0;
 }
+
+
+
+/* Search autocomplete dropdown CSS */
+#search-input-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+#search-input-wrapper #address-input {
+    width: 100%;
+}
+
+#autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    z-index: 10000;
+    max-height: 240px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: none;
+}
+
+#autocomplete-list li {
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#autocomplete-list li:hover {
+    background: #f4f4f4;
+}
+
+#autocomplete-list li:last-child {
+    border-bottom: none;
+}
