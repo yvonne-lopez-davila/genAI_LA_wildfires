@@ -1,0 +1,6 @@
+# These dependencies are only needed for the one-off data preparation script
+# `parse_fair_plan_pdf.py`, not for normal app runtime. Install these from
+# `requirements-data.txt` if you need to regenerate the FAIR Plan dataset CSV from
+# the source PDF.
+pypdf
+cryptography
