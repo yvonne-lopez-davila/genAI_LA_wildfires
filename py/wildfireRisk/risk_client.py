@@ -163,6 +163,55 @@ text, explanation, or markdown before or after it:
             "report": report_data,
             "raw_response": response
         }
+    
+    def explain_gauge(self, composite_label: str, signals: list, risk_factor_count: int) -> str:
+        signal_texts = [s["text"] if isinstance(s, dict) else s for s in signals]
+        
+        query = f"""
+    Risk score: {composite_label}
+    Risk factors triggered: {risk_factor_count} of 4
+    Signals:
+    {chr(10).join(f'- {s}' for s in signal_texts)}
+
+    Write short explanations that ADD new meaning beyond the signals.
+
+    Output format:
+    - One bullet per signal
+    - Each bullet MUST be on its own line
+    - Insert a newline character between each bullet (\\n)
+    - Do not place multiple bullets on the same line
+
+    Instructions:
+    - Do NOT restate or paraphrase the signal
+    - Explain what the signal implies (trend strength, severity, or significance)
+    - Focus on magnitude, comparison, or why it matters relative to other signals
+    - Use specific numbers when helpful, but don’t repeat full phrases from the signal
+
+    Hard rules:
+    - No advice or recommendations
+    - No filler phrases (e.g., "this means", "indicating that")
+    - No combining multiple signals into one bullet
+    - Keep each bullet to one sentence
+    - One sentence per bullet
+
+    Goal:
+    Each bullet should tell the user something they would NOT already know just by reading the signal text.
+
+    Return ONLY the bullets.
+
+    """
+        response = self.client.generate(
+            model=self.model,
+            system="You are a wildfire risk analyst explaining a risk score to a homeowner in plain, direct language.",
+            query=query,
+            temperature=0.3,
+            session_id=self.session_id,
+            rag_usage=False,
+            lastk=0,
+        )
+        return response.get("result", "").strip()
+
+
 
 # TODO delete below, just testing initial setup
 # ---------------------------------------------------------------------------

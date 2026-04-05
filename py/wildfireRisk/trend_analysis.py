@@ -219,59 +219,62 @@ def compute_composite_signal(
     price_trajectory: Dict[str, Any],
     hazard_zone: str,
 ) -> Dict[str, Any]:
-    """
-    Combine all trend signals into a composite risk/opportunity assessment.
-    This is the key output that gets passed to the LLM as grounded context.
-    """
+
     signals = []
 
-    # Fire proximity signal
+    def signal(text, direction):
+        # direction: "negative" | "positive" | "neutral"
+        return {"text": text, "direction": direction}
+
     prox_trend = fire_proximity.get("trend_label", "insufficient data")
     if prox_trend == "increasing":
-        signals.append("fires are trending closer over time")
+        signals.append(signal("fires are trending closer over time", "negative"))
     elif prox_trend == "decreasing":
-        signals.append("fires have been trending further away over time")
+        signals.append(signal("fires have been trending further away over time", "positive"))
 
     closest = fire_proximity.get("closest_fire")
     if closest:
-        signals.append(
+        dist = closest['distance_miles']
+        direction = "negative" if dist < 5 else "neutral" if dist < 15 else "positive"
+        signals.append(signal(
             f"closest recorded fire was {closest['fire_name']} "
-            f"({closest['year']}, {closest['distance_miles']} miles away)"
-        )
+            f"({closest['year']}, {closest['distance_miles']} miles away)",
+            direction
+        ))
 
     recent_avg = fire_proximity.get("recent_avg_distance_miles")
     hist_avg = fire_proximity.get("historical_avg_distance_miles")
     if recent_avg and hist_avg and recent_avg < hist_avg * 0.8:
-        signals.append(
+        signals.append(signal(
             f"recent fires (last 5 years) have averaged {recent_avg} miles away, "
-            f"closer than the historical average of {hist_avg} miles"
-        )
+            f"closer than the historical average of {hist_avg} miles",
+            "negative"
+        ))
 
-    # Frequency signal
     freq_trend = fire_frequency.get("trend_label", "insufficient data")
     total = fire_frequency.get("total_fires", 0)
     if freq_trend == "accelerating":
-        signals.append(f"fire frequency is accelerating ({total} fires on record nearby)")
+        signals.append(signal(f"fire frequency is accelerating ({total} fires on record nearby)", "negative"))
     elif freq_trend == "declining":
-        signals.append(f"fire frequency has been declining recently ({total} fires on record)")
+        signals.append(signal(f"fire frequency has been declining recently ({total} fires on record)", "positive"))
     else:
-        signals.append(f"{total} fires on record within search radius")
+        signals.append(signal(f"{total} fires on record within search radius", "neutral"))
 
-    # Price signal
     price_trend = price_trajectory.get("trend_label", "insufficient data")
     pct_5yr = price_trajectory.get("pct_change_5yr")
     current = price_trajectory.get("current_value")
     if current and pct_5yr is not None:
-        signals.append(
+        direction = "neutral" if pct_5yr > 0 else "negative"
+        signals.append(signal(
             f"current median home value ~${current:,}, "
-            f"{'+' if pct_5yr > 0 else ''}{pct_5yr}% over last 5 years ({price_trend})"
-        )
+            f"{'+' if pct_5yr > 0 else ''}{pct_5yr}% over last 5 years ({price_trend})",
+            direction
+        ))
 
-    # Hazard zone
     if hazard_zone and hazard_zone != "Unknown":
-        signals.append(f"official state hazard classification: {hazard_zone}")
+        direction = "negative" if hazard_zone in ("Very High", "High") else "neutral"
+        signals.append(signal(f"official state hazard classification: {hazard_zone}", direction))
 
-    # Overall composite label
     risk_factors = sum([
         prox_trend == "increasing",
         freq_trend == "accelerating",
@@ -293,7 +296,6 @@ def compute_composite_signal(
         "signals": signals,
         "risk_factor_count": risk_factors,
     }
-
 
 # ---------------------------------------------------------------------------
 # Main entry point

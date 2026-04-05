@@ -67,7 +67,6 @@ def analyze(body: AnalysisRequest):
     # Analyze trends from services' data
     trends = analyze_trends(fire_history, zhvi, hazard_zone=hazard_zone)
 
-
     context_parts = []
 
     if hazard_zone and not hazard_error and hazard_zone != "Unknown":
@@ -90,7 +89,8 @@ def analyze(body: AnalysisRequest):
         composite = trends["composite"]
         context_parts.append(f"Risk trend assessment: {composite['composite_label']}.")
         for signal in composite.get("signals", []):
-            context_parts.append(signal)
+            text = signal["text"] if isinstance(signal, dict) else signal
+            context_parts.append(text)
 
     if zhvi.get("found"):
         traj = trends.get("price_trajectory", {})
@@ -99,6 +99,12 @@ def analyze(body: AnalysisRequest):
                 f"Current median home value: ${traj['current_value']:,}. "
                 f"5-year change: {traj.get('pct_change_5yr', 'N/A')}% ({traj.get('trend_label', '')})."
             )
+
+    gauge_explanation = client.explain_gauge(
+        composite_label=trends["composite"]["composite_label"],
+        signals=trends["composite"]["signals"],
+        risk_factor_count=trends["composite"]["risk_factor_count"],
+    )
 
     extra_context = "\n".join(context_parts) if context_parts else None
 
@@ -122,6 +128,7 @@ def analyze(body: AnalysisRequest):
             "zhvi": zhvi,
             "fire_history": fire_history,
             "trends": trends,
+            "gauge_explanation": gauge_explanation,
         }
     else:
         response = {
@@ -133,6 +140,7 @@ def analyze(body: AnalysisRequest):
             "zhvi": zhvi,
             "fire_history": fire_history,
             "trends": trends,
+            "gauge_explanation": gauge_explanation,
         }
 
     return response
