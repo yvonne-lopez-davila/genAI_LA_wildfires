@@ -484,6 +484,32 @@
             }
             el.innerHTML = highlightReportText(text);
         }
+        // build FAIR Plan summary text based on structured data from the 
+        // FAIR Plan dataset
+        function buildFairPlanSummary(fairPlan) {
+            if (!fairPlan || !fairPlan.zipcode) return '';
+
+            if (fairPlan.error) {
+                return `FAIR Plan ZIP data unavailable for ${fairPlan.zipcode}.`;
+            }
+
+            if (!fairPlan.found) {
+                return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} does not appear in the current residential exposure report.`;
+            }
+
+            if (!fairPlan.covered_by_fair_plan) {
+                return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} appears historically in the report, but no FY${fairPlan.latest_fiscal_year || 'latest'} exposure is reported.`;
+            }
+
+            const latestYear = fairPlan.latest_fiscal_year || 'latest';
+            const latestExposure = typeof fairPlan.latest_total_exposure === 'number'
+                ? `$${fairPlan.latest_total_exposure.toLocaleString()}`
+                : 'unavailable';
+            const change = fairPlan.five_year_pct_change;
+            const changeText = typeof change === 'number' ? `${change}%` : 'N/A';
+
+            return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} shows reported residential exposure. FY${latestYear} total insured value: ${latestExposure}. Five-year change: ${changeText}.`;
+        }
 
         function renderGauge(trends) {
             if (!trends || !trends.composite) return;
@@ -546,7 +572,13 @@
  
             // Text fields (highlight key terms in narrative sections)
             setResultHtml('result-val', data.home_value_impact);
-            setResultHtml('result-insurability', data.insurance_outlook);
+            // add FAIR Plan context to insurance outlook narrative 
+            // based on the ZIP code of the selected location
+            const fairPlanSummary = buildFairPlanSummary(data.fair_plan);
+            const insuranceText = fairPlanSummary
+                ? `${fairPlanSummary} ${data.insurance_outlook || ''}`.trim()
+                : data.insurance_outlook;
+            setResultHtml('result-insurability', insuranceText);
             setResultHtml('result-affordability', data.affordability_score);
             setResultHtml('result-hazard-zone', data.hazard_zone || 'Unknown');
 

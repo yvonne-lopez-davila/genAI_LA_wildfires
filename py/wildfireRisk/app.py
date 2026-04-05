@@ -27,6 +27,9 @@ from zhvi_service import get_home_value_timeseries
 ## Proximity to fire events via zipcode
 from fire_history_service import get_nearby_fires
 
+## FAIR Plan ZIP-level residential exposure
+from fair_plan_service import get_fair_plan_status
+
 ## Analyze historical trends (statistical analysis) 
 from trend_analysis import analyze_trends
 
@@ -60,6 +63,9 @@ def analyze(body: AnalysisRequest):
 
     # Query zillow home value for zipcode associated with location
     zhvi = get_home_value_timeseries(body.zipcode) if body.zipcode else {"found": False}
+
+    # Query FAIR Plan residential exposure by zipcode
+    fair_plan = get_fair_plan_status(body.zipcode) if body.zipcode else {"found": False}
     
     # Query CalFire perimeters API 
     fire_history = get_nearby_fires(body.lat, body.lon)
@@ -100,6 +106,30 @@ def analyze(body: AnalysisRequest):
                 f"5-year change: {traj.get('pct_change_5yr', 'N/A')}% ({traj.get('trend_label', '')})."
             )
 
+    if body.zipcode:
+    # add FAIR Plan context if ZIP code to the LLM
+        if fair_plan.get("found") and fair_plan.get("covered_by_fair_plan"):
+            latest_exposure = fair_plan.get("latest_total_exposure")
+            latest_exposure_text = (
+                f"${latest_exposure:,}" if isinstance(latest_exposure, int) else "unavailable"
+            )
+            context_parts.append(
+                f"FAIR Plan residential exposure is reported in ZIP {body.zipcode}. "
+                f"FY2025 total insured value in the ZIP: {latest_exposure_text}. "
+                f"Five-year exposure change from FY2021 to FY2025: "
+                f"{fair_plan.get('five_year_pct_change', 'N/A')}%."
+            )
+        elif fair_plan.get("found"):
+            context_parts.append(
+                f"ZIP {body.zipcode} appears in the FAIR Plan residential report historically, "
+                f"but no FY2025 exposure is reported for that ZIP."
+            )
+        elif not fair_plan.get("error"):
+            context_parts.append(
+                f"ZIP {body.zipcode} does not appear in the current FAIR Plan "
+                f"residential exposure report."
+            )
+   
     extra_context = "\n".join(context_parts) if context_parts else None
 
     result = client.analyze(body.lat, body.lon, extra_context=extra_context)
@@ -120,6 +150,7 @@ def analyze(body: AnalysisRequest):
             "hazard_attributes": hazard.get("attributes", {}),
             "source_layer": hazard.get("source_layer"),
             "zhvi": zhvi,
+            "fair_plan": fair_plan,
             "fire_history": fire_history,
             "trends": trends,
         }
@@ -131,6 +162,7 @@ def analyze(body: AnalysisRequest):
             "hazard_attributes": hazard.get("attributes", {}),
             "source_layer": hazard.get("source_layer"),
             "zhvi": zhvi,
+            "fair_plan": fair_plan,
             "fire_history": fire_history,
             "trends": trends,
         }
@@ -139,4 +171,3 @@ def analyze(body: AnalysisRequest):
 
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
