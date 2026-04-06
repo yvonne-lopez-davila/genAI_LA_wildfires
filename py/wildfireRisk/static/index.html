@@ -109,7 +109,7 @@
                 </div>
 
                 <!-- Charts row: charts left, observations right -->
-                <div id="charts-row" class="results full-width" style="display:grid; grid-template-columns: 55% 45%; gap:24px; margin-top:8px;">
+                <div id="charts-row" class="results full-width" style="display:grid; grid-template-columns: 40% 60%; gap:24px; margin-top:8px;">
                     <div id="charts-section">
                         <canvas id="zhvi-chart" height="180" style="display:none;"></canvas>
                         <canvas id="fire-history-chart" height="120" style="display:none; margin-top:12px;"></canvas>
@@ -671,26 +671,37 @@
             // Set label
             document.getElementById('composite-label').textContent = label;
 
-            // Populate signals
+            // Parse gauge explanation
+            const methodology = gaugeExplanation?.methodology || 
+                "This score is computed from 4 objective indicators: fire proximity trend, fire frequency trend, official hazard zone classification, and recent fire distances.";
+            const signalExplanations = gaugeExplanation?.signal_explanations || [];
+
+            // Update methodology tooltip
+            document.getElementById('gauge-tooltip-content').textContent = methodology;
+
+            // Populate signals with per-signal hover
             const ul = document.getElementById('risk-signals');
             ul.innerHTML = '';
-            signals.forEach(s => {
+            signals.forEach((s, i) => {
                 const li = document.createElement('li');
-                li.textContent = s.text || s;  // handle both old string and new dict format
                 li.className = s.direction || 'neutral';
+
+                const signalExpl = signalExplanations.find(e => e.index === i);
+
+                if (signalExpl?.explanation) {
+                    // Wrap in a hoverable container
+                    li.innerHTML = `
+                        <div class="signal-hover-wrapper">
+                            <span class="signal-text">${s.text || s}</span>
+                            <div class="signal-tooltip">${signalExpl.explanation}</div>
+                        </div>
+                    `;
+                } else {
+                    li.textContent = s.text || s;
+                }
+
                 ul.appendChild(li);
             });
-
-            // Build tooltip explanation from signals
-            const positives = signals.filter(s => s.direction === 'positive').map(s => s.text);
-            const negatives = signals.filter(s => s.direction === 'negative').map(s => s.text);
-
-            let explanation = `This property scored <strong>${label}</strong> based on ${composite.risk_factor_count} of 4 risk indicators being elevated.<br><br>`;
-            if (negatives.length) explanation += `<strong>Risk factors:</strong> ${negatives.join('; ')}.<br><br>`;
-            if (positives.length) explanation += `<strong>Mitigating factors:</strong> ${positives.join('; ')}.`;
-
-            // document.getElementById('gauge-tooltip-content').innerHTML = explanation;
-            document.getElementById('gauge-tooltip-content').innerHTML = gaugeExplanation || 'Explanation unavailable.';
         }
 
         // Button activation/deactivations

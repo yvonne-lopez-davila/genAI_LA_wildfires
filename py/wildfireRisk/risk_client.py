@@ -164,53 +164,54 @@ text, explanation, or markdown before or after it:
             "raw_response": response
         }
     
-    def explain_gauge(self, composite_label: str, signals: list, risk_factor_count: int) -> str:
+    def explain_gauge(self, composite_label: str, signals: list, risk_factor_count: int) -> dict:
         signal_texts = [s["text"] if isinstance(s, dict) else s for s in signals]
-        
+        signal_data = []
+        for i, s in enumerate(signals):
+            signal_data.append({
+                "index": i,
+                "text": s["text"] if isinstance(s, dict) else s,
+                "direction": s.get("direction", "neutral") if isinstance(s, dict) else "neutral"
+            })
+
         query = f"""
     Risk score: {composite_label}
     Risk factors triggered: {risk_factor_count} of 4
+
     Signals:
-    {chr(10).join(f'- {s}' for s in signal_texts)}
+    {chr(10).join(f'{i}. {s["text"]}' for i, s in enumerate(signal_data))}
 
-    Write short explanations that ADD new meaning beyond the signals.
+    Return a JSON object with exactly these two keys:
 
-    Output format:
-    - One bullet per signal
-    - Each bullet MUST be on its own line
-    - Insert a newline character between each bullet (\\n)
-    - Do not place multiple bullets on the same line
+    "methodology": A 2-sentence static explanation of what the 4 risk indicators are and how they combine into a score. Do not reference specific data values. This should be the same for any property.
 
-    Instructions:
-    - Do NOT restate or paraphrase the signal
-    - Explain what the signal implies (trend strength, severity, or significance)
-    - Focus on magnitude, comparison, or why it matters relative to other signals
-    - Use specific numbers when helpful, but don’t repeat full phrases from the signal
+    "signal_explanations": A list of objects, one per signal, in the same order as the signals above. Each object has:
+    - "index": the signal number (0-based)
+    - "explanation": one sentence explaining the magnitude or significance of this specific signal. Use specific numbers where available. Do not restate the signal text. Focus on what the magnitude means — is this value high, low, or typical? What does it imply about risk level?
 
-    Hard rules:
-    - No advice or recommendations
-    - No filler phrases (e.g., "this means", "indicating that")
-    - No combining multiple signals into one bullet
-    - Keep each bullet to one sentence
-    - One sentence per bullet
-
-    Goal:
-    Each bullet should tell the user something they would NOT already know just by reading the signal text.
-
-    Return ONLY the bullets.
-
+    Return only valid JSON, no markdown.
     """
         response = self.client.generate(
             model=self.model,
-            system="You are a wildfire risk analyst explaining a risk score to a homeowner in plain, direct language.",
+            system="You are a wildfire risk analyst. Return only valid JSON.",
             query=query,
-            temperature=0.3,
+            temperature=0.2,
             session_id=self.session_id,
             rag_usage=False,
             lastk=0,
         )
-        return response.get("result", "").strip()
-
+        
+        raw = response.get("result", "").strip()
+        cleaned = re.sub(r"```json|```", "", raw).strip()
+        
+        try:
+            return json.loads(cleaned)
+        except (json.JSONDecodeError, TypeError):
+            return {
+                "methodology": "This score is computed from 4 objective indicators: fire proximity trend, fire frequency trend, official hazard zone classification, and recent fire distances.",
+                "signal_explanations": []
+            }
+            
     def generate_chart_observations(
         self,
         zipcode: str,

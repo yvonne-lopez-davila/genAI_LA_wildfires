@@ -458,6 +458,40 @@ main {
     content: none;
 }
 
+
+
+.signal-hover-wrapper {
+    position: relative;
+    cursor: help;
+}
+
+.signal-tooltip {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #333;
+    width: 280px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 200000;
+    margin-top: 4px;
+}
+
+.signal-hover-wrapper:hover .signal-tooltip {
+    display: block;
+}
+
+
+#chart-section-title {
+    color: black;
+}
+
 #charts-section {
     min-width: 0;
 }
@@ -575,6 +609,7 @@ main {
     letter-spacing: 0.06em;
     color: #e63946;
     margin-bottom: 6px;
+    margin-top: 10%;
 }
 
 #fair-plan-badge {
@@ -625,3 +660,6 @@ main {
 #ai-analysis-tooltip-wrapper:hover #ai-analysis-tooltip-content {
     display: block;
 }
+
+
+
