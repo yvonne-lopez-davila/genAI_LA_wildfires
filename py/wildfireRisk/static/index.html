@@ -69,7 +69,18 @@
                 <!-- Top row: gauge left, signals right -->
                 <div id="top-row" style="display:grid; grid-template-columns: 45% 55%; gap:24px; margin-top:-24px;">
                     <div id="risk-gauge-section">
-                        <h3>Risk Summary Score</h3>
+                        <div id="summary-title-wrapper";style="display:flex; align-items:center; gap:6px; margin-bottom:8px; align-self:flex-start;">
+
+                            <h3 style="margin-bottom:0;">Risk Summary Score</h3>
+                            <!-- <div id="ai-analysis-tooltip-wrapper">
+                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    AI-powered analysis considers: official fire hazard zone classification, 
+                                    nearby fire history, risk trend signals, Zillow median home values 
+                                    and price changes, and California FAIR Plan insurance exposure data.
+                                </div>
+                            </div> -->
+                        </div>
                         <div id="gauge-tooltip-wrapper">
                             <span id="gauge-tooltip-trigger">How is my risk score calculated?</span>
                             <div id="gauge-tooltip-content"></div>
@@ -87,6 +98,16 @@
                         <div id="composite-label"></div>
                     </div>
                     <div id="signals-section">
+                        <div id="summary-title-wrapper";style="display:flex; align-items:right; gap:6px; margin-bottom:8px; align-self:flex-start;">
+                            <div id="ai-analysis-tooltip-wrapper">
+                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    AI-powered analysis considers: official fire hazard zone classification, 
+                                    nearby fire history, risk trend signals, Zillow median home values 
+                                    and price changes, and California FAIR Plan insurance exposure data.
+                                </div>
+                            </div>
+                        </div>
                         <ul id="risk-signals"></ul>
                     </div>
                         
@@ -116,7 +137,7 @@
                     </div>
 
                     <div id="chart-observations-section">
-                        <h3>Home Prices &amp; Wildfire Events</h3>
+                        <h3 id = "chart-section-title">Home Prices &amp; Wildfire Events</h3>
                         <p id="chart-obs-zipcode" style="font-size:12px; color:#999; margin-bottom:12px;"></p>
                         <div id="chart-obs-content" style="font-size:13px; line-height:1.7; color:#333;"></div>
 
