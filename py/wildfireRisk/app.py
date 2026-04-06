@@ -106,11 +106,21 @@ def analyze(body: AnalysisRequest):
                 f"5-year change: {traj.get('pct_change_5yr', 'N/A')}% ({traj.get('trend_label', '')})."
             )
 
+    # risk meter gauge signals llm plain text explanation 
     gauge_explanation = client.explain_gauge(
         composite_label=trends["composite"]["composite_label"],
         signals=trends["composite"]["signals"],
         risk_factor_count=trends["composite"]["risk_factor_count"],
     )
+
+    # charts llm analysis bullets
+    chart_observations = client.generate_chart_observations(
+        zipcode=body.zipcode or "unknown",
+        price_trajectory=trends.get("price_trajectory", {}),
+        fire_proximity=trends.get("fire_proximity", {}),
+        fire_frequency=trends.get("fire_frequency", {}),
+    ) 
+
 
     if body.zipcode:
     # add FAIR Plan context if ZIP code to the LLM
@@ -160,6 +170,7 @@ def analyze(body: AnalysisRequest):
             "fire_history": fire_history,
             "trends": trends,
             "gauge_explanation": gauge_explanation,
+            "chart_observations": chart_observations,
         }
     else:
         response = {
@@ -173,6 +184,7 @@ def analyze(body: AnalysisRequest):
             "fire_history": fire_history,
             "trends": trends,
             "gauge_explanation": gauge_explanation,
+            "chart_observations": chart_observations,
         }
 
     return response

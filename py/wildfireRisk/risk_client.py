@@ -211,6 +211,52 @@ text, explanation, or markdown before or after it:
         )
         return response.get("result", "").strip()
 
+    def generate_chart_observations(
+        self,
+        zipcode: str,
+        price_trajectory: dict,
+        fire_proximity: dict,
+        fire_frequency: dict,
+    ) -> str:
+        
+        query = f"""
+    You are analyzing home value and wildfire data for ZIP code {zipcode}.
+
+    Home value data:
+    - Current median value: ${price_trajectory.get('current_value', 'N/A'):,}
+    - 5-year change: {price_trajectory.get('pct_change_5yr', 'N/A')}% ({price_trajectory.get('trend_label', 'N/A')})
+    - Full date range: {price_trajectory.get('year_range', 'N/A')}
+
+    Wildfire proximity data:
+    - Total fires within 30 miles: {fire_frequency.get('total_fires', 0)}
+    - Fire frequency trend: {fire_frequency.get('trend_label', 'N/A')}
+    - Proximity trend: {fire_proximity.get('trend_label', 'N/A')}
+    - Historical avg distance: {fire_proximity.get('historical_avg_distance_miles', 'N/A')} miles
+    - Recent avg distance (last 5 years): {fire_proximity.get('recent_avg_distance_miles', 'N/A')} miles
+    - Closest recorded fire: {fire_proximity.get('closest_fire', {}).get('fire_name', 'N/A')} ({fire_proximity.get('closest_fire', {}).get('year', 'N/A')}, {fire_proximity.get('closest_fire', {}).get('distance_miles', 'N/A')} miles)
+
+    Generate concise bullet points in exactly these three sections:
+    HOME TRENDS: (1-2 bullets about what the price chart shows)
+    WILDFIRE TRENDS: (1-2 bullets about what the fire proximity chart shows)
+    CROSS-OBSERVATIONS: (1-2 bullets connecting fire activity to price behavior, if any pattern exists)
+
+    Rules:
+    - Be specific, use numbers
+    - Do not give advice or recommendations  
+    - Do not repeat data verbatim, interpret it
+    - If no meaningful cross-observation exists, say so briefly
+    - Return only the bullets, no extra text
+    """
+        response = self.client.generate(
+            model=self.model,
+            system="You are a data analyst summarizing charts for a homeowner.",
+            query=query,
+            temperature=0.3,
+            session_id=self.session_id,
+            rag_usage=False,
+            lastk=0,
+        )
+        return response.get("result", "").strip()
 
 
 # TODO delete below, just testing initial setup

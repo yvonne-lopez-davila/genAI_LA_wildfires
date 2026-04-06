@@ -66,8 +66,8 @@
 
                 <div id="response-confidence"></div>
 
-                <!-- Top row: gauge left, charts right -->
-                <div id="top-row" style="display: grid; grid-template-columns: 45% 55%; gap: 24px; margin-top: -24px;"></div>
+                <!-- Top row: gauge left, signals right -->
+                <div id="top-row" style="display:grid; grid-template-columns: 45% 55%; gap:24px; margin-top:-24px;">
                     <div id="risk-gauge-section">
                         <h3>Risk Summary Score</h3>
                         <div id="gauge-tooltip-wrapper">
@@ -75,28 +75,55 @@
                             <div id="gauge-tooltip-content"></div>
                         </div>
                         <svg id="risk-gauge-svg" viewBox="0 0 200 120" width="200" height="120">
-                            <!-- Background arcs -->
                             <path d="M 20 100 A 80 80 0 0 1 60 27" fill="none" stroke="#d4edda" stroke-width="18" stroke-linecap="round"/>
                             <path d="M 60 27 A 80 80 0 0 1 140 27" fill="none" stroke="#fff3cd" stroke-width="18" stroke-linecap="round"/>
                             <path d="M 140 27 A 80 80 0 0 1 178 100" fill="none" stroke="#b1000f88" stroke-width="18" stroke-linecap="round"/>
-                            <!-- Needle -->
                             <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
                             <circle cx="100" cy="100" r="5" fill="#1a1a2e"/>
-                            <!-- Labels -->
                             <text x="14" y="118" font-size="9" fill="#666">Low</text>
                             <text x="88" y="18" font-size="9" fill="#666" text-anchor="middle">Moderate</text>
                             <text x="172" y="118" font-size="9" fill="#666" text-anchor="end">High</text>
                         </svg>
                         <div id="composite-label"></div>
+                    </div>
+                    <div id="signals-section">
                         <ul id="risk-signals"></ul>
-                        <p id="result-val" style="font-size:13px; line-height:1.6; color:#333; margin-top:12px;"></p>
+                    </div>
+                        
+                    <!-- AI Analysis row: full width -->
+                    <div id="ai-analysis-row" class="results full-width">
+                        <div id="ai-analysis-header">
+                            <h3 style="color:black;">Overview</h3>
+                            <div id="ai-analysis-tooltip-wrapper">
+                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    AI-powered analysis considers: official fire hazard zone classification, 
+                                    nearby fire history, risk trend signals, Zillow median home values 
+                                    and price changes, and California FAIR Plan insurance exposure data.
+                                </div>
+                            </div>
+                        </div>
+                        <p id="result-val"></p>
                     </div>
 
+                </div>
+
+                <!-- Charts row: charts left, observations right -->
+                <div id="charts-row" class="results full-width" style="display:grid; grid-template-columns: 55% 45%; gap:24px; margin-top:8px;">
                     <div id="charts-section">
-                        <div class="results">
-                            <h3>Home Value Impact</h3>
-                            <canvas id="zhvi-chart" height="180" style="display:none; margin-top:12px;"></canvas>
-                            <canvas id="fire-history-chart" height="120" style="display:none; margin-top:12px;"></canvas>
+                        <canvas id="zhvi-chart" height="180" style="display:none;"></canvas>
+                        <canvas id="fire-history-chart" height="120" style="display:none; margin-top:12px;"></canvas>
+                    </div>
+
+                    <div id="chart-observations-section">
+                        <h3>Home Prices &amp; Wildfire Events</h3>
+                        <p id="chart-obs-zipcode" style="font-size:12px; color:#999; margin-bottom:12px;"></p>
+                        <div id="chart-obs-content" style="font-size:13px; line-height:1.7; color:#333;"></div>
+
+                        <div id="fair-plan-subsection" style="margin-top:20px;">
+                            <h3>Is this ZIP covered by FAIR Plan?</h3>
+                            <div id="fair-plan-badge"></div>
+                            <p id="fair-plan-detail" style="font-size:13px; line-height:1.6; color:#333; margin-top:6px;"></p>
                         </div>
                     </div>
                 </div>
@@ -116,7 +143,6 @@
                     <h3>Official Hazard Zone</h3>
                     <p id="result-hazard-zone"></p>
                 </div>
-
             </div>
         </div>
     </div>
@@ -446,6 +472,62 @@
                 }
             });
         }
+        
+        // home val chart observations
+        function renderChartObservations(data) {
+            // Zipcode label
+            const zip = data.zhvi?.zipcode || data.fair_plan?.zipcode || '';
+            const city = data.zhvi?.city || '';
+            document.getElementById('chart-obs-zipcode').textContent = 
+                zip ? `for ZIP ${zip}${city ? ' (' + city + ')' : ''}` : '';
+
+            // LLM observations — parse sections and render
+            const obs = data.chart_observations || '';
+            const content = document.getElementById('chart-obs-content');
+            
+            if (!obs) {
+                content.textContent = 'Observations unavailable.';
+            } else {
+                // Convert bullet lines to HTML
+                const lines = obs.split('\n').filter(l => l.trim());
+                let html = '';
+                lines.forEach(line => {
+                    if (line.match(/^(HOME TRENDS|WILDFIRE TRENDS|CROSS-OBSERVATIONS):/i)) {
+                        html += `<p style="font-weight:700; color:#e63946; text-transform:uppercase; font-size:11px; letter-spacing:0.05em; margin:10px 0 4px;">${line}</p>`;
+                    } else if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+                        html += `<p style="margin:2px 0 2px 8px;">• ${line.replace(/^[-•]\s*/, '')}</p>`;
+                    } else {
+                        html += `<p style="margin:2px 0;">${line}</p>`;
+                    }
+                });
+                content.innerHTML = html;
+            }
+
+            // FAIR Plan subsection
+            const fairPlan = data.fair_plan;
+            const badge = document.getElementById('fair-plan-badge');
+            const detail = document.getElementById('fair-plan-detail');
+
+            if (!fairPlan || !fairPlan.zipcode) {
+                badge.innerHTML = '<span style="color:#888;">No ZIP data</span>';
+                detail.textContent = '';
+                return;
+            }
+
+            if (fairPlan.covered_by_fair_plan) {
+                badge.innerHTML = '<span style="background:#f8d7da; color:#842029; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">YES</span>';
+                const exposure = typeof fairPlan.latest_total_exposure === 'number'
+                    ? `$${fairPlan.latest_total_exposure.toLocaleString()}`
+                    : 'unavailable';
+                detail.textContent = `FY${fairPlan.latest_fiscal_year || 'latest'} total insured value: ${exposure}. 5-year change: ${fairPlan.five_year_pct_change ?? 'N/A'}%.`;
+            } else if (fairPlan.found) {
+                badge.innerHTML = '<span style="background:#fff3cd; color:#856404; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">PARTIAL</span>';
+                detail.textContent = `ZIP ${fairPlan.zipcode} appears historically in FAIR Plan data but no current exposure is reported.`;
+            } else {
+                badge.innerHTML = '<span style="background:#d4edda; color:#1a6b2e; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">NO</span>';
+                detail.textContent = `ZIP ${fairPlan.zipcode} does not appear in the current FAIR Plan residential exposure report.`;
+            }
+        }
 
 
         var fireHistoryChartInstance = null;
@@ -639,6 +721,7 @@
             renderHomeValChart(data.zhvi);
             renderFireHistoryChart(data.fire_history);
             renderGauge(data.trends, data.gauge_explanation);
+            renderChartObservations(data);
 
             // Confidence 
             const score = document.getElementById('response-confidence');
