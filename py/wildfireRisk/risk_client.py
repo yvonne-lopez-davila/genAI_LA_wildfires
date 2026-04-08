@@ -224,7 +224,7 @@ text, explanation, or markdown before or after it:
     You are analyzing home value and wildfire data for ZIP code {zipcode}.
 
     Home value data:
-    - Current median value: ${price_trajectory.get('current_value', 'N/A'):,}
+    - Current median value: ${price_trajectory.get('current_value', 'N/A')}
     - 5-year change: {price_trajectory.get('pct_change_5yr', 'N/A')}% ({price_trajectory.get('trend_label', 'N/A')})
     - Full date range: {price_trajectory.get('year_range', 'N/A')}
 
