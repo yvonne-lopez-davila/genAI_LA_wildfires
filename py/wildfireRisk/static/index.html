@@ -55,8 +55,25 @@
             <div id="modal-coords"></div>
 
             <div id="modal-loading">
-                <div>Analyzing location...</div>
-                <div style="margin-top: 10px; font-size: 12px; line-height: 1.4; color: #777;">
+               <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; width: 260px; margin-left: auto; margin-right: auto;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="step-icon-1" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
+                        <span id="step-text-1" style="font-size: 13px; color: #aaa;">Locating fire hazard zone</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="step-icon-2" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
+                        <span id="step-text-2" style="font-size: 13px; color: #aaa;">Pulling fire history data</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="step-icon-3" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
+                        <span id="step-text-3" style="font-size: 13px; color: #aaa;">Analyzing home value trends</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="step-icon-4" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
+                        <span id="step-text-4" style="font-size: 13px; color: #aaa;">Generating AI risk assessment</span>
+                    </div>
+                </div>
+                <div style="font-size: 11px; line-height: 1.5; color: #bbb; text-align: center;">
                     Uses AI and LLM-generated outputs. Results may be inaccurate or incomplete and are not
                     insurance, financial, or safety advice. Verify with official sources.
                 </div>
@@ -150,10 +167,24 @@
                 </div>
 
                 <!-- Full width sections -->
-                <div class="results full-width">
-                    <h3>Insurability Info</h3>
-                    <p id="result-insurability"></p>
-                </div>
+               <div class="results full-width">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <h3 style="margin-bottom:0; white-space:nowrap;">Insurability Info</h3>
+                        <div id="ai-analysis-tooltip-wrapper">
+                            <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                            <div id="ai-analysis-tooltip-content">
+                                Fair Plan is California's insurance option 
+                                of last resort for properties that are high 
+                                risk and often declined by private insurers. 
+                                This section indicates
+                                whether property is currently covered 
+                                and provides details on what 
+                                that means for insurability and financial risk.
+                            </div>
+                        </div>
+                    </div>
+                <p id="result-insurability"></p>
+            </div>
 
                 <div class="results full-width">
                     <h3>Financial/Value Info</h3>
@@ -400,11 +431,62 @@
             document.getElementById('modal-results').style.display = 'none';
             document.getElementById('risk-report-modal').classList.add('active');
 
-            fetchRiskReport(selectedLat, selectedLon);
+            runLoadingSteps(selectedLat, selectedLon);
         }
 
         function closeModal() {
             document.getElementById('risk-report-modal').classList.remove('active');
+        }
+
+        function runLoadingSteps(lat, lon) {
+            const steps = [1, 2, 3, 4];
+            const delays = [0, 1200, 2400, 3600];
+
+            // Reset all to pending
+            steps.forEach(i => {
+                const icon = document.getElementById(`step-icon-${i}`);
+                const text = document.getElementById(`step-text-${i}`);
+                icon.className = '';
+                icon.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid #e5e7eb;flex-shrink:0;';
+                icon.innerHTML = '';
+                text.style.color = '#aaa';
+                text.style.fontWeight = '400';
+            });
+
+            // Activate steps one at a time
+            steps.forEach(i => {
+                setTimeout(() => {
+                    if (i > 1) {
+                        const prevIcon = document.getElementById(`step-icon-${i - 1}`);
+                        prevIcon.classList.remove('step-spinner');
+                        prevIcon.style.cssText = 'width:20px;height:20px;border-radius:50%;flex-shrink:0;background:#16a34a;border:2px solid #16a34a;display:flex;align-items:center;justify-content:center;';
+                        prevIcon.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                        document.getElementById(`step-text-${i - 1}`).style.color = '#888';
+                        document.getElementById(`step-text-${i - 1}`).style.fontWeight = '400';
+                    }
+                    const icon = document.getElementById(`step-icon-${i}`);
+                    const text = document.getElementById(`step-text-${i}`);
+                    icon.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid #e5e7eb;border-top-color:#b91c1c;flex-shrink:0;';
+                    icon.classList.add('step-spinner');
+                    text.style.color = '#111';
+                    text.style.fontWeight = '500';
+                }, delays[i - 1]);
+            });
+
+            // When fetch resolves, check all steps then show results
+            fetchRiskReport(lat, lon).then(() => {
+                steps.forEach((i, idx) => {
+                    setTimeout(() => {
+                        const icon = document.getElementById(`step-icon-${i}`);
+                        const text = document.getElementById(`step-text-${i}`);
+                        icon.classList.remove('step-spinner');
+                        icon.style.cssText = 'width:20px;height:20px;border-radius:50%;flex-shrink:0;background:#16a34a;border:2px solid #16a34a;display:flex;align-items:center;justify-content:center;';
+                        icon.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                        text.style.color = '#888';
+                        text.style.fontWeight = '400';
+                    }, idx * 200);
+                });
+            });
         }
 
         document.getElementById('risk-report-modal').addEventListener('click', function(e) {
