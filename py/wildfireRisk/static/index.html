@@ -157,11 +157,33 @@
                         <h3 id = "chart-section-title">Home Prices &amp; Wildfire Events</h3>
                         <p id="chart-obs-zipcode" style="font-size:12px; color:#999; margin-bottom:12px;"></p>
                         <div id="chart-obs-content" style="font-size:13px; line-height:1.7; color:#333;"></div>
+                        <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                            <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                                        <div id="ai-analysis-tooltip-content">
+                                            Source:
+                                            <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
+                                                Zillow Research Data (ZHVI)
+                                            </a>
+                                            <br>
+                                            <a href="https://www.fire.ca.gov/incidents" target="_blank" rel="noopener noreferrer">
+                                                CAL FIRE Incident Information
+                                            </a>
+                                        </div>
+                                    </div>
 
                         <div id="fair-plan-subsection" style="margin-top:20px;">
                             <h3>Is this ZIP covered by FAIR Plan?</h3>
                             <div id="fair-plan-badge"></div>
                             <p id="fair-plan-detail" style="font-size:13px; line-height:1.6; color:#333; margin-top:6px;"></p>
+                            <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    Source:
+                                    <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
+                                        California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -184,16 +206,43 @@
                         </div>
                     </div>
                 <p id="result-insurability"></p>
+                <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                            <div id="ai-analysis-tooltip-content">
+                                Source:
+                                <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
+                                    California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
+                                </a>
+                            </div>
+                        </div>
             </div>
 
                 <div class="results full-width">
                     <h3>Financial/Value Info</h3>
                     <p id="result-affordability"></p>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                                    <div id="ai-analysis-tooltip-content">
+                                        Source:
+                                        <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
+                                            Zillow Research Data (ZHVI)
+                                        </a>
+                                    </div>
+                                </div>
                 </div>
 
                 <div class="results full-width">
                     <h3>Official Hazard Zone</h3>
                     <p id="result-hazard-zone"></p>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                        <div id="ai-analysis-tooltip-content">
+                            Source:
+                            <a href="https://www.fire.ca.gov/what-we-do/natural-resource-management/fire-hazard-severity-zones" target="_blank" rel="noopener noreferrer">
+                                CAL FIRE Fire Hazard Severity Zones
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
