@@ -11,19 +11,55 @@
 </head>
 
 <body>
+    <div id="user-type-modal">
+        <p id="user-type-prompt">I am a...</p>
+        <div id="user-type-cards">
+
+            <div class="user-type-card" onclick="selectUserType('homeowner')">
+                <!-- House icon -->
+                <svg viewBox="0 0 64 64">
+                    <polyline points="4,28 32,6 60,28"/>
+                    <rect x="14" y="28" width="36" height="28" rx="2"/>
+                    <rect x="24" y="40" width="10" height="16" rx="1"/>
+                    <line x1="14" y1="28" x2="14" y2="56"/>
+                    <line x1="50" y1="28" x2="50" y2="56"/>
+                </svg>
+                <span class="user-type-card-label">Current<br>Homeowner</span>
+                <span class="user-type-card-hint">Learn what you can do to protect your property and insurance.</span>
+            </div>
+
+            <div class="user-type-card" onclick="selectUserType('buyer')">
+                <!-- Money/bills icon -->
+                <svg viewBox="0 0 64 64">
+                    <rect x="4" y="16" width="56" height="34" rx="3"/>
+                    <rect x="4" y="22" width="56" height="4"/>
+                    <circle cx="32" cy="36" r="8"/>
+                    <circle cx="32" cy="36" r="4"/>
+                    <line x1="4" y1="44" x2="4" y2="44"/>
+                    <rect x="10" y="40" width="6" height="4" rx="1"/>
+                    <rect x="48" y="40" width="6" height="4" rx="1"/>
+                </svg>
+                <span class="user-type-card-label">Prospective<br>Buyer</span>
+                <span class="user-type-card-hint">Evaluate whether a property is a sound investment given fire risk.</span>
+            </div>
+
+        </div>
+    </div>
+
     <!-- <header>Wildfire Risk Report: California</header> -->
     
     <section id="hero">
         <div id="hero-content">
             <p id="hero-welcome">Welcome to AI-assisted</p>
             <h1 id="hero-title">California Homeowner<br>Wildfire Risk Analysis Tool</h1>
-            <p id="hero-desc">Select any location in California to generate an AI-powered assessment of the property considering wildfire risk, home value trends, insurance outlook, and affordability.</p>
+            <p id="hero-desc">Select any location in California to generate an AI-powered assessment considering wildfire risk, home value trends, insurance outlook, and affordability.</p>
+            <button id="get-started-btn">Get Started →</button>
         </div>
-        <a id="hero-arrow" href="#main-content">
+        <!-- <a id="hero-arrow" href="#main-content">
             <svg viewBox="0 0 40 40" width="40" height="40">
                 <polyline points="8,15 20,27 32,15" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-        </a>
+        </a> -->
     </section>
 
     <div id="map-intro">
@@ -251,10 +287,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     
     <script>
-        document.getElementById('hero-arrow').addEventListener('click', function(e) {
-            e.preventDefault();
+        document.getElementById('get-started-btn').addEventListener('click', openUserTypeModal)
+
+        var userType = null;
+
+        function openUserTypeModal() {
+            document.getElementById('user-type-modal').classList.add('active');
+        }
+
+        function selectUserType(type) {
+            userType = type;
+            document.getElementById('user-type-modal').classList.remove('active');
             document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
-        });
+        }
+
+
 
         var marker = null;
 
@@ -553,7 +600,7 @@
                 const response = await fetch('/analyzeFireRisk', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ lat, lon, zipcode: selectedZip})
+                    body: JSON.stringify({ lat, lon, zipcode: selectedZip, user_type: userType })
                 });
                 
                 const data = await response.json();

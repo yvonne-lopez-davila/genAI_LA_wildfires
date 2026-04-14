@@ -48,6 +48,7 @@ class AnalysisRequest(BaseModel):
     lat: float
     lon: float
     zipcode: Optional[str] = None
+    user_type: Optional[str] = None
 
 
 ## ENDPOINTS
@@ -148,7 +149,7 @@ def analyze(body: AnalysisRequest):
    
     extra_context = "\n".join(context_parts) if context_parts else None
 
-    result = client.analyze(body.lat, body.lon, extra_context=extra_context)
+    result = client.analyze(body.lat, body.lon, extra_context=extra_context, user_type=body.user_type)
 
     if "error" in result:
         return {
