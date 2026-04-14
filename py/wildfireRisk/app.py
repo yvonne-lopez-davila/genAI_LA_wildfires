@@ -57,6 +57,9 @@ class AnalysisRequest(BaseModel):
 # coord input
 @app.post("/analyzeFireRisk")
 def analyze(body: AnalysisRequest):
+    # debug
+    print(f"user_type received: {body.user_type}")
+
     # query fire hazard zone from GIS database 
     hazard = query_fire_hazard_zone(body.lat, body.lon)
     hazard_zone = hazard.get("hazard_zone", "Unknown")
