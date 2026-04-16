@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 
 from risk_client import HomeRiskClient 
 from fire_hazard_service import query_fire_hazard_zone
@@ -32,6 +32,12 @@ from fair_plan_service import get_fair_plan_status
 
 ## Analyze historical trends (statistical analysis) 
 from trend_analysis import analyze_trends
+
+## CAL FIRE structure damage inspection data
+from damage_inspection_service import get_dins_risk
+ 
+## California DOI insurance non-renewal data
+from doi_nonrenewal_service import get_nonrenewal_status
 
 app = FastAPI()
 
@@ -49,6 +55,7 @@ class AnalysisRequest(BaseModel):
     lon: float
     zipcode: Optional[str] = None
     user_type: Optional[str] = None
+    property_chars: Optional[Dict[str, str]] = None  # DINS property characteristics (homeowner only)
 
 
 ## ENDPOINTS
@@ -59,6 +66,7 @@ class AnalysisRequest(BaseModel):
 def analyze(body: AnalysisRequest):
     # debug
     print(f"user_type received: {body.user_type}")
+    print(f"property_chars received: {body.property_chars}")
 
     # query fire hazard zone from GIS database 
     hazard = query_fire_hazard_zone(body.lat, body.lon)
@@ -74,6 +82,12 @@ def analyze(body: AnalysisRequest):
     # Query CalFire perimeters API 
     fire_history = get_nearby_fires(body.lat, body.lon)
     
+    # Query DINS structure damage data (always run, pass property_chars if provided)
+    dins = get_dins_risk(body.lat, body.lon, property_chars=body.property_chars)
+ 
+    # Query DOI non-renewal data by ZIP
+    doi = get_nonrenewal_status(body.zipcode) if body.zipcode else {"found": False}
+
     # Analyze trends from services' data
     trends = analyze_trends(fire_history, zhvi, hazard_zone=hazard_zone)
 
@@ -109,6 +123,17 @@ def analyze(body: AnalysisRequest):
                 f"Current median home value: ${traj['current_value']:,}. "
                 f"5-year change: {traj.get('pct_change_5yr', 'N/A')}% ({traj.get('trend_label', '')})."
             )
+    
+    # DOI non-renewal context
+    if doi.get("found"):
+        doi_context = (
+            f"Insurance non-renewal data for ZIP {body.zipcode}: "
+            f"latest non-renewal rate is {doi.get('latest_nonrenewal_rate', 'N/A')}% "
+            f"({doi.get('latest_year', 'N/A')}). "
+            f"Trend: {doi.get('trend_label', 'N/A')}. "
+            f"Rate change over available period: {doi.get('rate_change_pp', 'N/A')} percentage points."
+        )
+        context_parts.append(doi_context)
 
     # risk meter gauge signals llm plain text explanation 
     gauge_explanation = client.explain_gauge(
@@ -175,6 +200,8 @@ def analyze(body: AnalysisRequest):
             "trends": trends,
             "gauge_explanation": gauge_explanation,
             "chart_observations": chart_observations,
+            "dins": dins,
+            "doi": doi,
         }
     else:
         response = {
@@ -189,6 +216,8 @@ def analyze(body: AnalysisRequest):
             "trends": trends,
             "gauge_explanation": gauge_explanation,
             "chart_observations": chart_observations,
+            "dins": dins,
+            "doi": doi,
         }
 
     return response

@@ -72,6 +72,11 @@ and percentage changes where possible.
 If nearby fire history is provided, reference specific fire events, years, and distances 
 when relevant. Note if fires have been trending closer over time.
 
+If California DOI non-renewal data is provided in context, use it to strengthen or 
+qualify your insurance outlook assessment. Reference the non-renewal rate, trend direction, 
+and rate change in percentage points where relevant. A worsening trend with a high 
+non-renewal rate is a strong signal of insurance market withdrawal from the area.
+
 You must respond ONLY with a valid JSON object in exactly this format, with no extra
 text, explanation, or markdown before or after it:
  
@@ -96,7 +101,9 @@ Given a property location, assess:
 
 2. INSURANCE OUTLOOK: Their likelihood of maintaining private coverage, probability 
    of being shifted to the FAIR Plan, and which carriers have withdrawn from the area.
-   Be specific about what predicts non-renewal in this ZIP.
+   Be specific about what predicts non-renewal in this ZIP. If California DOI non-renewal
+   data is provided in context, reference the non-renewal rate and trend direction 
+   explicitly — a worsening trend is a concrete warning sign the homeowner should act on.
 
 3. AFFORDABILITY SCORE: Whether continuing to own this property remains financially 
    viable given current and projected insurance costs, fire risk, and value trends.
@@ -112,6 +119,11 @@ Be direct. The homeowner already lives here — do not frame this as a purchase 
 Focus on what they can control. Use <strong> tags for 3-5 key terms per section.
 
 If additional context is provided, factor it into all assessments.
+
+If California DOI non-renewal data is provided in context, use it to strengthen or 
+qualify your insurance outlook assessment. Reference the non-renewal rate, trend direction, 
+and rate change in percentage points where relevant. A worsening trend with a high 
+non-renewal rate is a strong signal of insurance market withdrawal from the area.
 
 You must respond ONLY with a valid JSON object in exactly this format:
 {
@@ -136,7 +148,10 @@ Given a property location, assess:
 
 2. INSURANCE OUTLOOK: The likelihood of obtaining private insurance coverage as a new 
    buyer, probability of being forced onto the FAIR Plan immediately, expected costs,
-   and which insurers have withdrawn from the region.
+   and which insurers have withdrawn from the region. If California DOI non-renewal
+   data is provided in context, reference the non-renewal rate and trend — a high or
+   worsening non-renewal rate means new buyers may struggle to obtain private coverage
+   at all, which should factor heavily into the purchase decision.
 
 3. AFFORDABILITY SCORE: A plain-language assessment of whether this property is 
    financially viable to own given fire risk, insurance costs, and value trends. 
@@ -148,6 +163,11 @@ Be direct. The buyer has not yet committed — give them the information they ne
 to make an informed decision. Use <strong> tags for 3-5 key terms per section.
 
 If additional context is provided, factor it into all assessments.
+
+If California DOI non-renewal data is provided in context, use it to strengthen or 
+qualify your insurance outlook assessment. Reference the non-renewal rate, trend direction, 
+and rate change in percentage points where relevant. A worsening trend with a high 
+non-renewal rate is a strong signal of insurance market withdrawal from the area.
 
 You must respond ONLY with a valid JSON object in exactly this format:
 {

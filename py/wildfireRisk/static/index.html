@@ -46,6 +46,63 @@
         </div>
     </div>
 
+     <!-- DINS Property Characteristics Modal (homeowner only, shown before report generation) -->
+    <div id="dins-modal">
+        <div id="dins-modal-inner">
+            <h2>Tell us about your home <span style="font-weight:400; font-size:16px; color:#888;">(optional)</span></h2>
+            <p style="font-size:13px; color:#666; margin-bottom:20px; line-height:1.6;">
+                Entering your home's structural characteristics lets us compare your property against
+                nearby structures inspected after real fire events — and show you how homes like yours fared.
+                You can skip this and still get a full risk report.
+            </p>
+ 
+            <div class="dins-form-group">
+                <label for="dins-roof">Roof Construction</label>
+                <select id="dins-roof">
+                    <option value="">— Select/I'm not sure —</option>
+                    <option value="Asphalt">Asphalt</option>
+                    <option value="Metal">Metal</option>
+                    <option value="Fire Resistant">Fire Resistant</option>
+                    <option value="Tile">Tile</option>
+                    <option value="Combustible">Combustible</option>
+                    <option value="Wood">Wood</option>
+                    <option value="Concrete">Concrete</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+ 
+            <div class="dins-form-group">
+                <label for="dins-eaves">Eaves</label>
+                <select id="dins-eaves">
+                    <option value="">— Select/I'm not sure —</option>
+                    <option value="Unenclosed">Unenclosed</option>
+                    <option value="Enclosed">Enclosed</option>
+                    <option value="No Eaves">No Eaves</option>
+                </select>
+            </div>
+ 
+            <div class="dins-form-group">
+                <label for="dins-siding">Exterior Siding</label>
+                <select id="dins-siding">
+                    <option value="">— Select/I'm not sure —</option>
+                    <option value="Stucco Brick Cement">Stucco / Brick / Cement</option>
+                    <option value="Wood">Wood</option>
+                    <option value="Combustible">Combustible</option>
+                    <option value="Ignition Resistant">Ignition Resistant</option>
+                    <option value="Fire Resistant">Fire Resistant</option>
+                    <option value="Metal">Metal</option>
+                    <option value="Vinyl">Vinyl</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+ 
+            <div style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+                <button id="dins-skip-btn" onclick="submitDinsForm(false)">Skip</button>
+                <button id="dins-continue-btn" onclick="submitDinsForm(true)">Continue →</button>
+            </div>
+        </div>
+    </div>
+
     <!-- <header>Wildfire Risk Report: California</header> -->
     
     <section id="hero">
@@ -253,6 +310,58 @@
                         </div>
             </div>
 
+                <!-- DOI Non-Renewal Section -->
+                <div class="results full-width" id="doi-section" style="display:none;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <h3 style="margin-bottom:0; white-space:nowrap;">Insurance Non-Renewal Trends</h3>
+                        <div id="ai-analysis-tooltip-wrapper">
+                            <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                            <div id="ai-analysis-tooltip-content">
+                                California Department of Insurance data showing how many 
+                                residential policies in this ZIP were non-renewed by insurers 
+                                each year. A rising non-renewal rate signals insurer withdrawal 
+                                from the area.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="doi-content" style="font-size:13px; line-height:1.7; color:#333; margin-top:8px;"></div>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                        <div id="ai-analysis-tooltip-content">
+                            Source:
+                            <a href="https://www.insurance.ca.gov/01-consumers/200-wrr/DataAnalysisOnWildfiresAndInsurance.cfm" target="_blank" rel="noopener noreferrer">
+                                California Department of Insurance — Wildfire Insurance Data
+                            </a>
+                        </div>
+                    </div>
+                </div>
+ 
+                <!-- DINS Structural Damage Section -->
+                <div class="results full-width" id="dins-section" style="display:none;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <h3 style="margin-bottom:0; white-space:nowrap;">Nearby Structural Damage (CAL FIRE DINS)</h3>
+                        <div id="ai-analysis-tooltip-wrapper">
+                            <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                            <div id="ai-analysis-tooltip-content">
+                                Based on CAL FIRE Damage Inspection (DINS) data for structures 
+                                inspected after fire events since 2013. Shows how nearby structures 
+                                fared in past fires, and how homes with your characteristics compared.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dins-content" style="font-size:13px; line-height:1.7; color:#333; margin-top:8px;"></div>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                        <div id="ai-analysis-tooltip-content">
+                            Source:
+                            <a href="https://gis.data.cnra.ca.gov/datasets/CALFIRE-Forestry::cal-fire-damage-inspection-dins-data" target="_blank" rel="noopener noreferrer">
+                                CAL FIRE Damage Inspection Program (DINS)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+ 
+
                 <div class="results full-width">
                     <h3>Financial/Value Info</h3>
                     <p id="result-affordability"></p>
@@ -311,6 +420,7 @@
         var selectedLon = null;
         var selectedZip = null;
         var selectedAddress = null;
+        var pendingPropertyChars = null; // Set after DINS form, cleared on each new report
         
         // Initialize map UI with interactive coord selection    
         var map = L.map('map-container').setView([34.0522, -118.2437], 9);
@@ -521,12 +631,57 @@
                 return;
             }
 
-            document.getElementById('modal-coords').textContent = selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+            if (userType === 'homeowner') {
+                openDinsModal();
+            } else {
+                pendingPropertyChars = null;
+                launchReport();
+            }
+        }
+ 
+        // DINS modal open/close
+        function openDinsModal() {
+            // Reset form
+            document.getElementById('dins-roof').value = '';
+            document.getElementById('dins-eaves').value = '';
+            document.getElementById('dins-siding').value = '';
+            document.getElementById('dins-modal').classList.add('active');
+        }
+ 
+        function closeDinsModal() {
+            document.getElementById('dins-modal').classList.remove('active');
+        }
+ 
+        // Called by Skip or Continue buttons in the DINS form
+        function submitDinsForm(useChars) {
+            if (useChars) {
+                const roof = document.getElementById('dins-roof').value;
+                const eaves = document.getElementById('dins-eaves').value;
+                const siding = document.getElementById('dins-siding').value;
+ 
+                // Only include fields the user actually selected
+                const chars = {};
+                if (roof)  chars.roof_construction = roof;
+                if (eaves) chars.eaves = eaves;
+                if (siding) chars.exterior_siding = siding;
+ 
+                pendingPropertyChars = Object.keys(chars).length > 0 ? chars : null;
+            } else {
+                pendingPropertyChars = null;
+            }
+ 
+            closeDinsModal();
+            launchReport();
+        }
 
+        // Open the report modal and kick off the fetch
+        function launchReport() {
+            document.getElementById('modal-coords').textContent = selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+ 
             document.getElementById('modal-loading').style.display = 'block';
             document.getElementById('modal-results').style.display = 'none';
             document.getElementById('risk-report-modal').classList.add('active');
-
+ 
             runLoadingSteps(selectedLat, selectedLon);
         }
 
@@ -793,6 +948,195 @@
             });
         }
 
+        // ///////////////////////
+        // Render DOI non-renewal section
+        function renderDoi(doi) {
+            const section = document.getElementById('doi-section');
+            const content = document.getElementById('doi-content');
+ 
+            if (!doi || !doi.found) {
+                section.style.display = 'none';
+                return;
+            }
+ 
+            section.style.display = 'block';
+ 
+            const trendColors = {
+                'worsening': '#b91c1c',
+                'improving': '#16a34a',
+                'stable': '#92400e',
+                'insufficient data': '#666',
+            };
+            const trend = doi.trend_label || 'insufficient data';
+            const trendColor = trendColors[trend] || '#666';
+ 
+            const rateChange = doi.rate_change_pp !== null && doi.rate_change_pp !== undefined
+                ? `${doi.rate_change_pp > 0 ? '+' : ''}${doi.rate_change_pp} pp change over available period`
+                : null;
+ 
+            let html = `
+                <div style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:10px;">
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Non-Renewal Rate (${doi.latest_year || 'latest'})</div>
+                        <div style="font-size:22px; font-weight:700; color:#1a1a2e;">${doi.latest_nonrenewal_rate !== null ? doi.latest_nonrenewal_rate + '%' : 'N/A'}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Trend</div>
+                        <div style="font-size:18px; font-weight:700; color:${trendColor}; text-transform:capitalize;">${trend}</div>
+                    </div>
+                    ${rateChange ? `<div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Rate Change</div>
+                        <div style="font-size:16px; font-weight:600; color:#333;">${rateChange}</div>
+                    </div>` : ''}
+                </div>
+            `;
+ 
+            // Year-by-year table
+            if (doi.years && doi.years.length > 0) {
+                html += `<table style="width:100%; border-collapse:collapse; font-size:12px; margin-top:8px;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #e5e7eb; color:#999; text-align:left;">
+                            <th style="padding:4px 8px;">Year</th>
+                            <th style="padding:4px 8px;">Renewed</th>
+                            <th style="padding:4px 8px;">Non-Renewed</th>
+                            <th style="padding:4px 8px;">Non-Renewal Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                doi.years.slice().reverse().forEach(y => {
+                    const rate = y.nonrenewal_rate_pct !== null ? y.nonrenewal_rate_pct + '%' : '—';
+                    html += `<tr style="border-bottom:1px solid #f3f4f6;">
+                        <td style="padding:4px 8px;">${y.year}</td>
+                        <td style="padding:4px 8px;">${y.renewed !== null ? y.renewed.toLocaleString() : '—'}</td>
+                        <td style="padding:4px 8px;">${y.non_renewed !== null ? y.non_renewed.toLocaleString() : '—'}</td>
+                        <td style="padding:4px 8px; font-weight:600; color:${trendColor};">${rate}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+            }
+ 
+            content.innerHTML = html;
+        }
+ 
+        // Render DINS structural damage section
+        function renderDins(dins) {
+            const section = document.getElementById('dins-section');
+            const content = document.getElementById('dins-content');
+ 
+            if (!dins || !dins.found) {
+                // Show section with fallback message if homeowner
+                if (userType === 'homeowner') {
+                    section.style.display = 'block';
+                    content.innerHTML = `<p style="color:#888;">${dins?.message || 'No inspected structures found within 5 miles of this location.'}</p>`;
+                } else {
+                    section.style.display = 'none';
+                }
+                return;
+            }
+ 
+            section.style.display = 'block';
+ 
+            const rates = dins.damage_rates || {};
+            const total = rates.total || 0;
+            const destroyed = rates.destroyed || 0;
+            const damaged = rates.damaged || 0;
+            const noD = rates.no_damage || 0;
+            const destructionRate = rates.destruction_rate_pct ?? '—';
+            const damageOrDestroyedRate = rates.damage_or_destroyed_rate_pct ?? '—';
+ 
+            let html = `
+                <div style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:14px;">
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Structures Inspected Nearby</div>
+                        <div style="font-size:22px; font-weight:700; color:#1a1a2e;">${total.toLocaleString()}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Destruction Rate</div>
+                        <div style="font-size:22px; font-weight:700; color:#b91c1c;">${destructionRate}%</div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Damaged or Destroyed</div>
+                        <div style="font-size:22px; font-weight:700; color:#92400e;">${damageOrDestroyedRate}%</div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">No Damage</div>
+                        <div style="font-size:22px; font-weight:700; color:#16a34a;">${noD.toLocaleString()}</div>
+                    </div>
+                </div>
+            `;
+ 
+            // Vulnerability profile
+            const vuln = dins.vulnerability_profile || {};
+            const vulnLabels = {
+                roof_construction: 'Roof Construction',
+                eaves: 'Eaves',
+                exterior_siding: 'Exterior Siding',
+                vent_screen: 'Vent Screen',
+                window_pane: 'Window Pane',
+                fence_attached: 'Fence Attached',
+            };
+            const vulnEntries = Object.entries(vuln).filter(([_, v]) => v && v.length > 0);
+            if (vulnEntries.length > 0) {
+                html += `<div style="margin-top:12px;">
+                    <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Most Common Characteristics in Damaged/Destroyed Structures</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">`;
+                vulnEntries.forEach(([key, vals]) => {
+                    html += `<div style="font-size:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; padding:4px 10px;">
+                        <span style="color:#999;">${vulnLabels[key] || key}:</span> ${vals.join(', ')}
+                    </div>`;
+                });
+                html += `</div></div>`;
+            }
+ 
+            // Property comparison
+            const comparison = dins.property_comparison || {};
+            const compEntries = Object.entries(comparison);
+            if (compEntries.length > 0) {
+                html += `<div style="margin-top:16px;">
+                    <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Your Home vs. Nearby Structures with Same Characteristics</div>
+                    <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                        <thead>
+                            <tr style="border-bottom:1px solid #e5e7eb; color:#999; text-align:left;">
+                                <th style="padding:4px 8px;">Characteristic</th>
+                                <th style="padding:4px 8px;">Your Value</th>
+                                <th style="padding:4px 8px;">Matched Structures</th>
+                                <th style="padding:4px 8px;">Destruction Rate</th>
+                                <th style="padding:4px 8px;">Damaged or Destroyed</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                compEntries.forEach(([key, val]) => {
+                    html += `<tr style="border-bottom:1px solid #f3f4f6;">
+                        <td style="padding:4px 8px;">${vulnLabels[key] || key}</td>
+                        <td style="padding:4px 8px; font-weight:600;">${val.user_value}</td>
+                        <td style="padding:4px 8px;">${val.matched_structures}</td>
+                        <td style="padding:4px 8px; font-weight:700; color:#b91c1c;">${val.destruction_rate_pct}%</td>
+                        <td style="padding:4px 8px; font-weight:700; color:#92400e;">${val.damage_or_destroyed_rate_pct}%</td>
+                    </tr>`;
+                });
+                html += `</tbody></table></div>`;
+            } else if (pendingPropertyChars) {
+                html += `<p style="font-size:12px; color:#888; margin-top:12px;">No nearby structures with enough matching characteristics to produce a comparison.</p>`;
+            }
+ 
+            // Top incidents
+            const incidents = dins.top_incidents || {};
+            const incidentEntries = Object.entries(incidents);
+            if (incidentEntries.length > 0) {
+                html += `<div style="margin-top:14px; font-size:12px; color:#666;">
+                    <strong>Top incidents in this area:</strong> ${incidentEntries.map(([name, count]) => `${name} (${count} structures)`).join(' · ')}
+                </div>`;
+            }
+ 
+            if (dins.year_range) {
+                html += `<div style="margin-top:6px; font-size:11px; color:#aaa;">Data covers ${dins.year_range}. Radius: ${dins.radius_miles} miles.</div>`;
+            }
+ 
+            content.innerHTML = html;
+        }
+
+
+        //////////////////////
         function highlightReportText(text) {
             // First escape everything
             const s = String(text ?? '')
@@ -927,11 +1271,15 @@
         // display generated report details
         function renderReport(data) {
             console.log("zhvi:", data.zhvi);
+            console.log("dins:", data.dins);
+            console.log("doi:", data.doi);
 
             renderHomeValChart(data.zhvi);
             renderFireHistoryChart(data.fire_history);
             renderGauge(data.trends, data.gauge_explanation);
             renderChartObservations(data);
+            renderDoi(data.doi);
+            renderDins(data.dins);
 
             // Confidence 
             const score = document.getElementById('response-confidence');

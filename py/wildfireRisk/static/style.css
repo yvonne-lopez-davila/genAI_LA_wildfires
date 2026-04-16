@@ -820,3 +820,97 @@ main {
     text-align: center;
     line-height: 1.5;
 }
+
+/* dins modal overlay */
+
+#dins-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100000;
+    align-items: center;
+    justify-content: center;
+}
+
+#dins-modal.active {
+    display: flex;
+}
+
+/* inner box (input modal)*/
+
+#dins-modal-inner {
+    background: white;
+    border-radius: 14px;
+    padding: 32px;
+    width: 480px;
+    max-width: 90vw;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+}
+
+#dins-modal-inner h2 {
+    font-size: 18px;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+}
+
+
+/* input form  styline */
+.dins-form-group {
+    margin-bottom: 16px;
+}
+
+.dins-form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.dins-form-group select {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fffdf5;
+    outline: none;
+    font-family: Georgia, serif;
+}
+
+.dins-form-group select:focus {
+    border-color: #1a1a2e;
+}
+
+/*input  buttons  */
+.dins-form-group {
+    margin-bottom: 16px;
+}
+
+.dins-form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.dins-form-group select {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fffdf5;
+    outline: none;
+    font-family: Georgia, serif;
+}
+
+.dins-form-group select:focus {
+    border-color: #1a1a2e;
+}
