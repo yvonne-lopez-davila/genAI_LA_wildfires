@@ -360,6 +360,11 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="results full-width" id="mitigation-section" style="display:none;">
+                    <h3>Mitigation Recommendations</h3>
+                    <p id="result-mitigation"></p>
+                </div>
  
 
                 <div class="results full-width">
@@ -755,7 +760,7 @@
                 const response = await fetch('/analyzeFireRisk', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ lat, lon, zipcode: selectedZip, user_type: userType })
+                    body: JSON.stringify({ lat, lon, zipcode: selectedZip, user_type: userType, property_chars: pendingPropertyChars })
                 });
                 
                 const data = await response.json();
@@ -1301,6 +1306,7 @@
  
             // Text fields (highlight key terms in narrative sections)
             setResultHtml('result-val', data.home_value_impact);
+            
             // add FAIR Plan context to insurance outlook narrative 
             // based on the ZIP code of the selected location
             const fairPlanSummary = buildFairPlanSummary(data.fair_plan);
@@ -1310,6 +1316,15 @@
             setResultHtml('result-insurability', insuranceText);
             setResultHtml('result-affordability', data.affordability_score);
             setResultHtml('result-hazard-zone', data.hazard_zone || 'Unknown');
+
+            // Add mitigation section 
+            const mitigation = data.mitigation_recommendations;
+            if (mitigation) {
+                document.getElementById('mitigation-section').style.display = 'block';
+                setResultHtml('result-mitigation', mitigation);
+            } else {
+                document.getElementById('mitigation-section').style.display = 'none';
+            }
 
             // Swtich from loading state to results state
             document.getElementById('modal-loading').style.display = 'none';
