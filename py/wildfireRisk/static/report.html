@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Wildfire Risk Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Georgia, serif;
+            background: white;
+            color: #1a1a2e;
+            padding: 48px;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        #report-header {
+            border-bottom: 2px solid #e63946;
+            padding-bottom: 16px;
+            margin-bottom: 28px;
+        }
+
+        #report-header h1 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 4px;
+        }
+
+        #report-address {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        #report-meta {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .section {
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .section h2 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #e63946;
+            margin-bottom: 8px;
+        }
+
+        .section p, .section div {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        mark.report-highlight {
+            background: #fff3cd;
+            padding: 0 3px;
+            border-radius: 3px;
+            font-weight: 700;
+            color: inherit;
+        }
+
+        /* Gauge */
+        #gauge-row {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 8px;
+        }
+
+        #composite-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+            text-transform: capitalize;
+        }
+
+        /* Signals */
+        #risk-signals {
+            list-style: none;
+            padding: 0;
+            margin-top: 12px;
+        }
+
+        #risk-signals li {
+            font-size: 12px;
+            color: #333;
+            padding: 6px 8px;
+            margin-bottom: 6px;
+            background: #f9f9f9;
+            border-left: 3px solid #e63946;
+            border-radius: 0 4px 4px 0;
+        }
+
+        #risk-signals li.negative { border-left-color: #d73027; background: #fff0f0; }
+        #risk-signals li.positive { border-left-color: #2d8a4e; background: #f0fff4; }
+        #risk-signals li.neutral  { border-left-color: #ffdf53; background: #fffdf0; }
+
+        /* DOI table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        th {
+            border-bottom: 1px solid #e5e7eb;
+            color: #999;
+            text-align: left;
+            padding: 4px 8px;
+        }
+
+        td {
+            padding: 4px 8px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        /* DINS chips */
+        .vuln-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .vuln-chip {
+            font-size: 12px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 4px 10px;
+        }
+
+        /* Confidence badge */
+        #confidence-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+        }
+
+        #confidence-badge.high   { background: #d4edda; color: #1a6b2e; }
+        #confidence-badge.medium { background: #fff3cd; color: #856404; }
+        #confidence-badge.low    { background: #f8d7da; color: #842029; }
+
+        /* Print button */
+        #print-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #c1121f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        #print-btn:hover { background: #ff3341; }
+
+        #error-msg {
+            text-align: center;
+            padding: 80px 32px;
+            color: #888;
+            font-style: italic;
+        }
+
+        @media print {
+            #print-btn { display: none; }
+            body { padding: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="report-header">
+    <h1>California Wildfire Risk Report</h1>
+    <div id="report-address"></div>
+    <div id="report-meta"></div>
+</div>
+
+<div id="report-body">
+    <div id="error-msg" style="display:none;">
+        No report data found. Please generate a report from the main application first.
+    </div>
+
+    <div id="report-content" style="display:none;">
+
+        <div id="confidence-badge"></div>
+
+        <!-- Gauge + signals -->
+        <div class="section">
+            <h2>Risk Summary Score</h2>
+            <div id="gauge-row">
+                <svg id="risk-gauge-svg" viewBox="0 0 200 120" width="160" height="96">
+                    <path d="M 20 100 A 80 80 0 0 1 60 27" fill="none" stroke="#d4edda" stroke-width="18" stroke-linecap="round"/>
+                    <path d="M 60 27 A 80 80 0 0 1 140 27" fill="none" stroke="#fff3cd" stroke-width="18" stroke-linecap="round"/>
+                    <path d="M 140 27 A 80 80 0 0 1 178 100" fill="none" stroke="#b1000f88" stroke-width="18" stroke-linecap="round"/>
+                    <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+                    <circle cx="100" cy="100" r="5" fill="#1a1a2e"/>
+                    <text x="14" y="118" font-size="9" fill="#666">Low</text>
+                    <text x="88" y="18" font-size="9" fill="#666" text-anchor="middle">Moderate</text>
+                    <text x="172" y="118" font-size="9" fill="#666" text-anchor="end">High</text>
+                </svg>
+                <div id="composite-label"></div>
+            </div>
+            <ul id="risk-signals"></ul>
+        </div>
+
+        <div class="section">
+            <h2>Overview — Home Value Impact</h2>
+            <p id="result-val"></p>
+        </div>
+
+        <div class="section">
+            <h2>Insurability Info</h2>
+            <p id="result-insurability"></p>
+        </div>
+
+        <div class="section" id="mitigation-section" style="display:none;">
+            <h2>Mitigation Recommendations</h2>
+            <p id="result-mitigation"></p>
+        </div>
+
+        <div class="section" id="doi-section" style="display:none;">
+            <h2>Insurance Non-Renewal Trends</h2>
+            <div id="doi-content"></div>
+        </div>
+
+        <div class="section" id="dins-section" style="display:none;">
+            <h2>Nearby Structural Damage (CAL FIRE DINS)</h2>
+            <div id="dins-content"></div>
+        </div>
+
+        <div class="section">
+            <h2>Financial / Value Info</h2>
+            <p id="result-affordability"></p>
+        </div>
+
+        <div class="section">
+            <h2>Official Hazard Zone</h2>
+            <p id="result-hazard-zone"></p>
+        </div>
+
+    </div>
+</div>
+
+<button id="print-btn" onclick="window.print()">Print / Save as PDF</button>
+
+<script>
+    const raw = localStorage.getItem('wildfire_report');
+    const address = localStorage.getItem('wildfire_report_address');
+    localStorage.removeItem('wildfire_report');
+    localStorage.removeItem('wildfire_report_address');
+
+    if (!raw) {
+        document.getElementById('error-msg').style.display = 'block';
+    } else {
+        const data = JSON.parse(raw);
+        document.getElementById('report-content').style.display = 'block';
+
+        // Header
+        document.getElementById('report-address').textContent = address || '';
+        document.getElementById('report-meta').textContent =
+            `Generated ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}`;
+
+        // Confidence
+        const confidence = (data.confidence || 'low').toLowerCase();
+        const badge = document.getElementById('confidence-badge');
+        badge.textContent = `Confidence: ${confidence}`;
+        badge.className = confidence;
+
+        // Gauge
+        const angles = {
+            "lower risk based on available data": -80,
+            "moderate risk": -20,
+            "moderate to high risk": 30,
+            "high and increasing risk": 80,
+        };
+        const composite = data.trends?.composite || {};
+        const label = composite.composite_label || '';
+        const angle = angles[label] ?? 0;
+        document.getElementById('gauge-needle').setAttribute('transform', `rotate(${angle}, 100, 100)`);
+        document.getElementById('composite-label').textContent = label;
+
+        // Signals
+        const ul = document.getElementById('risk-signals');
+        (composite.signals || []).forEach(s => {
+            const li = document.createElement('li');
+            li.className = s.direction || 'neutral';
+            li.textContent = s.text || s;
+            ul.appendChild(li);
+        });
+
+        // Text sections
+        setResultHtml('result-val', data.home_value_impact);
+        const fairPlanSummary = buildFairPlanSummary(data.fair_plan);
+        const insuranceText = fairPlanSummary
+            ? `${fairPlanSummary} ${data.insurance_outlook || ''}`.trim()
+            : data.insurance_outlook;
+        setResultHtml('result-insurability', insuranceText);
+        setResultHtml('result-affordability', data.affordability_score);
+        setResultHtml('result-hazard-zone', data.hazard_zone || 'Unknown');
+
+        // Mitigation (homeowner only)
+        if (data.mitigation_recommendations) {
+            document.getElementById('mitigation-section').style.display = 'block';
+            setResultHtml('result-mitigation', data.mitigation_recommendations);
+        }
+
+        // DOI
+        renderDoi(data.doi);
+
+        // DINS
+        renderDins(data.dins, data.property_chars);
+    }
+
+    function highlightReportText(text) {
+        const s = String(text ?? '')
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const withStrong = s
+            .replace(/&lt;strong&gt;/g, '<strong>')
+            .replace(/&lt;\/strong&gt;/g, '</strong>');
+        const re = /\b(likelihood|probability|chance|increasingly|decreasingly|significantly|sharply|substantially)\b|\d+(?:\.\d+)?(?:\s*(?:[–-]|to)\s*\d+(?:\.\d+)?)?\s*%/gi;
+        return withStrong.replace(re, '<mark class="report-highlight">$&</mark>');
+    }
+
+    function setResultHtml(id, text) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (text == null || text === '') { el.textContent = '—'; return; }
+        el.innerHTML = highlightReportText(text);
+    }
+
+    function buildFairPlanSummary(fairPlan) {
+        if (!fairPlan || !fairPlan.zipcode) return '';
+        if (fairPlan.error) return `FAIR Plan ZIP data unavailable for ${fairPlan.zipcode}.`;
+        if (!fairPlan.found) return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} does not appear in the current residential exposure report.`;
+        if (!fairPlan.covered_by_fair_plan) return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} appears historically in the report, but no FY${fairPlan.latest_fiscal_year || 'latest'} exposure is reported.`;
+        const latestExposure = typeof fairPlan.latest_total_exposure === 'number'
+            ? `$${fairPlan.latest_total_exposure.toLocaleString()}` : 'unavailable';
+        const changeText = typeof fairPlan.five_year_pct_change === 'number'
+            ? `${fairPlan.five_year_pct_change}%` : 'N/A';
+        return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} shows reported residential exposure. FY${fairPlan.latest_fiscal_year || 'latest'} total insured value: ${latestExposure}. Five-year change: ${changeText}.`;
+    }
+
+    function renderDoi(doi) {
+        const section = document.getElementById('doi-section');
+        const content = document.getElementById('doi-content');
+        if (!doi || !doi.found) return;
+        section.style.display = 'block';
+
+        const trendColors = { worsening:'#b91c1c', improving:'#16a34a', stable:'#92400e', 'insufficient data':'#666' };
+        const trend = doi.trend_label || 'insufficient data';
+        const trendColor = trendColors[trend] || '#666';
+
+        let html = `<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:10px;">
+            <div><div style="font-size:11px;color:#999;text-transform:uppercase;">Non-Renewal Rate (${doi.latest_year || 'latest'})</div>
+            <div style="font-size:20px;font-weight:700;">${doi.latest_nonrenewal_rate !== null ? doi.latest_nonrenewal_rate + '%' : 'N/A'}</div></div>
+            <div><div style="font-size:11px;color:#999;text-transform:uppercase;">Trend</div>
+            <div style="font-size:18px;font-weight:700;color:${trendColor};text-transform:capitalize;">${trend}</div></div>
+            ${doi.rate_change_pp !== null ? `<div><div style="font-size:11px;color:#999;text-transform:uppercase;">Rate Change</div>
+            <div style="font-size:15px;font-weight:600;">${doi.rate_change_pp > 0 ? '+' : ''}${doi.rate_change_pp} pp</div></div>` : ''}
+        </div>`;
+
+        if (doi.years?.length) {
+            html += `<table><thead><tr>
+                <th>Year</th><th>Renewed</th><th>Non-Renewed</th><th>Non-Renewal Rate</th>
+            </tr></thead><tbody>`;
+            doi.years.slice().reverse().forEach(y => {
+                html += `<tr>
+                    <td>${y.year}</td>
+                    <td>${y.renewed !== null ? y.renewed.toLocaleString() : '—'}</td>
+                    <td>${y.non_renewed !== null ? y.non_renewed.toLocaleString() : '—'}</td>
+                    <td style="font-weight:700;color:${trendColor};">${y.nonrenewal_rate_pct !== null ? y.nonrenewal_rate_pct + '%' : '—'}</td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+        }
+        content.innerHTML = html;
+    }
+
+    function renderDins(dins) {
+        const section = document.getElementById('dins-section');
+        const content = document.getElementById('dins-content');
+        if (!dins || !dins.found) return;
+        section.style.display = 'block';
+
+        const rates = dins.damage_rates || {};
+        const vulnLabels = {
+            roof_construction:'Roof Construction', eaves:'Eaves',
+            exterior_siding:'Exterior Siding', vent_screen:'Vent Screen',
+            window_pane:'Window Pane', fence_attached:'Fence Attached',
+        };
+
+        let html = `<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;">
+            <div><div style="font-size:11px;color:#999;text-transform:uppercase;">Structures Inspected</div>
+            <div style="font-size:20px;font-weight:700;">${(rates.total||0).toLocaleString()}</div></div>
+            <div><div style="font-size:11px;color:#999;text-transform:uppercase;">Destruction Rate</div>
+            <div style="font-size:20px;font-weight:700;color:#b91c1c;">${rates.destruction_rate_pct ?? '—'}%</div></div>
+            <div><div style="font-size:11px;color:#999;text-transform:uppercase;">Damaged or Destroyed</div>
+            <div style="font-size:20px;font-weight:700;color:#92400e;">${rates.damage_or_destroyed_rate_pct ?? '—'}%</div></div>
+        </div>`;
+
+        const vulnEntries = Object.entries(dins.vulnerability_profile || {}).filter(([,v]) => v?.length);
+        if (vulnEntries.length) {
+            html += `<div style="font-size:11px;color:#999;text-transform:uppercase;margin-bottom:6px;">Common characteristics in damaged structures</div>
+            <div class="vuln-chips">`;
+            vulnEntries.forEach(([key, vals]) => {
+                html += `<div class="vuln-chip"><span style="color:#999;">${vulnLabels[key]||key}:</span> ${vals.join(', ')}</div>`;
+            });
+            html += `</div>`;
+        }
+
+        const compEntries = Object.entries(dins.property_comparison || {});
+        if (compEntries.length) {
+            html += `<div style="margin-top:16px;font-size:11px;color:#999;text-transform:uppercase;margin-bottom:8px;">Your home vs. nearby matching structures</div>
+            <table><thead><tr>
+                <th>Characteristic</th><th>Your Value</th><th>Matched</th><th>Destruction Rate</th><th>Damaged or Destroyed</th>
+            </tr></thead><tbody>`;
+            compEntries.forEach(([key, val]) => {
+                html += `<tr>
+                    <td>${vulnLabels[key]||key}</td>
+                    <td style="font-weight:600;">${val.user_value}</td>
+                    <td>${val.matched_structures}</td>
+                    <td style="font-weight:700;color:#b91c1c;">${val.destruction_rate_pct}%</td>
+                    <td style="font-weight:700;color:#92400e;">${val.damage_or_destroyed_rate_pct}%</td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+        }
+
+        if (dins.year_range) {
+            html += `<div style="margin-top:8px;font-size:11px;color:#aaa;">Data covers ${dins.year_range}. Radius: ${dins.radius_miles} miles.</div>`;
+        }
+        content.innerHTML = html;
+    }
+</script>
+</body>
+</html>

@@ -144,6 +144,10 @@
         <div id="modal">
             <button id="modal-close" onclick="closeModal()">&times</button>
 
+            <button id="open-report-btn" onclick="openPrintableReport()" style="display:none; position:absolute; top:16px; right:52px; background:none; border:1px solid #ccc; border-radius:6px; padding:4px 12px; font-size:12px; color:#666; cursor:pointer;">
+                Open Printable Report ↗
+            </button>
+
             <h2>Wildfire Risk Report</h2>
             <div id="modal-coords"></div>
 
@@ -692,6 +696,10 @@
 
         function closeModal() {
             document.getElementById('risk-report-modal').classList.remove('active');
+        }
+
+        function openPrintableReport() {
+            window.open('/report.html', '_blank');
         }
 
         function runLoadingSteps(lat, lon) {
@@ -1340,6 +1348,11 @@
                 fillOpacity: 0.35,
                 weight: 2
             }).addTo(map);
+
+
+            localStorage.setItem('wildfire_report', JSON.stringify(data));
+            localStorage.setItem('wildfire_report_address', selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`);
+            document.getElementById('open-report-btn').style.display = 'inline-block';
 
         }
  
