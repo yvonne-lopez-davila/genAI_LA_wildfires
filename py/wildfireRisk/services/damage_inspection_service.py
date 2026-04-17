@@ -20,7 +20,9 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-DATASET_DIR = Path(__file__).resolve().parent / "property_datasets"
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATASET_DIR = BASE_DIR / "static_datasets" / "property_datasets"
 CSV_PATH = DATASET_DIR / "structure_fire_damage_dins.csv"
 
 DEFAULT_RADIUS_MILES = 5

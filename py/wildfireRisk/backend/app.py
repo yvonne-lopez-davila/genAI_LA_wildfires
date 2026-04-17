@@ -18,26 +18,26 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional, Dict
 
-from risk_client import HomeRiskClient 
-from fire_hazard_service import query_fire_hazard_zone
+from backend.risk_client import HomeRiskClient 
+from services.fire_hazard_service import query_fire_hazard_zone
 
 ## Home value data
-from zhvi_service import get_home_value_timeseries
+from services.zhvi_service import get_home_value_timeseries
 
 ## Proximity to fire events via zipcode
-from fire_history_service import get_nearby_fires
+from services.fire_history_service import get_nearby_fires
 
 ## FAIR Plan ZIP-level residential exposure
-from fair_plan_service import get_fair_plan_status
+from services.fair_plan_service import get_fair_plan_status
 
 ## Analyze historical trends (statistical analysis) 
-from trend_analysis import analyze_trends
+from services.trend_analysis import analyze_trends
 
 ## CAL FIRE structure damage inspection data
-from damage_inspection_service import get_dins_risk
+from services.damage_inspection_service import get_dins_risk
  
 ## California DOI insurance non-renewal data
-from doi_nonrenewal_service import get_nonrenewal_status
+from services.doi_nonrenewal_service import get_nonrenewal_status
 
 app = FastAPI()
 

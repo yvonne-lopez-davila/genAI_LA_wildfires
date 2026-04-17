@@ -7,7 +7,10 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-CSV_PATH = Path("zillow_datasets/zhvi_ca.csv")
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATASET_DIR = BASE_DIR / "static_datasets" / "zillow_datasets"
+CSV_PATH = DATASET_DIR / "zhvi_ca.csv"
 
 # Cache the dataframe so we only read it once
 _df: Optional[pd.DataFrame] = None

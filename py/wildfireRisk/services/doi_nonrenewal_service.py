@@ -15,7 +15,9 @@ import csv
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-DATASET_DIR = Path(__file__).resolve().parent / "insurance_datasets"
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATASET_DIR = BASE_DIR / "static_datasets" / "insurance_datasets"
 XLSX_PATH = DATASET_DIR / "insurance_renewal_DOI_data.xlsx"
 
 _rows_by_zip: Optional[Dict[str, List[Dict]]] = None

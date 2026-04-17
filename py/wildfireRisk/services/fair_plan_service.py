@@ -12,7 +12,9 @@ import csv
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-DATASET_DIR = Path(__file__).resolve().parent / "insurance_datasets"
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATASET_DIR = BASE_DIR / "static_datasets" / "insurance_datasets"
 CSV_PATH = DATASET_DIR / "fair_plan_residential_exposure_zip.csv"
 SOURCE_URL = (
     "https://www.cfpnet.com/wp-content/uploads/2025/11/"
