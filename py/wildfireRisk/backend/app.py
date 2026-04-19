@@ -23,6 +23,7 @@ from services.fire_hazard_service import query_fire_hazard_zone
 
 ## Home value data
 from services.zhvi_service import get_home_value_timeseries
+from services.zillow_overlay_service import get_zip_rent_timeseries
 
 ## Proximity to fire events via zipcode
 from services.fire_history_service import get_nearby_fires
@@ -32,6 +33,7 @@ from services.fair_plan_service import get_fair_plan_status
 
 ## Analyze historical trends (statistical analysis) 
 from services.trend_analysis import analyze_trends
+from services.chart_signal_service import summarize_rent_trajectory, summarize_cross_signals
 
 ## CAL FIRE structure damage inspection data
 from services.damage_inspection_service import get_dins_risk
@@ -75,6 +77,7 @@ def analyze(body: AnalysisRequest):
 
     # Query zillow home value for zipcode associated with location
     zhvi = get_home_value_timeseries(body.zipcode) if body.zipcode else {"found": False}
+    zillow_overlay = get_zip_rent_timeseries(body.zipcode) if body.zipcode else {"found": False}
 
     # Query FAIR Plan residential exposure by zipcode
     fair_plan = get_fair_plan_status(body.zipcode) if body.zipcode else {"found": False}
@@ -143,11 +146,15 @@ def analyze(body: AnalysisRequest):
     )
 
     # charts llm analysis bullets
+    rent_trajectory = summarize_rent_trajectory(zillow_overlay)
+    cross_signals = summarize_cross_signals(fire_history, zhvi, zillow_overlay)
     chart_observations = client.generate_chart_observations(
         zipcode=body.zipcode or "unknown",
         price_trajectory=trends.get("price_trajectory", {}),
+        rent_trajectory=rent_trajectory,
         fire_proximity=trends.get("fire_proximity", {}),
         fire_frequency=trends.get("fire_frequency", {}),
+        cross_signals=cross_signals,
     ) 
 
 
@@ -195,6 +202,7 @@ def analyze(body: AnalysisRequest):
             "hazard_attributes": hazard.get("attributes", {}),
             "source_layer": hazard.get("source_layer"),
             "zhvi": zhvi,
+            "zillow_overlay": zillow_overlay,
             "fair_plan": fair_plan,
             "fire_history": fire_history,
             "trends": trends,
@@ -211,6 +219,7 @@ def analyze(body: AnalysisRequest):
             "hazard_attributes": hazard.get("attributes", {}),
             "source_layer": hazard.get("source_layer"),
             "zhvi": zhvi,
+            "zillow_overlay": zillow_overlay,
             "fair_plan": fair_plan,
             "fire_history": fire_history,
             "trends": trends,

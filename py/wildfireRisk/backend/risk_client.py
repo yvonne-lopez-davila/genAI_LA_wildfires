@@ -318,8 +318,10 @@ You must respond ONLY with a valid JSON object in exactly this format:
         self,
         zipcode: str,
         price_trajectory: dict,
+        rent_trajectory: dict,
         fire_proximity: dict,
         fire_frequency: dict,
+        cross_signals: dict,
     ) -> str:
         
         query = f"""
@@ -330,6 +332,12 @@ You must respond ONLY with a valid JSON object in exactly this format:
     - 5-year change: {price_trajectory.get('pct_change_5yr', 'N/A')}% ({price_trajectory.get('trend_label', 'N/A')})
     - Full date range: {price_trajectory.get('year_range', 'N/A')}
 
+    Rent data (Zillow ZIP-level):
+    - Current median rent: ${rent_trajectory.get('current_value', 'N/A')}
+    - 5-year change: {rent_trajectory.get('pct_change_5yr', 'N/A')}% ({rent_trajectory.get('trend_label', 'N/A')})
+    - Full date range: {rent_trajectory.get('year_range', 'N/A')}
+    - Data available: {rent_trajectory.get('available', False)}
+
     Wildfire proximity data:
     - Total fires within 30 miles: {fire_frequency.get('total_fires', 0)}
     - Fire frequency trend: {fire_frequency.get('trend_label', 'N/A')}
@@ -338,8 +346,16 @@ You must respond ONLY with a valid JSON object in exactly this format:
     - Recent avg distance (last 5 years): {fire_proximity.get('recent_avg_distance_miles', 'N/A')} miles
     - Closest recorded fire: {fire_proximity.get('closest_fire', {}).get('fire_name', 'N/A')} ({fire_proximity.get('closest_fire', {}).get('year', 'N/A')}, {fire_proximity.get('closest_fire', {}).get('distance_miles', 'N/A')} miles)
 
-    Generate concise bullet points in exactly these three sections:
+    Cross-signal stats (distance vs market metrics):
+    - Data available: {cross_signals.get('available', False)}
+    - Home overlap years: {cross_signals.get('home_overlap_years', 'N/A')}
+    - Rent overlap years: {cross_signals.get('rent_overlap_years', 'N/A')}
+    - Corr(home values, fire distance): {cross_signals.get('home_fire_distance_corr', 'N/A')}
+    - Corr(rent, fire distance): {cross_signals.get('rent_fire_distance_corr', 'N/A')}
+
+    Generate concise bullet points in exactly these four sections:
     HOME TRENDS: (1-2 bullets about what the price chart shows)
+    RENT TRENDS: (1-2 bullets about what the rent chart shows; if unavailable, say "Rent data unavailable for this ZIP.")
     WILDFIRE TRENDS: (1-2 bullets about what the fire proximity chart shows)
     CROSS-OBSERVATIONS: (1-2 bullets connecting fire activity to price behavior, if any pattern exists)
 
@@ -347,14 +363,15 @@ You must respond ONLY with a valid JSON object in exactly this format:
     - Be specific, use numbers
     - Do not give advice or recommendations  
     - Do not repeat data verbatim, interpret it
-    - If no meaningful cross-observation exists, say so briefly
+    - CROSS-OBSERVATIONS must reference at least one numeric cross-signal when available
+    - Only claim "no clear relationship" if both correlations are unavailable or both are between -0.2 and 0.2
     - Return only the bullets, no extra text
     """
         response = self.client.generate(
             model=self.model,
             system="You are a data analyst summarizing charts for a homeowner.",
             query=query,
-            temperature=0.3,
+            temperature=0.2,
             session_id=self.session_id,
             rag_usage=False,
             lastk=0,
