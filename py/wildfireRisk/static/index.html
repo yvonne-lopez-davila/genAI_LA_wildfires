@@ -855,7 +855,13 @@
                         legend: { display: true, position: 'top' },
                         tooltip: {
                             callbacks: {
-                                label: ctx => `$${ctx.parsed.y.toLocaleString()}`
+                                label: ctx => {
+                                    const value = ctx.parsed.y;
+                                    if (ctx.dataset?.yAxisID === 'y1') {
+                                        return `$${value.toLocaleString()}`;
+                                    }
+                                    return `$${value.toLocaleString()}`;
+                                }
                             }
                         }
                     },
@@ -872,7 +878,7 @@
                             position: 'right',
                             grid: { drawOnChartArea: false },
                             ticks: {
-                                callback: val => `${val.toLocaleString()}`
+                                callback: val => `$${val.toLocaleString()}`
                             }
                         }
                     }

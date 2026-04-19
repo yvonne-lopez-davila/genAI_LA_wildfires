@@ -33,6 +33,7 @@ from services.fair_plan_service import get_fair_plan_status
 
 ## Analyze historical trends (statistical analysis) 
 from services.trend_analysis import analyze_trends
+from services.chart_signal_service import summarize_rent_trajectory, summarize_cross_signals
 
 ## CAL FIRE structure damage inspection data
 from services.damage_inspection_service import get_dins_risk
@@ -45,46 +46,6 @@ app = FastAPI()
 
 # TODO maybe differentiate user sessions later, hardcoding for now
 client = HomeRiskClient(session_id="LA_risk_analysis")
-
-
-def summarize_rent_trajectory(zillow_overlay: dict) -> dict:
-    if not zillow_overlay or not zillow_overlay.get("found"):
-        return {"available": False}
-
-    ts = zillow_overlay.get("timeseries", {})
-    if not ts or len(ts) < 2:
-        return {"available": False}
-
-    years = sorted(ts.keys())
-    max_year = max(years)
-    min_year = min(years)
-    current_value = ts[max_year]
-
-    recent_start = str(int(max_year) - 5)
-    recent_years = [y for y in years if y >= recent_start]
-
-    pct_change_5yr = None
-    trend_label = "insufficient data"
-    if len(recent_years) >= 2:
-        start_val = ts[recent_years[0]]
-        if start_val:
-            pct_change_5yr = round((current_value - start_val) / start_val * 100, 1)
-            if pct_change_5yr > 20:
-                trend_label = "strong growth"
-            elif pct_change_5yr > 5:
-                trend_label = "moderate growth"
-            elif pct_change_5yr > -5:
-                trend_label = "flat"
-            else:
-                trend_label = "declining"
-
-    return {
-        "available": True,
-        "current_value": round(current_value, 1),
-        "pct_change_5yr": pct_change_5yr,
-        "trend_label": trend_label,
-        "year_range": f"{min_year}-{max_year}",
-    }
 
 
 # Define request struct
@@ -186,12 +147,14 @@ def analyze(body: AnalysisRequest):
 
     # charts llm analysis bullets
     rent_trajectory = summarize_rent_trajectory(zillow_overlay)
+    cross_signals = summarize_cross_signals(fire_history, zhvi, zillow_overlay)
     chart_observations = client.generate_chart_observations(
         zipcode=body.zipcode or "unknown",
         price_trajectory=trends.get("price_trajectory", {}),
         rent_trajectory=rent_trajectory,
         fire_proximity=trends.get("fire_proximity", {}),
         fire_frequency=trends.get("fire_frequency", {}),
+        cross_signals=cross_signals,
     ) 
 
 
