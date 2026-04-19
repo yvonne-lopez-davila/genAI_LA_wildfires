@@ -318,6 +318,7 @@ You must respond ONLY with a valid JSON object in exactly this format:
         self,
         zipcode: str,
         price_trajectory: dict,
+        rent_trajectory: dict,
         fire_proximity: dict,
         fire_frequency: dict,
     ) -> str:
@@ -330,6 +331,12 @@ You must respond ONLY with a valid JSON object in exactly this format:
     - 5-year change: {price_trajectory.get('pct_change_5yr', 'N/A')}% ({price_trajectory.get('trend_label', 'N/A')})
     - Full date range: {price_trajectory.get('year_range', 'N/A')}
 
+    Rent data (Zillow ZIP-level):
+    - Current median rent: ${rent_trajectory.get('current_value', 'N/A')}
+    - 5-year change: {rent_trajectory.get('pct_change_5yr', 'N/A')}% ({rent_trajectory.get('trend_label', 'N/A')})
+    - Full date range: {rent_trajectory.get('year_range', 'N/A')}
+    - Data available: {rent_trajectory.get('available', False)}
+
     Wildfire proximity data:
     - Total fires within 30 miles: {fire_frequency.get('total_fires', 0)}
     - Fire frequency trend: {fire_frequency.get('trend_label', 'N/A')}
@@ -338,8 +345,9 @@ You must respond ONLY with a valid JSON object in exactly this format:
     - Recent avg distance (last 5 years): {fire_proximity.get('recent_avg_distance_miles', 'N/A')} miles
     - Closest recorded fire: {fire_proximity.get('closest_fire', {}).get('fire_name', 'N/A')} ({fire_proximity.get('closest_fire', {}).get('year', 'N/A')}, {fire_proximity.get('closest_fire', {}).get('distance_miles', 'N/A')} miles)
 
-    Generate concise bullet points in exactly these three sections:
+    Generate concise bullet points in exactly these four sections:
     HOME TRENDS: (1-2 bullets about what the price chart shows)
+    RENT TRENDS: (1-2 bullets about what the rent chart shows; if unavailable, say "Rent data unavailable for this ZIP.")
     WILDFIRE TRENDS: (1-2 bullets about what the fire proximity chart shows)
     CROSS-OBSERVATIONS: (1-2 bullets connecting fire activity to price behavior, if any pattern exists)
 

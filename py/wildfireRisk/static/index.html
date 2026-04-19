@@ -259,7 +259,7 @@
                                         <div id="ai-analysis-tooltip-content">
                                             Source:
                                             <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
-                                                Zillow Research Data (ZHVI)
+                                                Zillow Research Data (ZHVI + ZIP-level listings)
                                             </a>
                                             <br>
                                             <a href="https://www.fire.ca.gov/incidents" target="_blank" rel="noopener noreferrer">
@@ -586,6 +586,11 @@
             // 90210
         async function geocodeAddressInput(address) {
             address = (address || '').trim();
+            const typedZipMatch = address.match(/\b\d{5}\b/);
+            if (typedZipMatch) {
+                // Fallback for ZIP-only searches so backend always gets a ZIP.
+                selectedZip = typedZipMatch[0];
+            }
             
             const cleanAddress = address
                 .replace(/,?\s*california,?\s*usa?$/i, '')
@@ -788,15 +793,49 @@
         var zhviChartInstance = null;
 
         // Render home value chart
-        function renderHomeValChart(zhvi) {
+        function renderHomeValChart(zhvi, zillowOverlay) {
             const canvas = document.getElementById('zhvi-chart');
-            if (!zhvi || !zhvi.found || !zhvi.timeseries) {
+            const hasZhvi = !!(zhvi && zhvi.found && zhvi.timeseries);
+            const hasOverlay = !!(zillowOverlay && zillowOverlay.found && zillowOverlay.timeseries);
+            if (!hasZhvi && !hasOverlay) {
                 canvas.style.display = 'none';
                 return;
             }
 
-            const labels = Object.keys(zhvi.timeseries);
-            const values = Object.values(zhvi.timeseries);
+            const labelsSet = new Set();
+            if (hasZhvi) Object.keys(zhvi.timeseries).forEach(y => labelsSet.add(y));
+            if (hasOverlay) Object.keys(zillowOverlay.timeseries).forEach(y => labelsSet.add(y));
+            const labels = Array.from(labelsSet).sort();
+
+            const datasets = [];
+            if (hasZhvi) {
+                datasets.push({
+                    label: `Home Values — ${zhvi.zipcode} (${zhvi.city})`,
+                    data: labels.map(y => zhvi.timeseries[y] ?? null),
+                    borderColor: '#e63946',
+                    backgroundColor: 'rgba(230, 57, 70, 0.08)',
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    fill: true,
+                    tension: 0.3,
+                    yAxisID: 'y'
+                });
+            }
+            if (hasOverlay) {
+                datasets.push({
+                    label: `${zillowOverlay.metric} — ${zillowOverlay.zipcode}`,
+                    data: labels.map(y => zillowOverlay.timeseries[y] ?? null),
+                    borderColor: '#1d4ed8',
+                    backgroundColor: 'rgba(29, 78, 216, 0.06)',
+                    borderWidth: 3,
+                    pointRadius: 2.5,
+                    pointStyle: 'rectRounded',
+                    borderDash: [6, 3],
+                    fill: false,
+                    tension: 0.25,
+                    yAxisID: 'y1'
+                });
+            }
 
             canvas.style.display = 'block';
 
@@ -808,16 +847,7 @@
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: `Home Values — ${zhvi.zipcode} (${zhvi.city})`,
-                        data: values,
-                        borderColor: '#e63946',
-                        backgroundColor: 'rgba(230, 57, 70, 0.08)',
-                        borderWidth: 2,
-                        pointRadius: 2,
-                        fill: true,
-                        tension: 0.3
-                    }]
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
@@ -831,8 +861,18 @@
                     },
                     scales: {
                         y: {
+                            display: hasZhvi,
+                            position: 'left',
                             ticks: {
                                 callback: val => `$${(val/1000).toFixed(0)}k`
+                            }
+                        },
+                        y1: {
+                            display: hasOverlay,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: {
+                                callback: val => `${val.toLocaleString()}`
                             }
                         }
                     }
@@ -843,10 +883,17 @@
         // home val chart observations
         function renderChartObservations(data) {
             // Zipcode label
-            const zip = data.zhvi?.zipcode || data.fair_plan?.zipcode || '';
+            const zip = data.zhvi?.zipcode || data.zillow_overlay?.zipcode || data.fair_plan?.zipcode || '';
             const city = data.zhvi?.city || '';
             document.getElementById('chart-obs-zipcode').textContent = 
                 zip ? `for ZIP ${zip}${city ? ' (' + city + ')' : ''}` : '';
+
+            const chartTitle = document.getElementById('chart-section-title');
+            if (data.zillow_overlay?.found) {
+                chartTitle.textContent = 'Home Prices, Rent Prices & Wildfire Events';
+            } else {
+                chartTitle.textContent = 'Home Prices & Wildfire Events';
+            }
 
             // LLM observations — parse sections and render
             const obs = data.chart_observations || '';
@@ -859,7 +906,7 @@
                 const lines = obs.split('\n').filter(l => l.trim());
                 let html = '';
                 lines.forEach(line => {
-                    if (line.match(/^(HOME TRENDS|WILDFIRE TRENDS|CROSS-OBSERVATIONS):/i)) {
+                    if (line.match(/^(HOME TRENDS|RENT TRENDS|WILDFIRE TRENDS|CROSS-OBSERVATIONS):/i)) {
                         html += `<p style="font-weight:700; color:#e63946; text-transform:uppercase; font-size:11px; letter-spacing:0.05em; margin:10px 0 4px;">${line}</p>`;
                     } else if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
                         html += `<p style="margin:2px 0 2px 8px;">• ${line.replace(/^[-•]\s*/, '')}</p>`;
@@ -1287,7 +1334,7 @@
             console.log("dins:", data.dins);
             console.log("doi:", data.doi);
 
-            renderHomeValChart(data.zhvi);
+            renderHomeValChart(data.zhvi, data.zillow_overlay);
             renderFireHistoryChart(data.fire_history);
             renderGauge(data.trends, data.gauge_explanation);
             renderChartObservations(data);
@@ -1394,7 +1441,11 @@
                     document.getElementById('address-input').value = '';
                 }
                 // extract zip from address object
-                selectedZip = data.address?.postcode || null;
+                const postcode = data.address?.postcode || null;
+                if (postcode) {
+                    const zipMatch = String(postcode).match(/\d{5}/);
+                    selectedZip = zipMatch ? zipMatch[0] : selectedZip;
+                }
             } catch (err) {
                 console.error('Reverse geocode failed', err);
                 document.getElementById('address-input').value = '';
