@@ -259,7 +259,7 @@
                                         <div id="ai-analysis-tooltip-content">
                                             Source:
                                             <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
-                                                Zillow Research Data (ZHVI + ZIP-level listings)
+                                                <span id="zillow-source-label">Zillow Research Data (ZHVI)</span>
                                             </a>
                                             <br>
                                             <a href="https://www.fire.ca.gov/incidents" target="_blank" rel="noopener noreferrer">
@@ -889,10 +889,17 @@
                 zip ? `for ZIP ${zip}${city ? ' (' + city + ')' : ''}` : '';
 
             const chartTitle = document.getElementById('chart-section-title');
+            const zillowSourceLabel = document.getElementById('zillow-source-label');
             if (data.zillow_overlay?.found) {
                 chartTitle.textContent = 'Home Prices, Rent Prices & Wildfire Events';
+                if (zillowSourceLabel) {
+                    zillowSourceLabel.textContent = 'Zillow Research Data (ZHVI, ZORI - ZIP level)';
+                }
             } else {
                 chartTitle.textContent = 'Home Prices & Wildfire Events';
+                if (zillowSourceLabel) {
+                    zillowSourceLabel.textContent = 'Zillow Research Data (ZHVI)';
+                }
             }
 
             // LLM observations — parse sections and render
