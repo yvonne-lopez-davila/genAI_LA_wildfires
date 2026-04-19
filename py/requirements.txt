@@ -2,5 +2,4 @@ fastapi
 uvicorn
 requests
 python-dotenv
-llmproxy @ file:///mnt/c/Users/yvonn/Halligan/cs150AIsocial/finalProj/genAI_LA_wildfires/py
 pandas
