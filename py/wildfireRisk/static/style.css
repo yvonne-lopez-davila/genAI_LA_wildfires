@@ -914,3 +914,149 @@ main {
 .dins-form-group select:focus {
     border-color: #1a1a2e;
 }
+
+
+
+/* Rework homeowner layout */
+/* ═══════════════════════════════════════════════════
+   HOMEOWNER REPORT — new top sections
+   Add these rules to the bottom of style.css
+   ═══════════════════════════════════════════════════ */
+
+/* ── Section banner headers (warm tan like the mockup) ── */
+.report-section-banner {
+    grid-column: 1 / -1;
+    background: #c8a96e;          /* warm sand, echoes body bg */
+    color: #1a1a2e;
+    padding: 10px 18px;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 0;
+}
+
+.report-section-banner h2 {
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    color: #1a1a2e;
+    margin: 0 0 2px 0;
+    text-transform: none;
+}
+
+.report-section-banner p {
+    font-size: 12px;
+    color: #4a3b1f;
+    margin: 0;
+    font-style: italic;
+}
+
+/* ── Mitigation banner container ── */
+#mitigation-banner {
+    grid-column: 1 / -1;
+    display: none;               /* shown by JS when data exists */
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 8px;
+}
+
+#mitigation-banner.visible {
+    display: flex;
+}
+
+/* Arrow/chevron cards row */
+#mitigation-chevrons {
+    display: flex;
+    gap: 0;
+    background: #f5ede0;
+    border-radius: 0 0 8px 8px;
+    padding: 16px 16px 16px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Individual chevron card */
+.mitigation-chevron {
+    flex: 1;
+    min-width: 180px;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 20px 14px 18px;
+    border-radius: 6px;
+    font-family: Georgia, serif;
+    color: white;
+    /* right-pointing clip — pointy right edge, flat left */
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
+}
+
+/* Staggered warm reds / earthy tones matching your palette */
+.mitigation-chevron:nth-child(1) { background: #7d1a1a; }   /* deep red */
+.mitigation-chevron:nth-child(2) { background: #b84a2e; }   /* burnt orange-red */
+.mitigation-chevron:nth-child(3) { background: #d4834a; }   /* warm terracotta */
+
+.mitigation-chevron-number {
+    font-size: 22px;
+    font-weight: 700;
+    opacity: 0.35;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.mitigation-chevron-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.mitigation-chevron-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    opacity: 0.75;
+}
+
+.mitigation-chevron-text {
+    font-size: 13px;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+/* ── Vulnerability section wrapper ── */
+#vulnerability-section {
+    grid-column: 1 / -1;
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 8px;
+}
+
+#vulnerability-section.visible {
+    display: flex;
+}
+
+/* The teal/blue header from the mockup */
+.vulnerability-banner {
+    background: #1a4a5a;         /* dark teal — complement to the warm reds */
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px 8px 0 0;
+}
+
+.vulnerability-banner h2 {
+    font-family: Georgia, serif;
+    font-size: 18px;
+    font-weight: 700;
+    font-style: italic;
+    color: white;
+    margin: 0;
+}
+
+#vulnerability-dins-content {
+    background: #eef6f9;
+    border-radius: 0 0 8px 8px;
+    padding: 16px;
+}
