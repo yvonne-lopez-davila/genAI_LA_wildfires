@@ -111,6 +111,7 @@ Given a property location, assess:
 4. MITIGATION RECOMMENDATIONS: Provide 1-3 specific, actionable recommendations
    formatted as a numbered list: "1. ... 2. ... 3. ..."
    Do not use bullet points or dashes.
+   
    Only include this section if the hazard zone is High or Very High.
    If RAG sources are referenced, link the source in the text.
 
