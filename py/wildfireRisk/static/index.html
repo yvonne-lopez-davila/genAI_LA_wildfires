@@ -1229,6 +1229,61 @@
             content.innerHTML = html;
         }
 
+        function renderMitigationBanner(mitigationText) {
+            const banner = document.getElementById('mitigation-banner');
+            const chevrons = document.getElementById('mitigation-chevrons');
+
+            if (!mitigationText || userType !== 'homeowner') {
+                banner.classList.remove('visible');
+                return;
+            }
+
+            // Split on numbered list patterns: "1.", "1)", or newlines between sentences
+            // The LLM typically returns "1. ... 2. ... 3. ..."
+            const items = mitigationText
+                .split(/(?=\b[1-9]\.\s)/)          // split before "1. " "2. " etc.
+                .map(s => s.replace(/^\d+\.\s*/, '').trim())
+                .filter(Boolean);
+
+            // Fallback: if no numbered split worked, split on newlines
+            const recs = items.length >= 2
+                ? items
+                : mitigationText.split(/\n+/).map(s => s.trim()).filter(Boolean);
+
+            chevrons.innerHTML = recs.slice(0, 3).map((text, i) => `
+                <div class="mitigation-chevron">
+                    <span class="mitigation-chevron-number">${i + 1}</span>
+                    <div class="mitigation-chevron-body">
+                        <span class="mitigation-chevron-label">Recommendation ${i + 1}</span>
+                        <span class="mitigation-chevron-text">${text}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            banner.classList.add('visible');
+        }
+
+        function renderVulnerabilitySection(dins) {
+            const section = document.getElementById('vulnerability-section');
+            const content = document.getElementById('vulnerability-dins-content');
+
+            if (!dins || userType !== 'homeowner') {
+                section.classList.remove('visible');
+                return;
+            }
+
+            // Reuse the same dins rendering logic — copy result into vulnerability content
+            // First render into the hidden dins-section as usual (renderDins handles that),
+            // then clone its innerHTML here.
+            section.classList.add('visible');
+
+            // After renderDins() has run, copy its content across
+            const dinsContent = document.getElementById('dins-content');
+            if (dinsContent) {
+                content.innerHTML = dinsContent.innerHTML || 
+                    '<p style="color:#888;">No inspected structures found within 5 miles of this location.</p>';
+            }
+        }
 
         //////////////////////
         function highlightReportText(text) {
@@ -1374,6 +1429,16 @@
             renderChartObservations(data);
             renderDoi(data.doi);
             renderDins(data.dins);
+            // Homeowner-specific top sections
+            renderMitigationBanner(data.mitigation_recommendations);
+            renderVulnerabilitySection(data.dins);
+
+            // Hide the old mitigation and dins sections for homeowners
+            // (their content is now shown in the top banner / vulnerability section)
+            if (userType === 'homeowner') {
+                document.getElementById('mitigation-section').style.display = 'none';
+                document.getElementById('dins-section').style.display = 'none';
+            }
 
             // Confidence 
             const score = document.getElementById('response-confidence');
