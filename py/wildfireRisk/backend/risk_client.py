@@ -108,10 +108,63 @@ Given a property location, assess:
 3. AFFORDABILITY SCORE: Whether continuing to own this property remains financially 
    viable given current and projected insurance costs, fire risk, and value trends.
 
-4. MITIGATION RECOMMENDATIONS: 2-3 specific, actionable improvements most relevant 
-   to this property's risk profile. Draw from CalFire home hardening guidelines and 
-   the Safer from Wildfires program. Prioritize actions that also improve insurability.
-   Only include this if the hazard zone is High or Very High.
+4. MITIGATION RECOMMENDATIONS: Provide 1-3 specific, actionable recommendations
+   formatted as a numbered list: "1. ... 2. ... 3. ..."
+   Do not use bullet points or dashes.
+   Only include this section if the hazard zone is High or Very High.
+   If RAG sources are referenced, link the source in the text.
+
+   Order recommendations by urgency and impact: the action with the greatest combined
+   effect on fire survivability AND insurability should be #1.
+   If a property characteristic is known, state directly why it is a risk factor.
+   If it is inferred or unknown, tell the homeowner exactly what to check or verify
+   (e.g. "Verify whether your asphalt shingles are rated Class A — if not, replacement
+   is the single highest-impact upgrade for fire survivability and insurability").
+   Never hedge with "may not meet standards" without giving the homeowner a concrete
+   next step to find out.
+   
+    When referencing a specific home hardening component (eaves, vents, roof, siding, 
+    windows, fences, defensible space), wrap the term in double brackets like [[eaves]] 
+    or [[ember-resistant vents]]. Do not include URLs yourself.
+
+   Each recommendation should consider the following where data is available:
+
+   - PROPERTY CHARACTERISTICS: roof material, eaves, siding, vents, windows, fencing,
+     and any other homeowner-provided inputs. Name the specific characteristic
+     (e.g. "Your unenclosed eaves and wood siding are among the highest-risk
+     combinations in nearby destroyed structures").
+
+   - LOCATION & FIRE BEHAVIOR: the property's geographic context — slope, prevailing
+     wind patterns, proximity to wildland interface, local fire history, and how
+     these amplify or moderate risk for this specific address.
+
+   - DESTRUCTION RATE DATA: reference the nearby structure statistics where relevant
+     (e.g. "70.3% of homes with asphalt roofs in this area were damaged or destroyed").
+     Make the data feel personal, not generic.
+
+   - FINANCIAL & INSURABILITY IMPACT: for each recommendation, note whether it is
+     likely to improve insurability, qualify for a discount, or satisfy a specific
+     insurer requirement (e.g. ember-resistant vents per Safer from Wildfires Tier 1).
+     Mention cost tier where meaningful (low/medium/high effort).
+
+   - RAG SOURCES: ground each recommendation in CalFire home hardening guidelines
+     and/or the Safer from Wildfires program, but only where directly applicable
+     to this property's actual vulnerabilities. Do not cite guidelines generically.
+
+   GUARDRAILS (these are hard rules, not suggestions):
+   - Quality over quantity. Return only recommendations you can fully ground in the
+     provided data. 1 strong recommendation is better than 3 generic ones.
+   - Never invent property characteristics, destruction rates, or insurer requirements
+     that were not provided in the context.
+   - If you have insufficient data to produce even 1 grounded recommendation, set
+     "mitigation_recommendations" to exactly the string "INSUFFICIENT_DATA" — 
+     no explanation, no apology, just that string.
+
+    If a homeowner's property characteristic is notably protective compared to nearby
+    destroyed structures (e.g. their roof or siding material appears in significantly
+    fewer destroyed homes), you may open with a single sentence acknowledging this
+    before the recommendations. Only do this if the data clearly supports it.
+    Do not manufacture encouragement.
 
 5. CONFIDENCE: "high", "medium", or "low" based on data availability.
 
@@ -202,7 +255,7 @@ You must respond ONLY with a valid JSON object in exactly this format:
         self.last_k = last_k
 
         self.rag_threshold = 0.3 ## TODO adjust probably 
-        self.rag_k = 3 ## TODO adjust 
+        self.rag_k = 6 ## TODO adjust 
 
         self.temperature = 0.2 ## TODO tune
 
@@ -226,6 +279,18 @@ You must respond ONLY with a valid JSON object in exactly this format:
 
         query = f"Analyze wildfire risk for the property at latitidue {lat}, longitude {lon}"
 
+        if user_type == "homeowner":
+            query += (
+                "\n\nAlso retrieve home hardening and mitigation guidance relevant to this property, "
+                "including CalFire home hardening recommendations, Safer from Wildfires program requirements, "
+                "and retrofit or defensible space guidelines."
+                "\n\nKnown guideline sources to cite inline when relevant:"
+                "\n- CAL FIRE Home Hardening (eaves, vents, siding, roof, fences, defensible space): https://www.fire.ca.gov/home-hardening"
+                "\n- CAL FIRE Low-Cost Retrofit List: https://www.fire.ca.gov/home-hardening"
+                "\n- Safer from Wildfires program: https://www.insuranceca.gov/saferfromwildfires"
+                "\n- Defensible Space guide: https://www.readyforwildfire.org/prepare-for-wildfire/get-ready/defensible-space/"
+            )
+
         if extra_context:
             query += f"\n\n Additional context: {extra_context}"
 
@@ -235,7 +300,11 @@ You must respond ONLY with a valid JSON object in exactly this format:
             system_prompt = self.BUYER_SYSTEM_PROMPT
         else:
             system_prompt = self.SYSTEM_PROMPT  
-            
+
+        ## debug print
+        print("QUERY : ")    
+        print(query)
+
         response = self.client.generate(
             model=self.model,
             system= system_prompt,
@@ -247,6 +316,9 @@ You must respond ONLY with a valid JSON object in exactly this format:
             rag_k=self.rag_k,
             lastk=self.last_k,
         )
+
+        # debug print checking RAG
+        print(json.dumps(response, indent=2))
 
         if "error" in response:
             return {"error": response["error"], "raw_response": response}

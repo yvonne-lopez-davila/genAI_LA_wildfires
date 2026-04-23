@@ -137,6 +137,24 @@ def analyze(body: AnalysisRequest):
             f"Rate change over available period: {doi.get('rate_change_pp', 'N/A')} percentage points."
         )
         context_parts.append(doi_context)
+    
+    # After the dins call, add to context_parts:
+    if dins.get("found") and body.property_chars:
+        chars = body.property_chars
+        context_parts.append(
+            f"Homeowner-provided property characteristics: "
+            f"Roof construction: {chars.get('roof_construction', 'unknown')}, "
+            f"Eaves: {chars.get('eaves', 'unknown')}, "
+            f"Exterior siding: {chars.get('exterior_siding', 'unknown')}."
+        )
+
+    # Also add DINS destruction rate data if available:
+    if dins.get("found"):
+        context_parts.append(
+            f"Nearby structure destruction rate: {dins.get('destruction_rate')}%. "
+            f"{dins.get('damaged_or_destroyed')} of {dins.get('total_inspected')} "
+            f"nearby structures were damaged or destroyed."
+        )
 
     # risk meter gauge signals llm plain text explanation 
     gauge_explanation = client.explain_gauge(

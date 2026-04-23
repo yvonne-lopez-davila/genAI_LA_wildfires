@@ -183,18 +183,42 @@
                 <!-- ── HOMEOWNER TOP: What Can I Do? ─────────────────── -->
                 <div id="mitigation-banner">
                     <div class="report-section-banner">
-                        <h2>What Can I Do?</h2>
+                        <h2 style="color: #FFF8F0;">What Can I Do?</h2>
                         <p>Based on your property assessment, here are your top recommended steps to reduce your property risk:</p>
                     </div>
                     <div id="mitigation-chevrons">
                         <!-- populated by renderMitigationBanner() in JS -->
+                    </div>
+                    <div class="resources-strip">
+                        <div class="resources-strip-label">Related Resources</div>
+                        <div class="resources-links">
+                            <a class="resource-link" href="https://cal-fire-communications.paperturn-view.com/cal-fire-ready-set-go-brochure-final-files-v4-print?pid=MjU252417&popup=overview&v=3" target="_blank">
+                            Wildfire Action Plan<span class="resource-link-arrow">↗</span>
+                            </a>                            
+                            <a class="resource-link" href="https://www.insurance.ca.gov/01-consumers/105-type/95-guides/03-res/upload/FAQ-Safer-from-Wildfire-Regulation.pdf" target="_blank">
+                            What does being Safer from Wildfires mean for my insurance? <span class="resource-link-arrow">↗</span>
+                            </a>
+                            <a class="resource-link" href="https://www.fire.ca.gov/home-hardening" target="_blank">
+                            Home Hardening guide & self-assessment <span class="resource-link-arrow">↗</span>
+                            </a>
+                            <a class="resource-link" href="https://fire.lacounty.gov/wp-content/uploads/2021/05/Defensible-Space-booklet-2021WEB.pdf" target="_blank">
+                            Defensible space guide <span class="resource-link-arrow">↗</span>
+                            </a>
+                            <a class="resource-link" href="https://wildfiretaskforce.org/home-hardening-assistance/" target="_blank">
+                            Apply for home hardening grants <span class="resource-link-arrow">↗</span>
+                            </a>
+
+                            <a class="resource-link" href="https://www.insurance.ca.gov/01-consumers/200-wrr/Safer-from-Wildfires.cfm" target="_blank">
+                            Qualify for Insurability Discounts<span class="resource-link-arrow">↗</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- ── HOMEOWNER: How Vulnerable is my home? ─────────── -->
                 <div id="vulnerability-section">
                     <div class="vulnerability-banner">
-                        <h2>How Vulnerable is my home?</h2>
+                        <h2 style="color: #EEF6F9;">How Vulnerable is my home?</h2>
                     </div>
                     <div id="vulnerability-dins-content">
                         <!-- DINS content will be cloned here by JS -->
@@ -426,6 +450,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     
     <script>
+        const glossary = {
+            "eaves": "https://www.fire.ca.gov/home-hardening",
+            "ember-resistant vents": "https://www.fire.ca.gov/home-hardening",
+            "vents": "https://www.fire.ca.gov/home-hardening",
+            "defensible space": "https://www.readyforwildfire.org/prepare-for-wildfire/get-ready/defensible-space/",
+            "exterior siding": "https://www.fire.ca.gov/home-hardening",
+            "roof": "https://www.fire.ca.gov/home-hardening",
+            "retrofit list": "https://www.fire.ca.gov/home-hardening",
+        };
+        
         document.getElementById('get-started-btn').addEventListener('click', openUserTypeModal)
 
         var userType = null;
@@ -439,8 +473,6 @@
             document.getElementById('user-type-modal').classList.remove('active');
             document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
         }
-
-
 
         var marker = null;
 
@@ -1229,6 +1261,23 @@
             content.innerHTML = html;
         }
 
+        function processRecommendationText(text) {
+            return text.replace(/\[\[([^\]]+)\]\]/g, (match, term) => {
+                const url = glossary[term.toLowerCase()];
+                return url
+                    ? `<a href="${url}" target="_blank" rel="noopener" style="color:#7A6240;font-style:normal;text-decoration:underline;">${term}</a>`
+                    : term;
+            });
+        }
+
+        function linkifyUrls(text) {
+            return text.replace(
+                /(https?:\/\/[^\s)]+)/g,
+                '<a href="$1" target="_blank" rel="noopener" style="color:#7A6240;font-style:normal;">$1</a>'
+            );
+        }
+        
+
         function renderMitigationBanner(mitigationText) {
             const banner = document.getElementById('mitigation-banner');
             const chevrons = document.getElementById('mitigation-chevrons');
@@ -1255,7 +1304,7 @@
                     <span class="mitigation-chevron-number">${i + 1}</span>
                     <div class="mitigation-chevron-body">
                         <span class="mitigation-chevron-label">Recommendation ${i + 1}</span>
-                        <span class="mitigation-chevron-text">${text}</span>
+                        <span class="mitigation-chevron-text">${processRecommendationText(linkifyUrls(text))}</span>
                     </div>
                 </div>
             `).join('');
