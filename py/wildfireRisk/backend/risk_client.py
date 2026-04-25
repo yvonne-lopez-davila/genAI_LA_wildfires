@@ -302,10 +302,6 @@ You must respond ONLY with a valid JSON object in exactly this format:
         else:
             system_prompt = self.SYSTEM_PROMPT  
 
-        ## debug print
-        print("QUERY : ")    
-        print(query)
-
         response = self.client.generate(
             model=self.model,
             system= system_prompt,
@@ -451,6 +447,72 @@ You must respond ONLY with a valid JSON object in exactly this format:
         )
         return response.get("result", "").strip()
 
+    def generate_char_insights(self, property_comparison: dict) -> dict:
+        """
+        For each entry in property_comparison, generate a plain-language
+        description of why this characteristic matters and a concrete action.
+        Returns a dict keyed by characteristic name with {desc, action} values.
+        """
+        if not property_comparison:
+            return {}
+
+        entries = []
+        for key, val in property_comparison.items():
+            entries.append({
+                "characteristic": key,
+                "user_value": val.get("user_value"),
+                "destruction_rate_pct": val.get("destruction_rate_pct"),
+                "matched_structures": val.get("matched_structures"),
+            })
+
+        query = f"""
+    You are analyzing structural fire risk characteristics for a California homeowner.
+
+    For each characteristic below, write two short strings:
+    - "desc": 1-2 sentences explaining what this characteristic means for fire risk and 
+    what the destruction rate implies. Be specific to the user's actual value. 
+    Do not restate the number — interpret it. Write for a non-expert homeowner.
+    - "action": one short sentence starting with either "Can improve:" or "Structural — not changeable:" 
+    followed by the single most impactful thing they can do (or redirect to what they 
+    should focus on instead). Be specific, not generic.
+
+    Characteristics:
+    {json.dumps(entries, indent=2)}
+
+    Respond ONLY with a valid JSON object keyed by characteristic name. Example format:
+    {{
+    "roof_construction": {{
+        "desc": "...",
+        "action": "..."
+    }},
+    "eaves": {{
+        "desc": "...",
+        "action": "..."
+    }}
+    }}
+    No extra text, no markdown.
+    """
+        response = self.client.generate(
+            model=self.model,
+            system="You are a wildfire risk analyst. Return only valid JSON.",
+            query=query,
+            temperature=0.2,
+            session_id=self.session_id,
+            rag_usage=False,
+            lastk=0,
+        )
+
+        raw = response.get("result", "").strip()
+        cleaned = re.sub(r"```json|```", "", raw).strip()
+
+        try:
+            return json.loads(cleaned)
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+
+
+            
 
 # TODO delete below, just testing initial setup
 # ---------------------------------------------------------------------------

@@ -606,16 +606,6 @@ main {
     padding-top: 8px;
 }
 
-#chart-observations-section h3 {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #e63946;
-    margin-bottom: 6px;
-    margin-top: 10%;
-}
-
 #fair-plan-badge {
     margin-bottom: 6px;
 }
@@ -1012,6 +1002,7 @@ main {
     background: #558a9b;
     padding: 12px 18px;
     border-radius: 10px 10px 0 0;
+    border: 0.3px solid #d7d7d7;
 }
 .vulnerability-banner h2 {
     font-family: Georgia, serif;
@@ -1022,9 +1013,19 @@ main {
     margin: 0;
 }
 
+.vulnerability-banner p {
+    font-size: 12px;
+    color: #EEF6F9;
+    margin: 0;
+    font-style: italic;
+}
+
 #vulnerability-dins-content {
-    background: #F4F9FB;
-    border: 0.5px solid #C8DDE5;
+    font-family:Georgia, 'Times New Roman', Times, serif;
+    font-weight: 450;
+    background: #f5f4ed;
+    border: 0.3px solid #d7d7d7;
+    /* border: 0.5px solid #C8DDE5; */
     border-top: none;
     border-radius: 0 0 10px 10px;
     padding: 16px;
@@ -1081,4 +1082,413 @@ main {
     font-style: normal;
     color: #3A2810;
     margin-bottom: 2px;
+}
+
+
+/* Structural property section styling */
+
+/* ── DINS structural damage section ───────────────────── */
+.dins-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.dins-stat-card {
+    background: #ffffff;
+    border: 0.5px solid #d7d7d7;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.dins-stat-label {
+    font-size: 11px;
+    color: #121d44;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+
+.dins-stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.dins-stat-value.danger  { color: #b91c1c; }
+.dins-stat-value.warning { color: #92400e; }
+.dins-stat-value.success { color: #16a34a; }
+
+.dins-stat-sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+}
+
+.dins-vuln-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 18px;
+}
+
+.dins-vuln-chip {
+    font-size: 12px;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 4px 10px;
+}
+
+.dins-vuln-chip-label {
+    color: #b91c1c;
+    opacity: 0.7;
+    margin-right: 3px;
+}
+
+.dins-comp-label {
+    font-size: 11px;
+    color: #00102f;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+}
+
+.dins-char-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.dins-char-card {
+    background: #fefefe;
+    border-top: 0.5px solid #e5e7eb;
+    border-right: 0.5px solid #e5e7eb;
+    border-bottom: 0.5px solid #e5e7eb;
+    border-radius: 8px;
+    border-left: 3px solid #ccc;
+    padding: 13px 15px;
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    gap: 14px;
+    align-items: start;
+}
+
+.dins-char-card > div:last-child {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.dins-char-card.risk-high { border-left-color: #b91c1c; }
+.dins-char-card.risk-mod  { border-left-color: #d97706; }
+.dins-char-card.risk-low  { border-left-color: #16a34a; }
+
+.dins-char-name {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 2px;
+}
+
+.dins-char-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 5px;
+}
+
+.dins-char-desc {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.5;
+}
+
+.dins-char-action {
+    font-size: 12px;
+    color: #2563a8;
+    margin-top: 6px;
+}
+
+.dins-bar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+    height: 6px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.dins-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: #ccc;
+}
+
+.dins-bar-fill.risk-high { background: #b91c1c; }
+.dins-bar-fill.risk-mod  { background: #d97706; }
+.dins-bar-fill.risk-low  { background: #16a34a; }
+
+.dins-bar-meta {
+    font-size: 11px;
+    color: #2563a8;
+}
+
+.dins-incidents {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #666;
+}
+
+.dins-footer {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #aaa;
+}
+
+
+/* risk level */
+/* Char card right column */
+.dins-char-right {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Tier pill + tooltip */
+.dins-tier-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.dins-tier-pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    cursor: default;
+    letter-spacing: 0.02em;
+}
+
+.dins-tier-pill.risk-high { background: #fce8e8; color: #8b1c1c; }
+.dins-tier-pill.risk-mod  { background: #fef3e2; color: #7a4500; }
+.dins-tier-pill.risk-low  { background: #e8f5ee; color: #1a5c33; }
+
+.dins-tier-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.dins-tier-wrapper:hover .dins-tier-tooltip {
+    display: block;
+}
+
+/* Destruction rate + tooltip */
+.dins-bar-meta-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+}
+
+.dins-rate-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.dins-rate-value {
+    font-size: 11px;
+    color: #999;
+    cursor: default;
+    text-decoration: underline dotted #bbb;
+}
+
+.dins-rate-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #555;
+    width: 300px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 200000;
+}
+
+.dins-rate-wrapper:hover .dins-rate-tooltip {
+    display: block;
+}
+
+.dins-bar-meta-sep,
+.dins-bar-meta {
+    font-size: 11px;
+    color: #999;
+}
+
+/* charts */
+/* ── Market trends section ─────────────────────────────── */
+.market-trends-section {
+    margin-top: 8px;
+}
+
+.market-trends-banner {
+    background: #8faed8;
+    border-radius: 8px 8px 0 0;
+    padding: 18px 24px 16px;
+}
+
+.market-trends-banner h2 {
+    color: #1e3a5f;
+    font-size: 17px;
+    font-weight: 500;
+    font-style: italic;
+    margin: 0 0 4px;
+}
+
+.market-trends-banner p {
+    color: #1e3a5fcc;
+    font-size: 13px;
+    margin: 0;
+}
+
+.market-trends-body {
+    background: #f2f6fc;
+    border-radius: 0 0 8px 8px;
+    border: 0.5px solid #c8d8ee;
+    border-top: none;
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 60% 40%;
+    gap: 24px;
+}
+
+.market-trends-zip {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 12px;
+}
+
+.market-trends-obs-content {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #333;
+}
+
+.market-trends-fairplan {
+    margin-top: 20px;
+}
+
+.market-trends-fairplan-detail {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #333;
+    margin-top: 6px;
+}
+
+.market-trends-chart-col {
+    min-width: 0;
+    width: 100%;
+}
+
+.market-trends-chart-col canvas {
+    width: 100% !important;
+}
+
+.chart-obs-section {
+    margin-bottom: 14px;
+}
+
+.chart-obs-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8faed8;
+    margin-bottom: 3px;
+}
+
+.chart-obs-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #333;
+}
+
+/* Chart obs cards */
+.chart-obs-card {
+    background: #fff;
+    border-radius: 6px;
+    border: 0.5px solid #dde8f4;
+    padding: 10px 13px;
+    margin-bottom: 8px;
+}
+
+.chart-obs-card-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-left: 3px solid #8faed8;
+    padding-left: 7px;
+    margin-bottom: 5px;
+}
+
+.chart-obs-card-text {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #444;
+}
+
+/* Fire line tooltip */
+#fire-line-tooltip {
+    display: none;
+    position: fixed;
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 999999;
+    white-space: nowrap;
+}
+
+/* Fire line legend */
+.fire-line-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    padding-left: 4px;
+}
+
+.fire-line-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #666;
+}
+
+.fire-line-swatch {
+    display: inline-block;
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
 }

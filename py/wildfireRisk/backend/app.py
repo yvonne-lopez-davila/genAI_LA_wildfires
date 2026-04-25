@@ -156,6 +156,37 @@ def analyze(body: AnalysisRequest):
             f"nearby structures were damaged or destroyed."
         )
 
+    # Generate LLM char insights and merge onto comparison entries (homeowner only)
+    if body.user_type == "homeowner" and dins.get("found"):
+        comparison = dins.get("property_comparison", {})
+        if comparison:
+            insights = client.generate_char_insights(comparison)
+            for key in comparison:
+                if key in insights:
+                    comparison[key]["desc"] = insights[key].get("desc", "")
+                    comparison[key]["action"] = insights[key].get("action", "")
+            # Compute relative risk tier for each comparison entry
+        baseline = dins.get("damage_rates", {}).get("destruction_rate_pct")
+        if baseline is not None:
+            baseline = float(baseline)
+            for key, val in comparison.items():
+                char_rate = val.get("destruction_rate_pct")
+                if char_rate is not None:
+                    delta = round(float(char_rate) - baseline, 1)
+                    abs_delta = abs(delta)
+                    direction = "above" if delta >= 0 else "below"
+                    if delta > 10:
+                        tier = "high"
+                    elif delta < -10:
+                        tier = "low"
+                    else:
+                        tier = "mod"
+                    val["risk_tier"] = tier
+                    val["tier_reason"] = (
+                        f"Destruction rate is {abs_delta}pp {direction} "
+                        f"the area average ({baseline}%)"
+                    )
+
     # risk meter gauge signals llm plain text explanation 
     gauge_explanation = client.explain_gauge(
         composite_label=trends["composite"]["composite_label"],
