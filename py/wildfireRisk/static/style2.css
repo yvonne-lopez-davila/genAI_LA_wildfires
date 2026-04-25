@@ -250,59 +250,30 @@ main {
 }
 
 #modal h2 {
-    font-size: 26px;
-    font-weight: 400;
-    font-style: italic;
-    color: #3A2810;
-    margin-bottom: 4px;
-}
-
-#modal-coords {
-  font-size: 12px;
-  color: #9B8060;
-  margin-bottom: 10px;
-  max-width: 100%;  /* was 80% */
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: #1a1a2e;
 }
 
 /* #modal-coords {
+    font-size: 12px;
+    color: #999;
+    font-family: monospace;
+    margin-bottom: 24px;
+} */
+
+#modal-coords {
     font-size: 13px;
     color: #666;
     margin-bottom: 1%;
     line-height: 1.5;
     max-width: 80%;
-} */
-
-#open-report-btn {
-  position: static;  /* was absolute */
-  top: unset;
-  right: unset;
-  align-self: flex-start;
-  margin-top: 4px;
-  color: #9B8060;
-  border-color: #d0c8b8;
 }
-
-/* New header zone */
-.modal-header-zone {
-  background: #FEFCF9;
-  /* border-bottom: 2px solid #C4853A; */
-  margin: -32px -32px 24px -32px; /* bleed to modal edges */
-  padding: 32px 32px 0;
-}
-
-/* Masthead row */
-.modal-masthead {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
 
 /* ── Confidence badge ── */
 #response-confidence {
     display: inline-block;
+    /* padding: 3px 10px; */
     padding-top: 0px;
     padding-right: 10px;
     padding-bottom: 0px;
@@ -321,24 +292,12 @@ main {
 #response-confidence.low    { background: #f8d7da; color: #842029; }
 
 /* ************ */
-/* Hairline divider above overview */
-.overview-divider {
-  border: none;
-  border-top: 1px solid #EDE0C8;
-  margin: 0 0 16px;
-}
-
-/* Overview strip */
-.overview-strip {
-  padding-bottom: 22px;
-}
-
 .overview-hazard-row {
     display: flex;
     gap: 10px;
     grid-column: 1 / -1;
     margin-top: 0;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     align-items: stretch;
     justify-content: center;
 }
@@ -346,10 +305,9 @@ main {
 .overview-card {
     flex: 1;
     max-width: 800px;
-    background: #F5F0E8;
-    border-color: #E8D9BC;
+    background: #f8f9fb;
     border-radius: 10px;
-    border: 0.5px solid #E8D9BC;
+    border: 0.5px solid #e5e7eb;
     padding: 16px 18px;
 }
 
@@ -362,7 +320,7 @@ main {
 
 .hazard-zone-card {
     border-radius: 10px;
-    padding: 10px 18px;
+    padding: 0px 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -373,41 +331,17 @@ main {
     flex-shrink: 0;
 }
 
-/* Tweak hazard zone card to match */
-.hazard-zone-card.unknown {
-  background: #F5F0E8;
-  color: #3A2810;
-  border: 0.5px solid #D9C8A8;
-}
-
-/* AI hint line under overview text */
-.overview-ai-hint {
-  font-size: 11px;
-  color: #B8976A;
-  font-style: normal;
-  margin-top: 8px;
-  font-family: sans-serif;
-}
-
-.section-gap {
-  height: 10px;
-  background: #F5EFE3;
-  grid-column: 1 / -1;
-  margin: 0 -32px;  /* bleed to modal edges */
-}
-
 .hazard-zone-label {
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 700;
-    /* text-transform: uppercase; */
+    text-transform: uppercase;
     letter-spacing: 0.08em;
     opacity: 0.6;
-    padding-top: 6px;
 }
 
 .hazard-zone-value {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
 }
 
 /* reuse existing color classes */
@@ -481,14 +415,6 @@ main {
     color: #888;
     font-size: 15px;
 } */
-
-.modal-header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
-}
 
 #modal-loading {
     position: fixed;
