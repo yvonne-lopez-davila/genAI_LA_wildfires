@@ -352,6 +352,10 @@ main {
     gap: 24px;
 }
 
+#modal-results #ai-analysis-row {
+    margin-top: -18px;
+}
+
 /* ── Search bar ── */
 #search-container {
     display: flex;
