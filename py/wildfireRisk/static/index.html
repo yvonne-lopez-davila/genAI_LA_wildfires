@@ -1,1643 +1,1944 @@
-    <!--User facing interface for risk analysis-->
-    <!--Interactive map, supports geospatial querying-->
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Wildfire Risk Report: California</title>
-        <link rel="stylesheet" href="style.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    </head>
+<!--User facing interface for risk analysis-->
+<!--Interactive map, supports geospatial querying-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wildfire Risk Report: California</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+</head>
 
-    <body>
-        <div id="user-type-modal">
-            <p id="user-type-prompt">I am a...</p>
-            <div id="user-type-cards">
+<body>
+    <div id="user-type-modal">
+        <p id="user-type-prompt">I am a...</p>
+        <div id="user-type-cards">
 
-                <div class="user-type-card" onclick="selectUserType('homeowner')">
-                    <!-- House icon -->
-                    <svg viewBox="0 0 64 64">
-                        <polyline points="4,28 32,6 60,28"/>
-                        <rect x="14" y="28" width="36" height="28" rx="2"/>
-                        <rect x="24" y="40" width="10" height="16" rx="1"/>
-                        <line x1="14" y1="28" x2="14" y2="56"/>
-                        <line x1="50" y1="28" x2="50" y2="56"/>
-                    </svg>
-                    <span class="user-type-card-label">Current<br>Homeowner</span>
-                    <span class="user-type-card-hint">Learn what you can do to protect your property and insurance.</span>
-                </div>
-
-                <div class="user-type-card" onclick="selectUserType('buyer')">
-                    <!-- Money/bills icon -->
-                    <svg viewBox="0 0 64 64">
-                        <rect x="4" y="16" width="56" height="34" rx="3"/>
-                        <rect x="4" y="22" width="56" height="4"/>
-                        <circle cx="32" cy="36" r="8"/>
-                        <circle cx="32" cy="36" r="4"/>
-                        <line x1="4" y1="44" x2="4" y2="44"/>
-                        <rect x="10" y="40" width="6" height="4" rx="1"/>
-                        <rect x="48" y="40" width="6" height="4" rx="1"/>
-                    </svg>
-                    <span class="user-type-card-label">Prospective<br>Buyer</span>
-                    <span class="user-type-card-hint">Evaluate whether a property is a sound investment given fire risk.</span>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- DINS Property Characteristics Modal (homeowner only, shown before report generation) -->
-        <div id="dins-modal">
-            <div id="dins-modal-inner">
-                <h2>Tell us about your home <span style="font-weight:400; font-size:16px; color:#888;">(optional)</span></h2>
-                <p style="font-size:13px; color:#666; margin-bottom:20px; line-height:1.6;">
-                    Entering your home's structural characteristics lets us compare your property against
-                    nearby structures inspected after real fire events — and show you how homes like yours fared.
-                    You can skip this and still get a full risk report.
-                </p>
-    
-                <div class="dins-form-group">
-                    <label for="dins-roof">Roof Construction</label>
-                    <select id="dins-roof">
-                        <option value="">— Select/I'm not sure —</option>
-                        <option value="Asphalt">Asphalt</option>
-                        <option value="Metal">Metal</option>
-                        <option value="Fire Resistant">Fire Resistant</option>
-                        <option value="Tile">Tile</option>
-                        <option value="Combustible">Combustible</option>
-                        <option value="Wood">Wood</option>
-                        <option value="Concrete">Concrete</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-    
-                <div class="dins-form-group">
-                    <label for="dins-eaves">Eaves</label>
-                    <select id="dins-eaves">
-                        <option value="">— Select/I'm not sure —</option>
-                        <option value="Unenclosed">Unenclosed</option>
-                        <option value="Enclosed">Enclosed</option>
-                        <option value="No Eaves">No Eaves</option>
-                    </select>
-                </div>
-    
-                <div class="dins-form-group">
-                    <label for="dins-siding">Exterior Siding</label>
-                    <select id="dins-siding">
-                        <option value="">— Select/I'm not sure —</option>
-                        <option value="Stucco Brick Cement">Stucco / Brick / Cement</option>
-                        <option value="Wood">Wood</option>
-                        <option value="Combustible">Combustible</option>
-                        <option value="Ignition Resistant">Ignition Resistant</option>
-                        <option value="Fire Resistant">Fire Resistant</option>
-                        <option value="Metal">Metal</option>
-                        <option value="Vinyl">Vinyl</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-    
-                <div style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
-                    <button id="dins-skip-btn" onclick="submitDinsForm(false)">Skip</button>
-                    <button id="dins-continue-btn" onclick="submitDinsForm(true)">Continue →</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- <header>Wildfire Risk Report: California</header> -->
-        
-        <section id="hero">
-            <div id="hero-content">
-                <p id="hero-welcome">Welcome to AI-assisted</p>
-                <h1 id="hero-title">California Homeowner<br>Wildfire Risk Analysis Tool</h1>
-                <p id="hero-desc">Select any location in California to generate an AI-powered assessment considering wildfire risk, home value trends, insurance outlook, and affordability.</p>
-                <button id="get-started-btn">Get Started →</button>
-            </div>
-            <!-- <a id="hero-arrow" href="#main-content">
-                <svg viewBox="0 0 40 40" width="40" height="40">
-                    <polyline points="8,15 20,27 32,15" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <div class="user-type-card" onclick="selectUserType('homeowner')">
+                <!-- House icon -->
+                <svg viewBox="0 0 64 64">
+                    <polyline points="4,28 32,6 60,28"/>
+                    <rect x="14" y="28" width="36" height="28" rx="2"/>
+                    <rect x="24" y="40" width="10" height="16" rx="1"/>
+                    <line x1="14" y1="28" x2="14" y2="56"/>
+                    <line x1="50" y1="28" x2="50" y2="56"/>
                 </svg>
-            </a> -->
-        </section>
+                <span class="user-type-card-label">Current<br>Homeowner</span>
+                <span class="user-type-card-hint">Learn what you can do to protect your property and insurance.</span>
+            </div>
 
-        <div id="map-intro">
-            <h2>ANALYZE A PROPERTY</h2>
-            <span>Search by address or click anywhere on the map to select a location, then generate your risk report.</span>
+            <div class="user-type-card" onclick="selectUserType('buyer')">
+                <!-- Money/bills icon -->
+                <svg viewBox="0 0 64 64">
+                    <rect x="4" y="16" width="56" height="34" rx="3"/>
+                    <rect x="4" y="22" width="56" height="4"/>
+                    <circle cx="32" cy="36" r="8"/>
+                    <circle cx="32" cy="36" r="4"/>
+                    <line x1="4" y1="44" x2="4" y2="44"/>
+                    <rect x="10" y="40" width="6" height="4" rx="1"/>
+                    <rect x="48" y="40" width="6" height="4" rx="1"/>
+                </svg>
+                <span class="user-type-card-label">Prospective<br>Buyer</span>
+                <span class="user-type-card-hint">Evaluate whether a property is a sound investment given fire risk.</span>
+            </div>
+
         </div>
-        
-        <main id="main-content">
+    </div>
 
-        <div id="search-container">
-                <div id="search-input-wrapper">
-                    <input type="text" id="address-input" placeholder="Ex: 1440 N Topanga Canyon Blvd, Topanga, CA 90290" />
-                    <ul id="autocomplete-list"></ul>
-                </div>
-                <button id="search-btn">Search</button>
+     <!-- DINS Property Characteristics Modal (homeowner only, shown before report generation) -->
+    <div id="dins-modal">
+        <div id="dins-modal-inner">
+            <h2>Tell us about your home <span style="font-weight:400; font-size:16px; color:#888;">(optional)</span></h2>
+            <p style="font-size:13px; color:#666; margin-bottom:20px; line-height:1.6;">
+                Entering your home's structural characteristics lets us compare your property against
+                nearby structures inspected after real fire events — and show you how homes like yours fared.
+                You can skip this and still get a full risk report.
+            </p>
+ 
+            <div class="dins-form-group">
+                <label for="dins-roof">Roof Construction</label>
+                <select id="dins-roof">
+                    <option value="">— Select/I'm not sure —</option>
+                    <option value="Asphalt">Asphalt</option>
+                    <option value="Metal">Metal</option>
+                    <option value="Fire Resistant">Fire Resistant</option>
+                    <option value="Tile">Tile</option>
+                    <option value="Combustible">Combustible</option>
+                    <option value="Wood">Wood</option>
+                    <option value="Concrete">Concrete</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
-
-            <div id="map-container">            
-                <div id="select-dirs"> Click to select a location</div>
+ 
+            <div class="dins-form-group">
+                <label for="dins-eaves">Eaves</label>
+                <select id="dins-eaves">
+                    <option value="">— Select/I'm not sure —</option>
+                    <option value="Unenclosed">Unenclosed</option>
+                    <option value="Enclosed">Enclosed</option>
+                    <option value="No Eaves">No Eaves</option>
+                </select>
             </div>
-            <button id="analyze-loc-btn" onclick="openModal()">Generate Risk Report</button>
-        </main>
+ 
+            <div class="dins-form-group">
+                <label for="dins-siding">Exterior Siding</label>
+                <select id="dins-siding">
+                    <option value="">— Select/I'm not sure —</option>
+                    <option value="Stucco Brick Cement">Stucco / Brick / Cement</option>
+                    <option value="Wood">Wood</option>
+                    <option value="Combustible">Combustible</option>
+                    <option value="Ignition Resistant">Ignition Resistant</option>
+                    <option value="Fire Resistant">Fire Resistant</option>
+                    <option value="Metal">Metal</option>
+                    <option value="Vinyl">Vinyl</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+ 
+            <div style="display:flex; gap:12px; margin-top:24px; justify-content:flex-end;">
+                <!-- <button id="dins-skip-btn" onclick="submitDinsForm(false)">Skip</button> -->
+                <button id="dins-continue-btn" onclick="submitDinsForm(true)">Continue →</button>
+            </div>
+        </div>
+    </div>
 
-        <div id="risk-report-modal">
-            <div id="modal">
-                <button id="modal-close" onclick="closeModal()">&times</button>
+    <!-- <header>Wildfire Risk Report: California</header> -->
+    
+    <section id="hero">
+        <div id="hero-content">
+            <p id="hero-welcome">Welcome to AI-assisted</p>
+            <h1 id="hero-title">California Homeowner<br>Wildfire Risk Analysis Tool</h1>
+            <p id="hero-desc">Select any location in California to generate an AI-powered assessment considering wildfire risk, home value trends, insurance outlook, and affordability.</p>
+            <button id="get-started-btn">Get Started →</button>
+        </div>
+        <!-- <a id="hero-arrow" href="#main-content">
+            <svg viewBox="0 0 40 40" width="40" height="40">
+                <polyline points="8,15 20,27 32,15" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a> -->
+    </section>
 
-                <button id="open-report-btn" onclick="openPrintableReport()" style="display:none; position:absolute; top:16px; right:52px; background:none; border:1px solid #ccc; border-radius:6px; padding:4px 12px; font-size:12px; color:#666; cursor:pointer;">
-                    Open Printable Report ↗
-                </button>
+    <div id="map-intro">
+        <h2>ANALYZE A PROPERTY</h2>
+        <span>Search by address or click anywhere on the map to select a location, then generate your risk report.</span>
+    </div>
+    
+    <main id="main-content">
 
-                <h2>Wildfire Risk Report</h2>
-                <div id="modal-coords"></div>
+       <div id="search-container">
+            <div id="search-input-wrapper">
+                <input type="text" id="address-input" placeholder="Ex: 1440 N Topanga Canyon Blvd, Topanga, CA 90290" />
+                <ul id="autocomplete-list"></ul>
+            </div>
+            <button id="search-btn">Search</button>
+        </div>
 
-                <div id="modal-loading">
-                <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; width: 260px; margin-left: auto; margin-right: auto;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div id="step-icon-1" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
-                            <span id="step-text-1" style="font-size: 13px; color: #aaa;">Locating fire hazard zone</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div id="step-icon-2" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
-                            <span id="step-text-2" style="font-size: 13px; color: #aaa;">Pulling fire history data</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div id="step-icon-3" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
-                            <span id="step-text-3" style="font-size: 13px; color: #aaa;">Analyzing home value trends</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div id="step-icon-4" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
-                            <span id="step-text-4" style="font-size: 13px; color: #aaa;">Generating AI risk assessment</span>
-                        </div>
+        <div id="map-container">            
+            <div id="select-dirs"> Click to select a location</div>
+        </div>
+        <button id="analyze-loc-btn" onclick="openModal()">Generate Risk Report</button>
+    </main>
+
+    <div id="risk-report-modal">
+        <div id="modal">
+            <button id="modal-close" onclick="closeModal()">&times</button>
+
+            <div class="modal-header-zone">
+
+                <div class="modal-header-top">
+                    <div>
+                        <h2>Wildfire Risk Report</h2>
+                        <div id="modal-coords"></div>
+                        <div id="response-confidence"></div>
                     </div>
-                    <div style="font-size: 11px; line-height: 1.5; color: #bbb; text-align: center;">
-                        Uses AI and LLM-generated outputs. Results may be inaccurate or incomplete and are not
-                        insurance, financial, or safety advice. Verify with official sources.
-                    </div>
+                    <button id="open-report-btn" onclick="openPrintableReport()" 
+                     style="display:none; background:none; border:1px solid #ccc; border-radius:6px; padding:4px 12px; font-size:12px; color:#666; cursor:pointer;">
+                        Open Printable Report ↗
+                    </button>
                 </div>
 
-                <div id="modal-results">
+                <hr class="overview-divider">
 
-                    <!-- ── HOMEOWNER TOP: What Can I Do? ─────────────────── -->
-                    <div id="mitigation-banner">
-                        <div class="report-section-banner">
-                            <h2 style="color: #FFF8F0;">What Can I Do?</h2>
-                            <p>Based on your property assessment, here are your top recommended steps to reduce your property risk:</p>
-                        </div>
-                        <div id="mitigation-chevrons">
-                            <!-- populated by renderMitigationBanner() in JS -->
-                        </div>
-                        <div class="resources-strip">
-                            <div class="resources-strip-label">Related Resources</div>
-                            <div class="resources-links">
-                                <a class="resource-link" href="https://cal-fire-communications.paperturn-view.com/cal-fire-ready-set-go-brochure-final-files-v4-print?pid=MjU252417&popup=overview&v=3" target="_blank">
-                                Wildfire Action Plan<span class="resource-link-arrow">↗</span>
-                                </a>                            
-                                <a class="resource-link" href="https://www.insurance.ca.gov/01-consumers/105-type/95-guides/03-res/upload/FAQ-Safer-from-Wildfire-Regulation.pdf" target="_blank">
-                                What does being Safer from Wildfires mean for my insurance? <span class="resource-link-arrow">↗</span>
-                                </a>
-                                <a class="resource-link" href="https://www.fire.ca.gov/home-hardening" target="_blank">
-                                Home Hardening guide & self-assessment <span class="resource-link-arrow">↗</span>
-                                </a>
-                                <a class="resource-link" href="https://fire.lacounty.gov/wp-content/uploads/2021/05/Defensible-Space-booklet-2021WEB.pdf" target="_blank">
-                                Defensible space guide <span class="resource-link-arrow">↗</span>
-                                </a>
-                                <a class="resource-link" href="https://wildfiretaskforce.org/home-hardening-assistance/" target="_blank">
-                                Apply for home hardening grants <span class="resource-link-arrow">↗</span>
-                                </a>
-
-                                <a class="resource-link" href="https://www.insurance.ca.gov/01-consumers/200-wrr/Safer-from-Wildfires.cfm" target="_blank">
-                                Qualify for Insurability Discounts<span class="resource-link-arrow">↗</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ── HOMEOWNER: How Vulnerable is my home? ─────────── -->
-                    <div id="vulnerability-section">
-                        <div class="vulnerability-banner">
-                            <h2 style="color: #EEF6F9;">How Vulnerable is my home?</h2>
-                        </div>
-                        <div id="vulnerability-dins-content">
-                            <!-- DINS content will be cloned here by JS -->
-                        </div>
-                    </div>
-
-                    <!-- Top row: gauge left, signals right -->
-                    <div id="top-row" style="display:grid; grid-template-columns: 45% 55%; gap:24px; margin-top:-24px;">
-                        <div id="risk-gauge-section">
-                            <div id="summary-title-wrapper";style="display:flex; align-items:center; gap:6px; margin-bottom:8px; align-self:flex-start;">
-
-                                <h3 style="margin-bottom:0;">Risk Summary Score</h3>
-                                <!-- <div id="ai-analysis-tooltip-wrapper">
-                                    <span id="ai-analysis-tooltip-trigger">ⓘ</span>
-                                    <div id="ai-analysis-tooltip-content">
-                                        AI-powered analysis considers: official fire hazard zone classification, 
-                                        nearby fire history, risk trend signals, Zillow median home values 
-                                        and price changes, and California FAIR Plan insurance exposure data.
-                                    </div>
-                                </div> -->
-                            </div>
-                            <div id="gauge-tooltip-wrapper">
-                                <span id="gauge-tooltip-trigger">How is my risk score calculated?</span>
-                                <div id="gauge-tooltip-content"></div>
-                            </div>
-                            <svg id="risk-gauge-svg" viewBox="0 0 200 120" width="200" height="120">
-                                <path d="M 20 100 A 80 80 0 0 1 60 27" fill="none" stroke="#d4edda" stroke-width="18" stroke-linecap="round"/>
-                                <path d="M 60 27 A 80 80 0 0 1 140 27" fill="none" stroke="#fff3cd" stroke-width="18" stroke-linecap="round"/>
-                                <path d="M 140 27 A 80 80 0 0 1 178 100" fill="none" stroke="#b1000f88" stroke-width="18" stroke-linecap="round"/>
-                                <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
-                                <circle cx="100" cy="100" r="5" fill="#1a1a2e"/>
-                                <text x="14" y="118" font-size="9" fill="#666">Low</text>
-                                <text x="88" y="18" font-size="9" fill="#666" text-anchor="middle">Moderate</text>
-                                <text x="172" y="118" font-size="9" fill="#666" text-anchor="end">High</text>
-                            </svg>
-                            <div id="composite-label"></div>
-                        </div>
-                        <div id="signals-section">
-                            <div id="summary-title-wrapper";style="display:flex; align-items:right; gap:6px; margin-bottom:8px; align-self:flex-start;">
-                                <div id="ai-analysis-tooltip-wrapper">
-                                    <span id="ai-analysis-tooltip-trigger">ⓘ</span>
-                                    <div id="ai-analysis-tooltip-content">
-                                        AI-powered analysis considers: official fire hazard zone classification, 
-                                        nearby fire history, risk trend signals, Zillow median home values 
-                                        and price changes, and California FAIR Plan insurance exposure data.
-                                    </div>
-                                </div>
-                            </div>
-                            <ul id="risk-signals"></ul>
-                        </div>
-                            
-                        <!-- AI Analysis row: full width -->
-                        <div id="ai-analysis-row" class="results full-width">
-                            <div id="ai-analysis-header">
-                                <h3 style="color:black;">Overview</h3>
-                                <div id="ai-analysis-tooltip-wrapper">
-                                    <span id="ai-analysis-tooltip-trigger">ⓘ</span>
-                                    <div id="ai-analysis-tooltip-content">
-                                        AI-powered analysis considers: official fire hazard zone classification, 
-                                        nearby fire history, risk trend signals, Zillow median home values 
-                                        and price changes, and California FAIR Plan insurance exposure data.
-                                    </div>
-                                </div>
-                            </div>
-                            <p id="result-val"></p>
-                        </div>
-
-                    </div>
-
-                    <!-- Charts row: charts left, observations right -->
-                    <div id="charts-row" class="results full-width" style="display:grid; grid-template-columns: 40% 60%; gap:24px; margin-top:8px;">
-                        <div id="charts-section">
-                            <canvas id="zhvi-chart" height="180" style="display:none;"></canvas>
-                        </div>
-
-                        <div id="chart-observations-section">
-                            <h3 id = "chart-section-title">Home Prices &amp; Wildfire Events</h3>
-                            <p id="chart-obs-zipcode" style="font-size:12px; color:#999; margin-bottom:12px;"></p>
-                            <div id="chart-obs-content" style="font-size:13px; line-height:1.7; color:#333;"></div>
-                            <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
-                                            <div id="ai-analysis-tooltip-content">
-                                                Source:
-                                                <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
-                                                    <span id="zillow-source-label">Zillow Research Data (ZHVI)</span>
-                                                </a>
-                                                <br>
-                                                <a href="https://www.fire.ca.gov/incidents" target="_blank" rel="noopener noreferrer">
-                                                    CAL FIRE Incident Information
-                                                </a>
-                                            </div>
-                                        </div>
-
-                            <div id="fair-plan-subsection" style="margin-top:20px;">
-                                <h3>Is this ZIP covered by FAIR Plan?</h3>
-                                <div id="fair-plan-badge"></div>
-                                <p id="fair-plan-detail" style="font-size:13px; line-height:1.6; color:#333; margin-top:6px;"></p>
-                                <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                                    <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
-                                    <div id="ai-analysis-tooltip-content">
-                                        Source:
-                                        <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
-                                            California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Full width sections -->
-                <div class="results full-width">
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <h3 style="margin-bottom:0; white-space:nowrap;">Insurability Info</h3>
+                <div class="overview-hazard-row">
+                    <div class="overview-card">
+                        <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                            <span style="font-size:13px; font-weight:700; letter-spacing:0.06em; color:#393939;">Overview</span>
                             <div id="ai-analysis-tooltip-wrapper">
                                 <span id="ai-analysis-tooltip-trigger">ⓘ</span>
                                 <div id="ai-analysis-tooltip-content">
-                                    Fair Plan is California's insurance option 
-                                    of last resort for properties that are high 
-                                    risk and often declined by private insurers. 
-                                    This section indicates
-                                    whether property is currently covered 
-                                    and provides details on what 
-                                    that means for insurability and financial risk.
+                                    AI-powered analysis considers: official fire hazard zone classification, 
+                                    nearby fire history, risk trend signals, Zillow median home values 
+                                    and price changes, and California FAIR Plan insurance exposure data.
                                 </div>
                             </div>
                         </div>
-                    <p id="result-insurability"></p>
-                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                    <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                        <p id="result-val"></p>
+                    </div>
+                    <div id="hazard-zone-bar" class="hazard-zone-card"></div>
+                </div>
+                <hr class="overview-divider">
+            </div>  <!-- END modal-header-zone -->
+
+            <div id="modal-loading">
+               <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; width: 260px; margin-left: auto; margin-right: auto;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="step-icon-1" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
+                        <span id="step-text-1" style="font-size: 13px; color: #aaa;">Locating fire hazard zone</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="step-icon-2" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
+                        <span id="step-text-2" style="font-size: 13px; color: #aaa;">Pulling fire history data</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="step-icon-3" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
+                        <span id="step-text-3" style="font-size: 13px; color: #aaa;">Analyzing home value trends</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div id="step-icon-4" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e5e7eb; flex-shrink: 0;"></div>
+                        <span id="step-text-4" style="font-size: 13px; color: #aaa;">Generating AI risk assessment</span>
+                    </div>
+                </div>
+                <div style="font-size: 11px; line-height: 1.5; color: #bbb; text-align: center;">
+                    Uses AI and LLM-generated outputs. Results may be inaccurate or incomplete and are not
+                    insurance, financial, or safety advice. Verify with official sources.
+                </div>
+            </div>
+
+            <div id="modal-results">
+
+                <!-- ── HOMEOWNER TOP: What Can I Do? ─────────────────── -->
+                <div id="mitigation-banner">
+                    <div class="report-section-banner">
+                        <h2 style="color: #FFF8F0;">What Can I Do?</h2>
+                        <p>Based on your property assessment, here are your top recommended steps to reduce your property risk:</p>
+                    </div>
+                    <div id="mitigation-chevrons">
+                        <!-- populated by renderMitigationBanner() in JS -->
+                    </div>
+                    <div class="resources-strip">
+                        <div class="resources-strip-label">Related Resources</div>
+                        <div class="resources-links">
+                            <a class="resource-link" href="https://cal-fire-communications.paperturn-view.com/cal-fire-ready-set-go-brochure-final-files-v4-print?pid=MjU252417&popup=overview&v=3" target="_blank">
+                            Wildfire Action Plan<span class="resource-link-arrow">↗</span>
+                            </a>                            
+                            <a class="resource-link" href="https://www.insurance.ca.gov/01-consumers/105-type/95-guides/03-res/upload/FAQ-Safer-from-Wildfire-Regulation.pdf" target="_blank">
+                            What does being Safer from Wildfires mean for my insurance? <span class="resource-link-arrow">↗</span>
+                            </a>
+                            <a class="resource-link" href="https://www.fire.ca.gov/home-hardening" target="_blank">
+                            Home Hardening guide & self-assessment <span class="resource-link-arrow">↗</span>
+                            </a>
+                            <a class="resource-link" href="https://fire.lacounty.gov/wp-content/uploads/2021/05/Defensible-Space-booklet-2021WEB.pdf" target="_blank">
+                            Defensible space guide <span class="resource-link-arrow">↗</span>
+                            </a>
+                            <a class="resource-link" href="https://wildfiretaskforce.org/home-hardening-assistance/" target="_blank">
+                            Apply for home hardening grants <span class="resource-link-arrow">↗</span>
+                            </a>
+
+                            <a class="resource-link" href="https://www.insurance.ca.gov/01-consumers/200-wrr/Safer-from-Wildfires.cfm" target="_blank">
+                            Qualify for Insurability Discounts<span class="resource-link-arrow">↗</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── HOMEOWNER: How Vulnerable is my home? ─────────── -->
+                <div id="vulnerability-section">
+                    <div class="vulnerability-banner">
+                        <h2 style="color: #f5f4ed;">Understanding Structural Damage from Wildfires</h2>
+                        <!-- <h2 style="color: #EEF6F9;">Understanding Structural Damage from Wildfires:</h2> -->
+                        <p style=font-size:14px;color:#f5f5f5> How do my property characteristics compare to historically damaged structures?</p>
+                    </div>
+                    <div id="vulnerability-dins-content">
+                        <!-- DINS content will be cloned here by JS -->
+                    </div>
+                </div>
+
+                <!-- Top row: gauge left, signals right -->
+                <div id="top-row" style="display:grid; grid-template-columns: 45% 55%; gap:24px; margin-top:-24px;">
+                    <div id="risk-gauge-section">
+                        <div id="summary-title-wrapper";style="display:flex; align-items:center; gap:6px; margin-bottom:8px; align-self:flex-start;">
+
+                            <h3 style="margin-bottom:0;">Risk Summary Score</h3>
+                            <!-- <div id="ai-analysis-tooltip-wrapper">
+                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    AI-powered analysis considers: official fire hazard zone classification, 
+                                    nearby fire history, risk trend signals, Zillow median home values 
+                                    and price changes, and California FAIR Plan insurance exposure data.
+                                </div>
+                            </div> -->
+                        </div>
+                        <div id="gauge-tooltip-wrapper">
+                            <span id="gauge-tooltip-trigger">How is my risk score calculated?</span>
+                            <div id="gauge-tooltip-content"></div>
+                        </div>
+                        <svg id="risk-gauge-svg" viewBox="0 0 200 120" width="200" height="120">
+                            <path d="M 20 100 A 80 80 0 0 1 60 27" fill="none" stroke="#d4edda" stroke-width="18" stroke-linecap="round"/>
+                            <path d="M 60 27 A 80 80 0 0 1 140 27" fill="none" stroke="#fff3cd" stroke-width="18" stroke-linecap="round"/>
+                            <path d="M 140 27 A 80 80 0 0 1 178 100" fill="none" stroke="#b1000f88" stroke-width="18" stroke-linecap="round"/>
+                            <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="100" cy="100" r="5" fill="#1a1a2e"/>
+                            <text x="14" y="118" font-size="9" fill="#666">Low</text>
+                            <text x="88" y="18" font-size="9" fill="#666" text-anchor="middle">Moderate</text>
+                            <text x="172" y="118" font-size="9" fill="#666" text-anchor="end">High</text>
+                        </svg>
+                        <div id="composite-label"></div>
+                    </div>
+                    <div id="signals-section">
+                        <div id="summary-title-wrapper";style="display:flex; align-items:right; gap:6px; margin-bottom:8px; align-self:flex-start;">
+                            <div id="ai-analysis-tooltip-wrapper">
+                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    AI-powered analysis considers: official fire hazard zone classification, 
+                                    nearby fire history, risk trend signals, Zillow median home values 
+                                    and price changes, and California FAIR Plan insurance exposure data.
+                                </div>
+                            </div>
+                        </div>
+                        <ul id="risk-signals"></ul>
+                    </div>
+                        
+
+                </div>
+
+                <!-- Charts row: charts left, observations right -->
+                <div id="charts-row" class="market-trends-section results full-width">
+                    <div class="market-trends-banner">
+                        <h2 style="color:#f5f4ed">Home Value & Market Trends</h2>
+                        <p>How has wildfire activity tracked against property values in this area?</p>
+                    </div>
+                    <div class="market-trends-body">
+                        <div class="market-trends-chart-col">
+                            <canvas id="zhvi-chart" height="180" style="display:none;"></canvas>
+                            <div class="fire-line-legend">
+                                <span class="fire-line-legend-item">
+                                    <span class="fire-line-swatch" style="background:rgba(215,48,39,0.75);"></span>
+                                    Fire &lt; 5 miles
+                                </span>
+                                <span class="fire-line-legend-item">
+                                    <span class="fire-line-swatch" style="background:rgba(252,141,89,0.75);"></span>
+                                    Fire 5–15 miles
+                                </span>
+                            </div>
+                        </div>
+                        <div class="market-trends-obs-col">
+                            <h3 id="chart-section-title">Home Prices & Wildfire Events</h3>
+                            <p id="chart-obs-zipcode" class="market-trends-zip"></p>
+                            <div id="chart-obs-content" class="market-trends-obs-content"></div>
+                            <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
                                 <div id="ai-analysis-tooltip-content">
                                     Source:
-                                    <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
-                                        California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
+                                    <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
+                                        <span id="zillow-source-label">Zillow Research Data (ZHVI)</span>
+                                    </a>
+                                    <br>
+                                    <a href="https://www.fire.ca.gov/incidents" target="_blank" rel="noopener noreferrer">
+                                        CAL FIRE Incident Information
                                     </a>
                                 </div>
                             </div>
+                            <div id="fair-plan-subsection" class="market-trends-fairplan">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                    <!-- DOI Non-Renewal Section -->
-                    <div class="results full-width" id="doi-section" style="display:none;">
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <h3 style="margin-bottom:0; white-space:nowrap;">Insurance Non-Renewal Trends</h3>
-                            <div id="ai-analysis-tooltip-wrapper">
-                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
-                                <div id="ai-analysis-tooltip-content">
-                                    California Department of Insurance data showing how many 
-                                    residential policies in this ZIP were non-renewed by insurers 
-                                    each year. A rising non-renewal rate signals insurer withdrawal 
-                                    from the area.
-                                </div>
-                            </div>
+                <!-- ── INSURANCE RISK SECTION ─────────────────────────── -->
+                <div class="results full-width" id="insurance-risk-section">
+                    <div class="insurance-risk-banner">
+                        <div class="insurance-risk-banner-left">
+                            <h2 style="color:#f0f7f2">Insurance Risk</h2>
+                            <p>How is this area's insurability trending?</p>
                         </div>
-                        <div id="doi-content" style="font-size:13px; line-height:1.7; color:#333; margin-top:8px;"></div>
-                        <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                            <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
-                            <div id="ai-analysis-tooltip-content">
-                                Source:
-                                <a href="https://www.insurance.ca.gov/01-consumers/200-wrr/DataAnalysisOnWildfiresAndInsurance.cfm" target="_blank" rel="noopener noreferrer">
-                                    California Department of Insurance — Wildfire Insurance Data
-                                </a>
-                            </div>
-                        </div>
+                        <div id="insurance-risk-verdict"></div>
                     </div>
-    
-                    <!-- DINS Structural Damage Section -->
-                    <div class="results full-width" id="dins-section" style="display:none;">
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <h3 style="margin-bottom:0; white-space:nowrap;">Nearby Structural Damage (CAL FIRE DINS)</h3>
-                            <div id="ai-analysis-tooltip-wrapper">
-                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
-                                <div id="ai-analysis-tooltip-content">
-                                    Based on CAL FIRE Damage Inspection (DINS) data for structures 
-                                    inspected after fire events since 2013. Shows how nearby structures 
-                                    fared in past fires, and how homes with your characteristics compared.
-                                </div>
-                            </div>
+
+                    <!-- 3 signal tiles -->
+                    <div class="insurance-signal-strip">
+                        <div class="insurance-signal-tile">
+                            <div class="insurance-signal-label">FAIR Plan Coverage</div>
+                            <div id="insurance-fair-badge" class="insurance-signal-value"></div>
+                            <div id="insurance-fair-sub" class="insurance-signal-sub"></div>
                         </div>
-                        <div id="dins-content" style="font-size:13px; line-height:1.7; color:#333; margin-top:8px;"></div>
-                        <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                            <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
-                            <div id="ai-analysis-tooltip-content">
-                                Source:
-                                <a href="https://gis.data.cnra.ca.gov/datasets/CALFIRE-Forestry::cal-fire-damage-inspection-dins-data" target="_blank" rel="noopener noreferrer">
-                                    CAL FIRE Damage Inspection Program (DINS)
-                                </a>
-                            </div>
+                        <div class="insurance-signal-tile">
+                            <div class="insurance-signal-label">Non-Renewal Rate</div>
+                            <div id="insurance-nonrenewal-value" class="insurance-signal-value"></div>
+                            <div id="insurance-nonrenewal-sub" class="insurance-signal-sub"></div>
+                        </div>
+                        <div class="insurance-signal-tile">
+                            <div class="insurance-signal-label">5-Year Exposure Change</div>
+                            <div id="insurance-exposure-value" class="insurance-signal-value"></div>
+                            <div id="insurance-exposure-sub" class="insurance-signal-sub"></div>
                         </div>
                     </div>
 
-                    <div class="results full-width" id="mitigation-section" style="display:none;">
-                        <h3>Mitigation Recommendations</h3>
-                        <p id="result-mitigation"></p>
-                    </div>
-    
-
-                    <div class="results full-width">
-                        <h3>Financial/Value Info</h3>
-                        <p id="result-affordability"></p>
-                        <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                            <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                    <!-- Trend chart -->
+                        <div class="insurance-trend-row">
+                            <div class="insurance-trend-chart-col">
+                                <div class="insurance-trend-chart-title">Non-Renewal Rate Over Time</div>
+                                <canvas id="nonrenewal-chart" height="140"></canvas>
+                                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip" style="margin-top:8px;">
+                                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
                                         <div id="ai-analysis-tooltip-content">
                                             Source:
-                                            <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
-                                                Zillow Research Data (ZHVI)
+                                            <a href="https://www.insurance.ca.gov/01-consumers/200-wrr/DataAnalysisOnWildfiresAndInsurance.cfm" target="_blank" rel="noopener noreferrer">
+                                                California Department of Insurance — Wildfire Insurance Data
                                             </a>
                                         </div>
                                     </div>
+                            </div>
+                            <div class="insurance-trend-narrative-col">
+                                <div class="insurance-trend-narrative-title">What this means</div>
+                                <div id="ai-analysis-tooltip-wrapper" style="display:inline-block; margin-top:6px;">
+                                    <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                                    <div id="ai-analysis-tooltip-content">
+                                        Fair Plan is California's insurance option 
+                                        of last resort for properties that are high 
+                                        risk and often declined by private insurers. 
+                                        This indicates whether the property is currently 
+                                        covered and what that means for insurability and financial risk.
+                                    </div>
+                                </div>
+                                <p id="insurance-narrative"></p>
+                                
+                                <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip" style="margin-top:10px;">
+                                    <span id="ai-analysis-tooltip-trigger" class="source-pill">View Sources</span>
+                                    <div id="ai-analysis-tooltip-content">
+                                        <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank">California FAIR Plan dataset</a><br>
+                                        <a href="https://www.insurance.ca.gov/01-consumers/200-wrr/DataAnalysisOnWildfiresAndInsurance.cfm" target="_blank">CA Dept of Insurance — Wildfire Data</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="results full-width" id="official-hazard-zone-section">
-                        <h3>Official CAL FIRE Hazard Zone</h3>
-                        <p id="result-hazard-zone"></p>
-                        <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                            <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+
+
+                <div>
+
+                <div id="fair-plan-standalone">
+                    <h3>Is this Zipcode covered by FAIR Plan?</h3>
+                    <div id="fair-plan-badge"></div>
+                    <p id="fair-plan-detail" class="market-trends-fairplan-detail"></p>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                        <div id="ai-analysis-tooltip-content">
+                            Source:
+                            <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
+                                California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full width sections -->
+               <div class="results full-width" id="insurability-info-section">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <h3 style="margin-bottom:0; white-space:nowrap;">Insurability Info</h3>
+                        <div id="ai-analysis-tooltip-wrapper">
+                            <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                            <div id="ai-analysis-tooltip-content">
+                                Fair Plan is California's insurance option 
+                                of last resort for properties that are high 
+                                risk and often declined by private insurers. 
+                                This section indicates
+                                whether property is currently covered 
+                                and provides details on what 
+                                that means for insurability and financial risk.
+                            </div>
+                        </div>
+                    </div>
+                <p id="result-insurability"></p>
+                <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
                             <div id="ai-analysis-tooltip-content">
                                 Source:
-                                <a href="https://www.fire.ca.gov/what-we-do/natural-resource-management/fire-hazard-severity-zones" target="_blank" rel="noopener noreferrer">
-                                    CAL FIRE Fire Hazard Severity Zones
+                                <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
+                                    California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
                                 </a>
                             </div>
                         </div>
+            </div>
+
+                <!-- DOI Non-Renewal Section -->
+                <div class="results full-width" id="doi-section" style="display:none;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <h3 style="margin-bottom:0; white-space:nowrap;">Insurance Non-Renewal Trends</h3>
+                        <div id="ai-analysis-tooltip-wrapper">
+                            <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                            <div id="ai-analysis-tooltip-content">
+                                California Department of Insurance data showing how many 
+                                residential policies in this ZIP were non-renewed by insurers 
+                                each year. A rising non-renewal rate signals insurer withdrawal 
+                                from the area.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="doi-content" style="font-size:13px; line-height:1.7; color:#333; margin-top:8px;"></div>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                        <div id="ai-analysis-tooltip-content">
+                            Source:
+                            <a href="https://www.insurance.ca.gov/01-consumers/200-wrr/DataAnalysisOnWildfiresAndInsurance.cfm" target="_blank" rel="noopener noreferrer">
+                                California Department of Insurance — Wildfire Insurance Data
+                            </a>
+                        </div>
+                    </div>
+                </div>
+ 
+                <!-- DINS Structural Damage Section -->
+                <div class="results full-width" id="dins-section" style="display:none;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <h3 style="margin-bottom:0; white-space:nowrap;">Nearby Structural Damage (CAL FIRE DINS)</h3>
+                        <div id="ai-analysis-tooltip-wrapper">
+                            <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                            <div id="ai-analysis-tooltip-content">
+                                Based on CAL FIRE Damage Inspection (DINS) data for structures 
+                                inspected after fire events since 2013. Shows how nearby structures 
+                                fared in past fires, and how homes with your characteristics compared.
+                            </div>
+                        </div>
+                    </div>
+                    <div id="dins-content" style="font-size:13px; line-height:1.7; color:#333; margin-top:8px;"></div>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                        <div id="ai-analysis-tooltip-content">
+                            Source:
+                            <a href="https://gis.data.cnra.ca.gov/datasets/CALFIRE-Forestry::cal-fire-damage-inspection-dins-data" target="_blank" rel="noopener noreferrer">
+                                CAL FIRE Damage Inspection Program (DINS)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="results full-width" id="mitigation-section" style="display:none;">
+                    <h3>Mitigation Recommendations</h3>
+                    <p id="result-mitigation"></p>
+                </div> -->
+ 
+
+                <div class="results full-width" id="financial-val-section">
+                    <h3>Financial/Value Info</h3>
+                    <p id="result-affordability"></p>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                            <div id="ai-analysis-tooltip-content">
+                                Source:
+                                <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
+                                    Zillow Research Data (ZHVI)
+                                </a>
+                            </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <script>
+        const glossary = {
+            "eaves": "https://www.fire.ca.gov/home-hardening",
+            "ember-resistant vents": "https://www.fire.ca.gov/home-hardening",
+            "vents": "https://www.fire.ca.gov/home-hardening",
+            "defensible space": "https://www.readyforwildfire.org/prepare-for-wildfire/get-ready/defensible-space/",
+            "exterior siding": "https://www.fire.ca.gov/home-hardening",
+            "roof": "https://www.fire.ca.gov/home-hardening",
+            "retrofit list": "https://www.fire.ca.gov/home-hardening",
+        };
         
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+        document.getElementById('get-started-btn').addEventListener('click', openUserTypeModal)
+
+        var userType = null;
+
+        function openUserTypeModal() {
+            document.getElementById('user-type-modal').classList.add('active');
+        }
+
+        function selectUserType(type) {
+            userType = type;
+            document.getElementById('user-type-modal').classList.remove('active');
+            document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        var marker = null;
+
+        // TODO maybe set a more meaninful  default value 
+        // Default/start coords (change upon user selection)
+        var selectedLat = null;
+        var selectedLon = null;
+        var selectedZip = null;
+        var selectedAddress = null;
+        var pendingPropertyChars = null; // Set after DINS form, cleared on each new report
         
-        <script>
-            const glossary = {
-                "eaves": "https://www.fire.ca.gov/home-hardening",
-                "ember-resistant vents": "https://www.fire.ca.gov/home-hardening",
-                "vents": "https://www.fire.ca.gov/home-hardening",
-                "defensible space": "https://www.readyforwildfire.org/prepare-for-wildfire/get-ready/defensible-space/",
-                "exterior siding": "https://www.fire.ca.gov/home-hardening",
-                "roof": "https://www.fire.ca.gov/home-hardening",
-                "retrofit list": "https://www.fire.ca.gov/home-hardening",
-            };
-            
-            document.getElementById('get-started-btn').addEventListener('click', openUserTypeModal)
+        // Initialize map UI with interactive coord selection    
+        var map = L.map('map-container').setView([34.0522, -118.2437], 9);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
 
-            var userType = null;
 
-            function openUserTypeModal() {
-                document.getElementById('user-type-modal').classList.add('active');
+        map.on('click', function(e) {
+            selectedLat = e.latlng.lat;
+            selectedLon = e.latlng.lng;
+
+            // See lat/lon on map and nat lang address  
+            updateMarker(selectedLat, selectedLon);
+            reverseGeocode(selectedLat, selectedLon);
+
+            activateReportBtn();
+
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
             }
 
-            function selectUserType(type) {
-                userType = type;
-                document.getElementById('user-type-modal').classList.remove('active');
-                document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('select-dirs').textContent =
+                `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+
+        });
+
+
+        // Autocomplete address lookup
+        var autocompleteTimeout = null;
+
+        document.getElementById('address-input').addEventListener('input', function() {
+            const val = this.value.trim();
+            clearTimeout(autocompleteTimeout);
+
+            // input cleared — reset everything
+            if (val.length === 0) {
+                deactivateReportBtn();
+                deactivateSearchBtn();
+                closeAutocomplete();
+                return;
+            }
+            
+            activateSearchBtn();
+
+            if (val.length < 3) {
+                closeAutocomplete();
+                return;
             }
 
-            var marker = null;
+            // Debounce — wait 300ms after user stops typing
+            autocompleteTimeout = setTimeout(() => fetchAutocomplete(val), 300);
+        });
 
-            // TODO maybe set a more meaninful  default value 
-            // Default/start coords (change upon user selection)
-            var selectedLat = null;
-            var selectedLon = null;
-            var selectedZip = null;
-            var selectedAddress = null;
-            var pendingPropertyChars = null; // Set after DINS form, cleared on each new report
-            
-            // Initialize map UI with interactive coord selection    
-            var map = L.map('map-container').setView([34.0522, -118.2437], 9);
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-
-            map.on('click', function(e) {
-                selectedLat = e.latlng.lat;
-                selectedLon = e.latlng.lng;
-
-                // See lat/lon on map and nat lang address  
-                updateMarker(selectedLat, selectedLon);
-                reverseGeocode(selectedLat, selectedLon);
-
-                activateReportBtn();
-
-                if (marker) {
-                    marker.setLatLng(e.latlng);
-                } else {
-                    marker = L.marker(e.latlng).addTo(map);
-                }
-
-                document.getElementById('select-dirs').textContent =
-                    `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
-
-            });
-
-
-            // Autocomplete address lookup
-            var autocompleteTimeout = null;
-
-            document.getElementById('address-input').addEventListener('input', function() {
+        // Allow search via enter key
+        document.getElementById('address-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
                 const val = this.value.trim();
-                clearTimeout(autocompleteTimeout);
-
-                // input cleared — reset everything
-                if (val.length === 0) {
-                    deactivateReportBtn();
-                    deactivateSearchBtn();
-                    closeAutocomplete();
+                if (!val) {
                     return;
                 }
-                
-                activateSearchBtn();
+                closeAutocomplete();
+                geocodeAddressInput(this.value);
+            }
+        });
 
-                if (val.length < 3) {
-                    closeAutocomplete();
-                    return;
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const address = document.getElementById('address-input').value.trim();
+            const searchBtn = document.getElementById('search-btn');
+            
+            // If search button is inactive, don't proceed
+            if (!searchBtn.classList.contains('active')) {
+                if (selectedLat !== null) {
+                    alert('A location is already selected. Generate a risk report or select/enter a new address to search.');
                 }
+                return;
+            }
+            
+            geocodeAddressInput(address);
+        });
 
-                // Debounce — wait 300ms after user stops typing
-                autocompleteTimeout = setTimeout(() => fetchAutocomplete(val), 300);
-            });
+        async function fetchAutocomplete(query) {
+            const q = encodeURIComponent(query + ", California, USA");
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${q}&limit=5&addressdetails=1&countrycodes=us&viewbox=-119.0,33.5,-116.5,34.8&bounded=0`,
+                    { headers: { 'Accept-Language': 'en' } }
+                );
+                const results = await response.json();
+                renderAutocomplete(results);
+            } catch (err) {
+                closeAutocomplete();
+            }
+        }
 
-            // Allow search via enter key
-            document.getElementById('address-input').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const val = this.value.trim();
-                    if (!val) {
-                        return;
-                    }
-                    closeAutocomplete();
-                    geocodeAddressInput(this.value);
-                }
-            });
+        function renderAutocomplete(results) {
+            const list = document.getElementById('autocomplete-list');
+            list.innerHTML = '';
 
-            document.getElementById('search-btn').addEventListener('click', () => {
-                const address = document.getElementById('address-input').value.trim();
-                const searchBtn = document.getElementById('search-btn');
-                
-                // If search button is inactive, don't proceed
-                if (!searchBtn.classList.contains('active')) {
-                    if (selectedLat !== null) {
-                        alert('A location is already selected. Generate a risk report or select/enter a new address to search.');
-                    }
-                    return;
-                }
-                
-                geocodeAddressInput(address);
-            });
-
-            async function fetchAutocomplete(query) {
-                const q = encodeURIComponent(query + ", California, USA");
-                try {
-                    const response = await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${q}&limit=5&addressdetails=1&countrycodes=us&viewbox=-119.0,33.5,-116.5,34.8&bounded=0`,
-                        { headers: { 'Accept-Language': 'en' } }
-                    );
-                    const results = await response.json();
-                    renderAutocomplete(results);
-                } catch (err) {
-                    closeAutocomplete();
-                }
+            if (!results.length) {
+                closeAutocomplete();
+                return;
             }
 
-            function renderAutocomplete(results) {
-                const list = document.getElementById('autocomplete-list');
-                list.innerHTML = '';
-
-                if (!results.length) {
-                    closeAutocomplete();
-                    return;
-                }
-
-                results.forEach(result => {
-                    const li = document.createElement('li');
-                    li.textContent = result.display_name;
-                    li.addEventListener('click', () => {
-                        document.getElementById('address-input').value = result.display_name;
-                        selectedLat = parseFloat(result.lat);
-                        selectedLon = parseFloat(result.lon);
-                        activateReportBtn();
-                        deactivateSearchBtn();
-                        closeAutocomplete();
-
-                        const latlng = [selectedLat, selectedLon];
-                        if (marker) marker.setLatLng(latlng);
-                        else marker = L.marker(latlng).addTo(map);
-                        map.setView(latlng, 15);
-
-                        document.getElementById('select-dirs').textContent =
-                            `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
-
-                        reverseGeocode(selectedLat, selectedLon);
-                        closeAutocomplete();
-                    });
-                    list.appendChild(li);
-                });
-
-                list.style.display = 'block';
-            }
-
-            function closeAutocomplete() {
-                const list = document.getElementById('autocomplete-list');
-                list.style.display = 'none';
-                list.innerHTML = '';
-            }
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                const wrapper = document.getElementById('search-input-wrapper');
-                if (wrapper && !wrapper.contains(e.target)) {
-                    closeAutocomplete();
-                }
-            });
-
-            // Extracts and sets lat and lon coords from natural lang address query
-            // Valid Inputs (supports different levels of specificity):
-                // 1600 Amphitheatre Parkway, Mountain View, CA
-                // 123 Main St, Los Angeles, CA
-                // Pasadena, CA
-                // 90210
-            async function geocodeAddressInput(address) {
-                address = (address || '').trim();
-                const typedZipMatch = address.match(/\b\d{5}\b/);
-                if (typedZipMatch) {
-                    // Fallback for ZIP-only searches so backend always gets a ZIP.
-                    selectedZip = typedZipMatch[0];
-                }
-                
-                const cleanAddress = address
-                    .replace(/,?\s*california,?\s*usa?$/i, '')
-                    .replace(/,?\s*CA\s*\d{5}.*$/i, '')
-                    .trim();
-
-                // handle no typed address (and selected lat/lon)
-                if (!address) {
-                    if (selectedLat == null && selectedLon == null) {
-                        return alert('Please enter address')
-                    } else {
-                        activateReportBtn();
-                        return;
-                    }
-                }
-                const query = encodeURIComponent(cleanAddress + ", California, USA");
-                try {
-                    // Uses (opensource) OpenStreeMap/Nominatim API for geocoding 
-                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
-                    const results = await response.json();
-                    if (results.length === 0) {
-                        deactivateReportBtn();
-                        return alert('Please search for or select an address in California.');
-                    }
-
-                    selectedLat = parseFloat(results[0].lat);
-                    selectedLon = parseFloat(results[0].lon);
-                    selectedAddress = results[0].display_name || address;
-
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.textContent = result.display_name;
+                li.addEventListener('click', () => {
+                    document.getElementById('address-input').value = result.display_name;
+                    selectedLat = parseFloat(result.lat);
+                    selectedLon = parseFloat(result.lon);
                     activateReportBtn();
                     deactivateSearchBtn();
+                    closeAutocomplete();
 
                     const latlng = [selectedLat, selectedLon];
                     if (marker) marker.setLatLng(latlng);
                     else marker = L.marker(latlng).addTo(map);
-
                     map.setView(latlng, 15);
 
                     document.getElementById('select-dirs').textContent =
                         `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
-                    
-                    reverseGeocode(selectedLat, selectedLon);
-                } catch (err) {
-                    alert('Failed to geocode the address.');
-                }
-            }
 
-            // Define interactive methods
-            function openModal() {
-                if (selectedLat === null) {
-                    alert('Please click a location on the map first.');
+                    reverseGeocode(selectedLat, selectedLon);
+                    closeAutocomplete();
+                });
+                list.appendChild(li);
+            });
+
+            list.style.display = 'block';
+        }
+
+        function closeAutocomplete() {
+            const list = document.getElementById('autocomplete-list');
+            list.style.display = 'none';
+            list.innerHTML = '';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('search-input-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) {
+                closeAutocomplete();
+            }
+        });
+
+        // Extracts and sets lat and lon coords from natural lang address query
+        // Valid Inputs (supports different levels of specificity):
+            // 1600 Amphitheatre Parkway, Mountain View, CA
+            // 123 Main St, Los Angeles, CA
+            // Pasadena, CA
+            // 90210
+        async function geocodeAddressInput(address) {
+            address = (address || '').trim();
+            const typedZipMatch = address.match(/\b\d{5}\b/);
+            if (typedZipMatch) {
+                // Fallback for ZIP-only searches so backend always gets a ZIP.
+                selectedZip = typedZipMatch[0];
+            }
+            
+            const cleanAddress = address
+                .replace(/,?\s*california,?\s*usa?$/i, '')
+                .replace(/,?\s*CA\s*\d{5}.*$/i, '')
+                .trim();
+
+            // handle no typed address (and selected lat/lon)
+            if (!address) {
+                if (selectedLat == null && selectedLon == null) {
+                    return alert('Please enter address')
+                } else {
+                    activateReportBtn();
                     return;
                 }
+            }
+            const query = encodeURIComponent(cleanAddress + ", California, USA");
+            try {
+                // Uses (opensource) OpenStreeMap/Nominatim API for geocoding 
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
+                const results = await response.json();
+                if (results.length === 0) {
+                    deactivateReportBtn();
+                    return alert('Please search for or select an address in California.');
+                }
 
-                if (userType === 'homeowner') {
-                    openDinsModal();
-                } else {
-                    pendingPropertyChars = null;
-                    launchReport();
-                }
+                selectedLat = parseFloat(results[0].lat);
+                selectedLon = parseFloat(results[0].lon);
+                selectedAddress = results[0].display_name || address;
+
+                activateReportBtn();
+                deactivateSearchBtn();
+
+                const latlng = [selectedLat, selectedLon];
+                if (marker) marker.setLatLng(latlng);
+                else marker = L.marker(latlng).addTo(map);
+
+                map.setView(latlng, 15);
+
+                document.getElementById('select-dirs').textContent =
+                    `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+                
+                reverseGeocode(selectedLat, selectedLon);
+            } catch (err) {
+                alert('Failed to geocode the address.');
             }
-    
-            // DINS modal open/close
-            function openDinsModal() {
-                // Reset form
-                document.getElementById('dins-roof').value = '';
-                document.getElementById('dins-eaves').value = '';
-                document.getElementById('dins-siding').value = '';
-                document.getElementById('dins-modal').classList.add('active');
+        }
+
+        // Define interactive methods
+        function openModal() {
+            if (selectedLat === null) {
+                alert('Please click a location on the map first.');
+                return;
             }
-    
-            function closeDinsModal() {
-                document.getElementById('dins-modal').classList.remove('active');
-            }
-    
-            // Called by Skip or Continue buttons in the DINS form
-            function submitDinsForm(useChars) {
-                if (useChars) {
-                    const roof = document.getElementById('dins-roof').value;
-                    const eaves = document.getElementById('dins-eaves').value;
-                    const siding = document.getElementById('dins-siding').value;
-    
-                    // Only include fields the user actually selected
-                    const chars = {};
-                    if (roof)  chars.roof_construction = roof;
-                    if (eaves) chars.eaves = eaves;
-                    if (siding) chars.exterior_siding = siding;
-    
-                    pendingPropertyChars = Object.keys(chars).length > 0 ? chars : null;
-                } else {
-                    pendingPropertyChars = null;
-                }
-    
-                closeDinsModal();
+
+            if (userType === 'homeowner') {
+                openDinsModal();
+            } else {
+                pendingPropertyChars = null;
                 launchReport();
             }
-
-            // Open the report modal and kick off the fetch
-            function launchReport() {
-                document.getElementById('modal-coords').textContent = selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
-    
-                document.getElementById('modal-loading').style.display = 'block';
-                document.getElementById('modal-results').style.display = 'none';
-                document.getElementById('risk-report-modal').classList.add('active');
-    
-                runLoadingSteps(selectedLat, selectedLon);
+        }
+ 
+        // DINS modal open/close
+        function openDinsModal() {
+            // Reset form
+            document.getElementById('dins-roof').value = '';
+            document.getElementById('dins-eaves').value = '';
+            document.getElementById('dins-siding').value = '';
+            document.getElementById('dins-modal').classList.add('active');
+        }
+ 
+        function closeDinsModal() {
+            document.getElementById('dins-modal').classList.remove('active');
+        }
+ 
+        // Called by Skip or Continue buttons in the DINS form
+        function submitDinsForm(useChars) {
+            if (useChars) {
+                const roof = document.getElementById('dins-roof').value;
+                const eaves = document.getElementById('dins-eaves').value;
+                const siding = document.getElementById('dins-siding').value;
+ 
+                // Only include fields the user actually selected
+                const chars = {};
+                if (roof)  chars.roof_construction = roof;
+                if (eaves) chars.eaves = eaves;
+                if (siding) chars.exterior_siding = siding;
+ 
+                pendingPropertyChars = Object.keys(chars).length > 0 ? chars : null;
+            } else {
+                pendingPropertyChars = null;
             }
+ 
+            closeDinsModal();
+            launchReport();
+        }
 
-            function closeModal() {
-                document.getElementById('risk-report-modal').classList.remove('active');
-            }
+        // Open the report modal and kick off the fetch
+        function launchReport() {
+            document.getElementById('modal-coords').textContent = selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+ 
+            document.getElementById('modal-loading').style.display = 'block';
+            document.getElementById('modal-results').style.display = 'none';
+            document.getElementById('risk-report-modal').classList.add('active');
+ 
+            runLoadingSteps(selectedLat, selectedLon);
+        }
 
-            function openPrintableReport() {
-                window.open('/report.html', '_blank');
-            }
+        function closeModal() {
+            document.getElementById('risk-report-modal').classList.remove('active');
+        }
 
-            function runLoadingSteps(lat, lon) {
-                const steps = [1, 2, 3, 4];
-                const delays = [0, 1200, 2400, 3600];
+        function openPrintableReport() {
+            window.open('/report.html', '_blank');
+        }
 
-                // Reset all to pending
-                steps.forEach(i => {
+        function runLoadingSteps(lat, lon) {
+            const steps = [1, 2, 3, 4];
+            const delays = [0, 1200, 2400, 3600];
+
+            // Reset all to pending
+            // steps.forEach(i => {
+            //     const icon = document.getElementById(`step-icon-${i}`);
+            //     const text = document.getElementById(`step-text-${i}`);
+            //     icon.className = '';
+            //     icon.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid #e5e7eb;flex-shrink:0;';
+            //     icon.innerHTML = '';
+            //     text.style.color = '#aaa';
+            //     text.style.fontWeight = '400';
+            // });
+
+            // Reset all to pending
+            steps.forEach(i => {
+                const icon = document.getElementById(`step-icon-${i}`);
+                const text = document.getElementById(`step-text-${i}`);
+                icon.className = '';
+                icon.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);flex-shrink:0;';
+                icon.innerHTML = '';
+                text.style.color = 'rgba(255,255,255,0.4)';  // was #aaa
+                text.style.fontWeight = '400';
+            });
+
+            // Activate steps one at a time
+            steps.forEach(i => {
+                setTimeout(() => {
+                    if (i > 1) {
+                        const prevIcon = document.getElementById(`step-icon-${i - 1}`);
+                        prevIcon.classList.remove('step-spinner');
+                        prevIcon.style.cssText = 'width:20px;height:20px;border-radius:50%;flex-shrink:0;background:#16a34a;border:2px solid #16a34a;display:flex;align-items:center;justify-content:center;';
+                        prevIcon.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                        document.getElementById(`step-text-${i - 1}`).style.color = '#888';
+                        document.getElementById(`step-text-${i - 1}`).style.fontWeight = '400';
+                    }
                     const icon = document.getElementById(`step-icon-${i}`);
                     const text = document.getElementById(`step-text-${i}`);
-                    icon.className = '';
-                    icon.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid #e5e7eb;flex-shrink:0;';
-                    icon.innerHTML = '';
-                    text.style.color = '#aaa';
+                    // icon.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid #e5e7eb;border-top-color:#b91c1c;flex-shrink:0;';
+                    icon.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);border-top-color:#e6b239;flex-shrink:0;';
+                    icon.classList.add('step-spinner');
+                    // text.style.color = '#111';
+                    text.style.color = '#ffffff';
+                    text.style.fontWeight = '500';
+                }, delays[i - 1]);
+            });
+
+            // When fetch resolves, check all steps then show results
+            fetchRiskReport(lat, lon).then(() => {
+            steps.forEach((i, idx) => {
+                setTimeout(() => {
+                    const icon = document.getElementById(`step-icon-${i}`);
+                    const text = document.getElementById(`step-text-${i}`);
+                    if (!icon || !text) return;  // guard against missing elements
+                    icon.classList.remove('step-spinner');
+                    icon.style.cssText = 'width:20px;height:20px;border-radius:50%;flex-shrink:0;background:#16a34a;border:2px solid #16a34a;display:flex;align-items:center;justify-content:center;';
+                    icon.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                    // text.style.color = '#888';
+                    text.style.color = 'rgba(255,255,255,0.6)';
                     text.style.fontWeight = '400';
-                });
+                }, idx * 200);
+            });
+        });
+        }
 
-                // Activate steps one at a time
-                steps.forEach(i => {
-                    setTimeout(() => {
-                        if (i > 1) {
-                            const prevIcon = document.getElementById(`step-icon-${i - 1}`);
-                            prevIcon.classList.remove('step-spinner');
-                            prevIcon.style.cssText = 'width:20px;height:20px;border-radius:50%;flex-shrink:0;background:#16a34a;border:2px solid #16a34a;display:flex;align-items:center;justify-content:center;';
-                            prevIcon.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                            document.getElementById(`step-text-${i - 1}`).style.color = '#888';
-                            document.getElementById(`step-text-${i - 1}`).style.fontWeight = '400';
-                        }
-                        const icon = document.getElementById(`step-icon-${i}`);
-                        const text = document.getElementById(`step-text-${i}`);
-                        icon.style.cssText = 'width:20px;height:20px;border-radius:50%;border:2px solid #e5e7eb;border-top-color:#b91c1c;flex-shrink:0;';
-                        icon.classList.add('step-spinner');
-                        text.style.color = '#111';
-                        text.style.fontWeight = '500';
-                    }, delays[i - 1]);
-                });
-
-                // When fetch resolves, check all steps then show results
-                fetchRiskReport(lat, lon).then(() => {
-                    steps.forEach((i, idx) => {
-                        setTimeout(() => {
-                            const icon = document.getElementById(`step-icon-${i}`);
-                            const text = document.getElementById(`step-text-${i}`);
-                            icon.classList.remove('step-spinner');
-                            icon.style.cssText = 'width:20px;height:20px;border-radius:50%;flex-shrink:0;background:#16a34a;border:2px solid #16a34a;display:flex;align-items:center;justify-content:center;';
-                            icon.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                            text.style.color = '#888';
-                            text.style.fontWeight = '400';
-                        }, idx * 200);
-                    });
-                });
+        document.getElementById('risk-report-modal').addEventListener('click', function(e) {
+            if (e.target == this) {
+                closeModal();
             }
+        }); 
 
-            document.getElementById('risk-report-modal').addEventListener('click', function(e) {
-                if (e.target == this) {
-                    closeModal();
-                }
-            }); 
+        // connects to risk report generation backend logic
+        async function fetchRiskReport(lat, lon) {
+            console.log("zip:", selectedZip);
 
-            // connects to risk report generation backend logic
-            async function fetchRiskReport(lat, lon) {
-                console.log("zip:", selectedZip);
-
-                try {
-                    // Connect with risk analysis endpt
-                    const response = await fetch('/analyzeFireRisk', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ lat, lon, zipcode: selectedZip, user_type: userType, property_chars: pendingPropertyChars })
-                    });
-                    
-                    const data = await response.json();
-    
-                    if (data.error) {
-                        showError(data.error);
-                        return;
-                    }
-    
-                    renderReport(data);
-    
-                } catch (err) {
-                    showError('Failed to reach the server.');
-                }
-            }
-
-            var zhviChartInstance = null;
-
-            const wildfireEventLinePlugin = {
-                id: 'wildfireEventLinePlugin',
-                afterDatasetsDraw(chart, args, pluginOptions) {
-                    const events = Array.isArray(pluginOptions?.events) ? pluginOptions.events : [];
-                    if (!events.length) return;
-
-                    const { ctx, chartArea, scales } = chart;
-                    const xScale = scales.x;
-                    if (!xScale) return;
-
-                    ctx.save();
-                    ctx.setLineDash([5, 4]);
-                    ctx.lineWidth = 1.5;
-                    ctx.strokeStyle = '#9ca3af';
-                    events.forEach(event => {
-                        const labelIndex = chart.data.labels.indexOf(event.year);
-                        if (labelIndex < 0) return;
-                        const xPos = xScale.getPixelForValue(labelIndex);
-                        if (!Number.isFinite(xPos) || xPos < chartArea.left || xPos > chartArea.right) return;
-                        ctx.beginPath();
-                        ctx.moveTo(xPos, chartArea.top);
-                        ctx.lineTo(xPos, chartArea.bottom);
-                        ctx.stroke();
-                    });
-                    ctx.restore();
-                }
-            };
-
-            // Render home value chart with close wildfire markers
-            function renderHomeValChart(zhvi, zillowOverlay, fireHistory) {
-                const canvas = document.getElementById('zhvi-chart');
-                const hasZhvi = !!(zhvi && zhvi.found && zhvi.timeseries);
-                const hasOverlay = !!(zillowOverlay && zillowOverlay.found && zillowOverlay.timeseries);
-                const wildfireMaxDistanceMiles = 20;
-                const wildfireDatasetLabel = `Nearby wildfire (<=${wildfireMaxDistanceMiles} mi)`;
-
-                const closeFiresByYear = {};
-                const fires = fireHistory?.fires || [];
-                fires
-                    .map(f => ({
-                        ...f,
-                        parsed_distance: Number(f.distance_miles),
-                        parsed_year: Number(f.year)
-                    }))
-                    .filter(f => Number.isFinite(f.parsed_distance) && Number.isFinite(f.parsed_year) && f.parsed_distance <= wildfireMaxDistanceMiles)
-                    .forEach(f => {
-                        const year = String(Math.trunc(f.parsed_year));
-                        if (!closeFiresByYear[year] || f.parsed_distance < closeFiresByYear[year].parsed_distance) {
-                            closeFiresByYear[year] = f;
-                        }
-                    });
-                const wildfireEvents = Object.keys(closeFiresByYear)
-                    .sort()
-                    .map(year => ({
-                        year,
-                        fire_name: closeFiresByYear[year].fire_name,
-                        distance_miles: closeFiresByYear[year].parsed_distance
-                    }));
-
-                if (!hasZhvi && !hasOverlay) {
-                    canvas.style.display = 'none';
+            try {
+                // Connect with risk analysis endpt
+                const response = await fetch('/analyzeFireRisk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat, lon, zipcode: selectedZip, user_type: userType, property_chars: pendingPropertyChars })
+                });
+                
+                const data = await response.json();
+ 
+                if (data.error) {
+                    showError(data.error);
                     return;
                 }
+ 
+                renderReport(data);
+ 
+            } catch (err) {
+                showError('Failed to reach the server.');
+            }
+        }
 
-                const labelsSet = new Set();
-                if (hasZhvi) Object.keys(zhvi.timeseries).forEach(y => labelsSet.add(y));
-                if (hasOverlay) Object.keys(zillowOverlay.timeseries).forEach(y => labelsSet.add(y));
-            const minChartYear = 2016;
-            const maxChartYear = new Date().getFullYear();
-            const labels = Array.from(labelsSet)
-                .map(y => Number(y))
-                .filter(y => Number.isFinite(y) && y >= minChartYear && y <= maxChartYear)
-                .sort((a, b) => a - b)
-                .map(y => String(y));
+        var zhviChartInstance = null;
 
-            if (!labels.length) {
+        function showFireTooltip(text, event) {
+            let tip = document.getElementById('fire-line-tooltip');
+            if (!tip) {
+                tip = document.createElement('div');
+                tip.id = 'fire-line-tooltip';
+                document.body.appendChild(tip);
+            }
+            tip.textContent = text;
+            tip.style.display = 'block';
+            tip.style.left = (event.x + 12) + 'px';
+            tip.style.top  = (event.y + 12) + 'px';
+        }
+
+        function hideFireTooltip() {
+            const tip = document.getElementById('fire-line-tooltip');
+            if (tip) tip.style.display = 'none';
+        }
+
+        // Render home value chart
+        function renderHomeValChart(zhvi, zillowOverlay, fireHistory) {
+            const canvas = document.getElementById('zhvi-chart');
+            const hasZhvi = !!(zhvi && zhvi.found && zhvi.timeseries);
+            const hasOverlay = !!(zillowOverlay && zillowOverlay.found && zillowOverlay.timeseries);
+            if (!hasZhvi && !hasOverlay) {
                 canvas.style.display = 'none';
                 return;
             }
 
-                const datasets = [];
-                if (hasZhvi) {
-                    datasets.push({
-                        label: `Home Values — ${zhvi.zipcode} (${zhvi.city})`,
-                        data: labels.map(y => zhvi.timeseries[y] ?? null),
-                        borderColor: '#e63946',
-                        backgroundColor: 'rgba(230, 57, 70, 0.08)',
-                        borderWidth: 2,
-                        pointRadius: 2,
-                        fill: true,
-                        tension: 0.3,
-                        yAxisID: 'y'
-                    });
-                }
-                if (hasOverlay) {
-                    datasets.push({
-                        label: `${zillowOverlay.metric} — ${zillowOverlay.zipcode}`,
-                        data: labels.map(y => zillowOverlay.timeseries[y] ?? null),
-                        borderColor: '#1d4ed8',
-                        backgroundColor: 'rgba(29, 78, 216, 0.06)',
-                        borderWidth: 3,
-                        pointRadius: 2.5,
-                        pointStyle: 'rectRounded',
-                        borderDash: [6, 3],
-                        fill: false,
-                        tension: 0.25,
-                        yAxisID: 'y1'
-                    });
-                }
+            // Filter to 2016+
+            const START_YEAR = '2016';
+            const labelsSet = new Set();
+            if (hasZhvi) Object.keys(zhvi.timeseries).filter(y => y >= START_YEAR).forEach(y => labelsSet.add(y));
+            if (hasOverlay) Object.keys(zillowOverlay.timeseries).filter(y => y >= START_YEAR).forEach(y => labelsSet.add(y));
+            const labels = Array.from(labelsSet).sort();
 
-                // Add invisible hover targets so each vertical wildfire line has a tooltip.
-                // Keep this dataset present even when no events qualify, so legend styling remains consistent.
-                const targetAxis = hasZhvi ? 'y' : 'y1';
-                const sourceValues = hasZhvi
-                    ? labels.map(y => Number(zhvi.timeseries?.[y])).filter(v => Number.isFinite(v))
-                    : labels.map(y => Number(zillowOverlay.timeseries?.[y])).filter(v => Number.isFinite(v));
-                const maxValue = sourceValues.length ? Math.max(...sourceValues) : 1;
-                const markerHeight = maxValue * 0.98;
+            const datasets = [];
+            if (hasZhvi) {
                 datasets.push({
-                    label: wildfireDatasetLabel,
-                    data: labels.map(y => (wildfireEvents.some(e => e.year === y) ? markerHeight : null)),
-                    yAxisID: targetAxis,
-                    showLine: false,
-                    pointRadius: 0,
-                    pointHoverRadius: 6,
-                    pointHitRadius: 14,
-                    pointBackgroundColor: '#9ca3af',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 1.5,
-                    borderWidth: 0
+                    label: `Home Values — ${zhvi.zipcode} (${zhvi.city})`,
+                    data: labels.map(y => zhvi.timeseries[y] ?? null),
+                    borderColor: '#2d8a4e',
+                    backgroundColor: 'rgba(45, 138, 78, 0.08)',
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    fill: true,
+                    tension: 0.3,
+                    yAxisID: 'y'
                 });
+            }
+            if (hasOverlay) {
+                datasets.push({
+                    label: `${zillowOverlay.metric} — ${zillowOverlay.zipcode}`,
+                    data: labels.map(y => zillowOverlay.timeseries[y] ?? null),
+                    borderColor: '#1d4ed8',
+                    backgroundColor: 'rgba(29, 78, 216, 0.06)',
+                    borderWidth: 3,
+                    pointRadius: 2.5,
+                    pointStyle: 'rectRounded',
+                    borderDash: [6, 3],
+                    fill: false,
+                    tension: 0.25,
+                    yAxisID: 'y1'
+                });
+            }
 
-                canvas.style.display = 'block';
+            // Build fire annotations — closest fire per year, 2016+
+            const annotations = {};
+            if (fireHistory && fireHistory.found && fireHistory.fires) {
+                const byYear = {};
+                fireHistory.fires
+                    .filter(f => f.distance_miles !== null && f.distance_miles < 15 && String(f.year) >= START_YEAR)
+                    .forEach(f => {
+                        const yr = String(f.year);
+                        if (!byYear[yr] || f.distance_miles < byYear[yr].distance_miles) {
+                            byYear[yr] = f;
+                        }
+                    });
 
-                if (zhviChartInstance) {
-                    zhviChartInstance.destroy();
+                Object.entries(byYear).forEach(([year, fire]) => {
+                    if (!labels.includes(year)) return;
+                    const d = fire.distance_miles;
+                    const color = d < 5 ? 'rgba(215, 48, 39, 0.75)' : 'rgba(252, 141, 89, 0.75)';
+                    annotations[`fire_${year}`] = {
+                        type: 'line',
+                        scaleID: 'x',
+                        value: year,
+                        borderColor: color,
+                        borderWidth: 2,
+                        borderDash: [4, 3],
+                        label: { display: false }, // hidden — hover handles it
+                        enter(ctx) {
+                            const fire = byYear[year];
+                            showFireTooltip(`${fire.fire_name} — ${fire.distance_miles}mi away`, ctx.event);
+                        },
+                        leave() { hideFireTooltip(); }
+                    };
+                });
+            }
+
+            canvas.style.display = 'block';
+            if (zhviChartInstance) zhviChartInstance.destroy();
+
+            zhviChartInstance = new Chart(canvas, {
+                type: 'line',
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => `$${ctx.parsed.y.toLocaleString()}`
+                            }
+                        },
+                        annotation: { annotations }
+                    },
+                    scales: {
+                        y: {
+                            display: hasZhvi,
+                            position: 'left',
+                            title: { display: true, text: 'Median home value', font: { size: 11 }, color: '#2d8a4e' },
+                            ticks: { callback: val => `$${(val/1000).toFixed(0)}k` }
+                        },
+                        y1: {
+                            display: hasOverlay,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Median rent (mo.)', font: { size: 11 }, color: '#1d4ed8' },
+                            ticks: { callback: val => `$${val.toLocaleString()}` }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // home val chart observations
+        function renderChartObservations(data) {
+            // Zipcode label
+            const zip = data.zhvi?.zipcode || data.zillow_overlay?.zipcode || data.fair_plan?.zipcode || '';
+            const city = data.zhvi?.city || '';
+            document.getElementById('chart-obs-zipcode').textContent = 
+                zip ? `for ZIP ${zip}${city ? ' (' + city + ')' : ''}` : '';
+
+            const chartTitle = document.getElementById('chart-section-title');
+            const zillowSourceLabel = document.getElementById('zillow-source-label');
+            if (data.zillow_overlay?.found) {
+                chartTitle.textContent = 'Home Prices, Rent Prices & Wildfire Events';
+                if (zillowSourceLabel) {
+                    zillowSourceLabel.textContent = 'Zillow Research Data (ZHVI, ZORI - ZIP level)';
+                }
+            } else {
+                chartTitle.textContent = 'Home Prices & Wildfire Events';
+                if (zillowSourceLabel) {
+                    zillowSourceLabel.textContent = 'Zillow Research Data (ZHVI)';
+                }
+            }
+
+            // LLM observations — parse sections and render
+            const obs = data.chart_observations || '';
+            const content = document.getElementById('chart-obs-content');
+            console.log('chart_observations raw:', JSON.stringify(obs));
+            if (!obs) {
+                content.textContent = 'Observations unavailable.';
+            } else {
+                // Convert bullet lines to HTML
+                const lines = obs.split('\n').filter(l => l.trim());
+                let html = '';
+                const sectionColors = {
+                    'HOME TRENDS': '#2d8a4e',
+                    'RENT TRENDS': '#1d4ed8',
+                    'WILDFIRE TRENDS': '#d73027',
+                    'CROSS-OBSERVATIONS': '#558a9b',
+                };
+                let currentLabel = null;
+                let currentText = [];
+
+                function flushSection() {
+                    if (!currentLabel) return;
+                    const color = sectionColors[currentLabel] || '#8faed8';
+                    html += `<div class="chart-obs-card">
+                        <div class="chart-obs-card-label" style="border-left-color:${color};color:${color};">${currentLabel}</div>
+                        <div class="chart-obs-card-text">${currentText.join(' ')}</div>
+                    </div>`;
+                    currentLabel = null;
+                    currentText = [];
                 }
 
-                zhviChartInstance = new Chart(canvas, {
+                lines.forEach(line => {
+                    const sectionMatch = line.match(/^[-•]?\s*\*{0,2}(HOME TRENDS|RENT TRENDS|WILDFIRE TRENDS|CROSS-OBSERVATIONS)\*{0,2}:?\*{0,2}\s*(.*)/i);
+                    if (sectionMatch) {
+                        flushSection();
+                        currentLabel = sectionMatch[1].toUpperCase();
+                        const after = sectionMatch[2].replace(/^\*+/, '').trim();
+                        if (after) currentText.push(after);
+                    } else if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+                        currentText.push(line.replace(/^[-•]\s*/, '').trim());
+                    } else if (line.trim()) {
+                        currentText.push(line.trim());
+                    }
+                });
+                flushSection();
+                content.innerHTML = html;
+            }
+
+            // FAIR Plan subsection
+            const fairPlan = data.fair_plan;
+            const badge = document.getElementById('fair-plan-badge');
+            const detail = document.getElementById('fair-plan-detail');
+
+            if (!fairPlan || !fairPlan.zipcode) {
+                badge.innerHTML = '<span style="color:#888;">No ZIP data</span>';
+                detail.textContent = '';
+                return;
+            }
+
+            if (fairPlan.covered_by_fair_plan) {
+                badge.innerHTML = '<span style="background:#f8d7da; color:#842029; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">YES</span>';
+                const exposure = typeof fairPlan.latest_total_exposure === 'number'
+                    ? `$${fairPlan.latest_total_exposure.toLocaleString()}`
+                    : 'unavailable';
+                detail.textContent = `FY${fairPlan.latest_fiscal_year || 'latest'} total insured value: ${exposure}. 5-year change: ${fairPlan.five_year_pct_change ?? 'N/A'}%.`;
+            } else if (fairPlan.found) {
+                badge.innerHTML = '<span style="background:#fff3cd; color:#856404; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">PARTIAL</span>';
+                detail.textContent = `ZIP ${fairPlan.zipcode} appears historically in FAIR Plan data but no current exposure is reported.`;
+            } else {
+                badge.innerHTML = '<span style="background:#d4edda; color:#1a6b2e; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">NO</span>';
+                detail.textContent = `ZIP ${fairPlan.zipcode} does not appear in the current FAIR Plan residential exposure report.`;
+            }
+        }
+
+
+        var fireHistoryChartInstance = null;
+
+
+        // ///////////////////////
+        var nonrenewalChartInstance = null;
+
+        function renderInsuranceRisk(fairPlan, doi, insuranceText) {
+            const section = document.getElementById('insurance-risk-section');
+            if (!section) return;
+
+            // ── Verdict badge ──
+            const verdict = document.getElementById('insurance-risk-verdict');
+            const rate = doi?.latest_nonrenewal_rate;
+            const trend = doi?.trend_label || '';
+            let verdictLabel, verdictClass;
+            if (!doi?.found && !fairPlan?.covered_by_fair_plan) {
+                verdictLabel = 'Data Limited'; verdictClass = 'verdict-neutral';
+            } else if (rate >= 15 || fairPlan?.five_year_pct_change > 300) {
+                verdictLabel = 'High Risk'; verdictClass = 'verdict-high';
+            } else if (rate >= 8 || trend === 'worsening') {
+                verdictLabel = 'Moderate Risk'; verdictClass = 'verdict-mod';
+            } else {
+                verdictLabel = 'Lower Risk'; verdictClass = 'verdict-low';
+            }
+            verdict.innerHTML = `<span class="insurance-verdict-pill ${verdictClass}">${verdictLabel}</span>`;
+
+            // ── FAIR Plan tile ──
+            const fairBadge = document.getElementById('insurance-fair-badge');
+            const fairSub = document.getElementById('insurance-fair-sub');
+            if (fairPlan?.covered_by_fair_plan) {
+                fairBadge.textContent = 'YES';
+                fairBadge.style.color = '#b91c1c';
+                fairSub.textContent = `ZIP ${fairPlan.zipcode} has residential exposure`;
+            } else if (fairPlan?.found) {
+                fairBadge.textContent = 'PARTIAL';
+                fairBadge.style.color = '#92400e';
+                fairSub.textContent = 'Historical exposure, none current';
+            } else {
+                fairBadge.textContent = 'NO';
+                fairBadge.style.color = '#16a34a';
+                fairSub.textContent = 'Not in current exposure report';
+            }
+
+            // ── Non-renewal rate tile ──
+            const nrVal = document.getElementById('insurance-nonrenewal-value');
+            const nrSub = document.getElementById('insurance-nonrenewal-sub');
+            if (doi?.found && rate !== null) {
+                const trendArrow = trend === 'worsening' ? '↑' : trend === 'improving' ? '↓' : '→';
+                const trendColor = trend === 'worsening' ? '#b91c1c' : trend === 'improving' ? '#16a34a' : '#92400e';
+                nrVal.textContent = `${rate}%`;
+                nrSub.innerHTML = `<span style="color:${trendColor}">${trendArrow} ${trend}</span> · ${doi.latest_year || ''}`;
+            } else {
+                nrVal.textContent = '—';
+                nrSub.textContent = 'No data for this ZIP';
+            }
+
+            // ── Exposure change tile ──
+            const expVal = document.getElementById('insurance-exposure-value');
+            const expSub = document.getElementById('insurance-exposure-sub');
+            if (fairPlan?.covered_by_fair_plan && fairPlan.five_year_pct_change !== null) {
+                const chg = fairPlan.five_year_pct_change;
+                expVal.textContent = `${chg > 0 ? '+' : ''}${chg}%`;
+                expVal.style.color = chg > 100 ? '#b91c1c' : chg > 30 ? '#92400e' : '#16a34a';
+                const exp = typeof fairPlan.latest_total_exposure === 'number'
+                    ? `$${(fairPlan.latest_total_exposure / 1e9).toFixed(1)}B insured`
+                    : '';
+                expSub.textContent = exp;
+            } else {
+                expVal.textContent = '—';
+                expSub.textContent = 'No exposure data';
+            }
+
+            // ── Line chart ──
+            const canvas = document.getElementById('nonrenewal-chart');
+            if (doi?.found && doi.years?.length > 0) {
+                canvas.style.display = 'block';
+                const years = doi.years.slice().sort((a, b) => a.year - b.year);
+                const chartLabels = years.map(y => String(y.year));
+                const chartData = years.map(y => y.nonrenewal_rate_pct);
+
+                if (nonrenewalChartInstance) nonrenewalChartInstance.destroy();
+                nonrenewalChartInstance = new Chart(canvas, {
                     type: 'line',
-                    plugins: [wildfireEventLinePlugin],
                     data: {
-                        labels: labels,
-                        datasets: datasets
+                        labels: chartLabels,
+                        datasets: [{
+                            data: chartData,
+                            borderColor: '#4a7c59',
+                            backgroundColor: 'rgba(74, 124, 89, 0.1)',
+                            borderWidth: 2.5,
+                            pointRadius: chartLabels.map((_, i) => i === chartLabels.length - 1 ? 6 : 4),
+                            pointBackgroundColor: chartLabels.map((_, i) =>
+                                i === chartLabels.length - 1 ? '#4a7c59' : '#fff'),
+                            pointBorderColor: '#4a7c59',
+                            pointBorderWidth: 2,
+                            fill: true,
+                            tension: 0.35,
+                        }]
                     },
                     options: {
                         responsive: true,
                         plugins: {
-                            wildfireEventLinePlugin: {
-                                events: wildfireEvents
-                            },
-                            legend: { display: true, position: 'top' },
+                            legend: { display: false },
                             tooltip: {
                                 callbacks: {
-                                    label: ctx => {
-                                        if (ctx.dataset?.label === wildfireDatasetLabel) {
-                                            return wildfireDatasetLabel;
-                                        }
-                                        const value = ctx.parsed.y;
-                                        if (ctx.dataset?.yAxisID === 'y1') {
-                                            return `$${value.toLocaleString()}`;
-                                        }
-                                        return `$${value.toLocaleString()}`;
-                                    },
-                                    afterBody: ctx => {
-                                        const year = ctx?.[0]?.label;
-                                        const eventsThisYear = wildfireEvents.filter(e => e.year === year);
-                                        if (!eventsThisYear.length) return [];
-                                        return eventsThisYear.map(e =>
-                                            `Nearby wildfire: ${e.fire_name} (${Number(e.distance_miles).toFixed(1)} mi)`
-                                        );
-                                    }
+                                    label: ctx => `${ctx.parsed.y}% non-renewal rate`
                                 }
                             }
                         },
                         scales: {
                             y: {
-                                display: hasZhvi,
-                                position: 'left',
-                                ticks: {
-                                    callback: val => `$${(val/1000).toFixed(0)}k`
-                                }
+                                title: { display: true, text: 'Non-renewal rate (%)', font: { size: 10 } },
+                                ticks: { callback: v => `${v}%` },
+                                suggestedMin: Math.max(0, Math.min(...chartData) - 2),
+                                suggestedMax: Math.max(...chartData) + 2,
                             },
-                            y1: {
-                                display: hasOverlay,
-                                position: 'right',
-                                grid: { drawOnChartArea: false },
-                                ticks: {
-                                    callback: val => `$${val.toLocaleString()}`
-                                }
-                            }
+                            x: { grid: { display: false } }
                         }
                     }
                 });
-            }
-            
-            // home val chart observations
-            function renderChartObservations(data) {
-                // Zipcode label
-                const zip = data.zhvi?.zipcode || data.zillow_overlay?.zipcode || data.fair_plan?.zipcode || '';
-                const city = data.zhvi?.city || '';
-                document.getElementById('chart-obs-zipcode').textContent = 
-                    zip ? `for ZIP ${zip}${city ? ' (' + city + ')' : ''}` : '';
-
-                const chartTitle = document.getElementById('chart-section-title');
-                const zillowSourceLabel = document.getElementById('zillow-source-label');
-                if (data.zillow_overlay?.found) {
-                    chartTitle.textContent = 'Home Prices, Rent Prices & Wildfire Events';
-                    if (zillowSourceLabel) {
-                        zillowSourceLabel.textContent = 'Zillow Research Data (ZHVI, ZORI - ZIP level)';
-                    }
-                } else {
-                    chartTitle.textContent = 'Home Prices & Wildfire Events';
-                    if (zillowSourceLabel) {
-                        zillowSourceLabel.textContent = 'Zillow Research Data (ZHVI)';
-                    }
-                }
-
-                // LLM observations — parse sections and render
-                const obs = data.chart_observations || '';
-                const content = document.getElementById('chart-obs-content');
-                
-                if (!obs) {
-                    content.textContent = 'Observations unavailable.';
-                } else {
-                    // Convert bullet lines to HTML
-                    const lines = obs.split('\n').filter(l => l.trim());
-                    let html = '';
-                    lines.forEach(line => {
-                        if (line.match(/^(HOME TRENDS|RENT TRENDS|WILDFIRE TRENDS|CROSS-OBSERVATIONS):/i)) {
-                            html += `<p style="font-weight:700; color:#e63946; text-transform:uppercase; font-size:11px; letter-spacing:0.05em; margin:10px 0 4px;">${line}</p>`;
-                        } else if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
-                            html += `<p style="margin:2px 0 2px 8px;">• ${line.replace(/^[-•]\s*/, '')}</p>`;
-                        } else {
-                            html += `<p style="margin:2px 0;">${line}</p>`;
-                        }
-                    });
-                    content.innerHTML = html;
-                }
-
-                // FAIR Plan subsection
-                const fairPlan = data.fair_plan;
-                const badge = document.getElementById('fair-plan-badge');
-                const detail = document.getElementById('fair-plan-detail');
-
-                if (!fairPlan || !fairPlan.zipcode) {
-                    badge.innerHTML = '<span style="color:#888;">No ZIP data</span>';
-                    detail.textContent = '';
-                    return;
-                }
-
-                if (fairPlan.covered_by_fair_plan) {
-                    badge.innerHTML = '<span style="background:#f8d7da; color:#842029; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">YES</span>';
-                    const exposure = typeof fairPlan.latest_total_exposure === 'number'
-                        ? `$${fairPlan.latest_total_exposure.toLocaleString()}`
-                        : 'unavailable';
-                    detail.textContent = `FY${fairPlan.latest_fiscal_year || 'latest'} total insured value: ${exposure}. 5-year change: ${fairPlan.five_year_pct_change ?? 'N/A'}%.`;
-                } else if (fairPlan.found) {
-                    badge.innerHTML = '<span style="background:#fff3cd; color:#856404; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">PARTIAL</span>';
-                    detail.textContent = `ZIP ${fairPlan.zipcode} appears historically in FAIR Plan data but no current exposure is reported.`;
-                } else {
-                    badge.innerHTML = '<span style="background:#d4edda; color:#1a6b2e; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">NO</span>';
-                    detail.textContent = `ZIP ${fairPlan.zipcode} does not appear in the current FAIR Plan residential exposure report.`;
-                }
+            } else {
+                canvas.style.display = 'none';
             }
 
-            // ///////////////////////
-            // Render DOI non-renewal section
-            function renderDoi(doi) {
-                const section = document.getElementById('doi-section');
-                const content = document.getElementById('doi-content');
-    
-                if (!doi || !doi.found) {
-                    section.style.display = 'none';
-                    return;
-                }
-    
-                section.style.display = 'block';
-    
-                const trendColors = {
-                    'worsening': '#b91c1c',
-                    'improving': '#16a34a',
-                    'stable': '#92400e',
-                    'insufficient data': '#666',
-                };
-                const trend = doi.trend_label || 'insufficient data';
-                const trendColor = trendColors[trend] || '#666';
-    
-                const rateChange = doi.rate_change_pp !== null && doi.rate_change_pp !== undefined
-                    ? `${doi.rate_change_pp > 0 ? '+' : ''}${doi.rate_change_pp} pp change over available period`
-                    : null;
-    
-                let html = `
-                    <div style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:10px;">
-                        <div>
-                            <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Non-Renewal Rate (${doi.latest_year || 'latest'})</div>
-                            <div style="font-size:22px; font-weight:700; color:#1a1a2e;">${doi.latest_nonrenewal_rate !== null ? doi.latest_nonrenewal_rate + '%' : 'N/A'}</div>
-                        </div>
-                        <div>
-                            <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Trend</div>
-                            <div style="font-size:18px; font-weight:700; color:${trendColor}; text-transform:capitalize;">${trend}</div>
-                        </div>
-                        ${rateChange ? `<div>
-                            <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Rate Change</div>
-                            <div style="font-size:16px; font-weight:600; color:#333;">${rateChange}</div>
-                        </div>` : ''}
+            // ── Narrative ──
+            document.getElementById('insurance-narrative').innerHTML =
+                highlightReportText(insuranceText || '—');
+        }
+
+
+        // Render DOI non-renewal section
+        function renderDoi(doi) {
+            const section = document.getElementById('doi-section');
+            const content = document.getElementById('doi-content');
+ 
+            if (!doi || !doi.found) {
+                section.style.display = 'none';
+                return;
+            }
+ 
+            section.style.display = 'block';
+ 
+            const trendColors = {
+                'worsening': '#b91c1c',
+                'improving': '#16a34a',
+                'stable': '#92400e',
+                'insufficient data': '#666',
+            };
+            const trend = doi.trend_label || 'insufficient data';
+            const trendColor = trendColors[trend] || '#666';
+ 
+            const rateChange = doi.rate_change_pp !== null && doi.rate_change_pp !== undefined
+                ? `${doi.rate_change_pp > 0 ? '+' : ''}${doi.rate_change_pp} pp change over available period`
+                : null;
+ 
+            let html = `
+                <div style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:10px;">
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Non-Renewal Rate (${doi.latest_year || 'latest'})</div>
+                        <div style="font-size:22px; font-weight:700; color:#1a1a2e;">${doi.latest_nonrenewal_rate !== null ? doi.latest_nonrenewal_rate + '%' : 'N/A'}</div>
                     </div>
-                `;
-    
-                // Year-by-year table
-                if (doi.years && doi.years.length > 0) {
-                    html += `<table style="width:100%; border-collapse:collapse; font-size:12px; margin-top:8px;">
-                        <thead>
-                            <tr style="border-bottom:1px solid #e5e7eb; color:#999; text-align:left;">
-                                <th style="padding:4px 8px;">Year</th>
-                                <th style="padding:4px 8px;">Renewed</th>
-                                <th style="padding:4px 8px;">Non-Renewed</th>
-                                <th style="padding:4px 8px;">Non-Renewal Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                    doi.years.slice().reverse().forEach(y => {
-                        const rate = y.nonrenewal_rate_pct !== null ? y.nonrenewal_rate_pct + '%' : '—';
-                        html += `<tr style="border-bottom:1px solid #f3f4f6;">
-                            <td style="padding:4px 8px;">${y.year}</td>
-                            <td style="padding:4px 8px;">${y.renewed !== null ? y.renewed.toLocaleString() : '—'}</td>
-                            <td style="padding:4px 8px;">${y.non_renewed !== null ? y.non_renewed.toLocaleString() : '—'}</td>
-                            <td style="padding:4px 8px; font-weight:600; color:${trendColor};">${rate}</td>
-                        </tr>`;
-                    });
-                    html += `</tbody></table>`;
-                }
-    
-                content.innerHTML = html;
-            }
-    
-            // Render DINS structural damage section
-            function renderDins(dins) {
-                const section = document.getElementById('dins-section');
-                const content = document.getElementById('dins-content');
-    
-                if (!dins || !dins.found) {
-                    // Show section with fallback message if homeowner
-                    if (userType === 'homeowner') {
-                        section.style.display = 'block';
-                        content.innerHTML = `<p style="color:#888;">${dins?.message || 'No inspected structures found within 5 miles of this location.'}</p>`;
-                    } else {
-                        section.style.display = 'none';
-                    }
-                    return;
-                }
-    
-                section.style.display = 'block';
-    
-                const rates = dins.damage_rates || {};
-                const total = rates.total || 0;
-                const destroyed = rates.destroyed || 0;
-                const damaged = rates.damaged || 0;
-                const noD = rates.no_damage || 0;
-                const destructionRate = rates.destruction_rate_pct ?? '—';
-                const damageOrDestroyedRate = rates.damage_or_destroyed_rate_pct ?? '—';
-    
-                let html = `
-                    <div style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:14px;">
-                        <div>
-                            <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Structures Inspected Nearby</div>
-                            <div style="font-size:22px; font-weight:700; color:#1a1a2e;">${total.toLocaleString()}</div>
-                        </div>
-                        <div>
-                            <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Destruction Rate</div>
-                            <div style="font-size:22px; font-weight:700; color:#b91c1c;">${destructionRate}%</div>
-                        </div>
-                        <div>
-                            <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Damaged or Destroyed</div>
-                            <div style="font-size:22px; font-weight:700; color:#92400e;">${damageOrDestroyedRate}%</div>
-                        </div>
-                        <div>
-                            <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">No Damage</div>
-                            <div style="font-size:22px; font-weight:700; color:#16a34a;">${noD.toLocaleString()}</div>
-                        </div>
+                    <div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Trend</div>
+                        <div style="font-size:18px; font-weight:700; color:${trendColor}; text-transform:capitalize;">${trend}</div>
                     </div>
-                `;
-    
-                // Vulnerability profile
-                const vuln = dins.vulnerability_profile || {};
-                const vulnLabels = {
-                    roof_construction: 'Roof Construction',
-                    eaves: 'Eaves',
-                    exterior_siding: 'Exterior Siding',
-                    vent_screen: 'Vent Screen',
-                    window_pane: 'Window Pane',
-                    fence_attached: 'Fence Attached',
-                };
-                const vulnEntries = Object.entries(vuln).filter(([_, v]) => v && v.length > 0);
-                if (vulnEntries.length > 0) {
-                    html += `<div style="margin-top:12px;">
-                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Most Common Characteristics in Damaged/Destroyed Structures</div>
-                        <div style="display:flex; flex-wrap:wrap; gap:8px;">`;
-                    vulnEntries.forEach(([key, vals]) => {
-                        html += `<div style="font-size:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; padding:4px 10px;">
-                            <span style="color:#999;">${vulnLabels[key] || key}:</span> ${vals.join(', ')}
-                        </div>`;
-                    });
-                    html += `</div></div>`;
-                }
-    
-                // Property comparison
-                const comparison = dins.property_comparison || {};
-                const compEntries = Object.entries(comparison);
-                if (compEntries.length > 0) {
-                    html += `<div style="margin-top:16px;">
-                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Your Home vs. Nearby Structures with Same Characteristics</div>
-                        <table style="width:100%; border-collapse:collapse; font-size:12px;">
-                            <thead>
-                                <tr style="border-bottom:1px solid #e5e7eb; color:#999; text-align:left;">
-                                    <th style="padding:4px 8px;">Characteristic</th>
-                                    <th style="padding:4px 8px;">Your Value</th>
-                                    <th style="padding:4px 8px;">Matched Structures</th>
-                                    <th style="padding:4px 8px;">Destruction Rate</th>
-                                    <th style="padding:4px 8px;">Damaged or Destroyed</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-                    compEntries.forEach(([key, val]) => {
-                        html += `<tr style="border-bottom:1px solid #f3f4f6;">
-                            <td style="padding:4px 8px;">${vulnLabels[key] || key}</td>
-                            <td style="padding:4px 8px; font-weight:600;">${val.user_value}</td>
-                            <td style="padding:4px 8px;">${val.matched_structures}</td>
-                            <td style="padding:4px 8px; font-weight:700; color:#b91c1c;">${val.destruction_rate_pct}%</td>
-                            <td style="padding:4px 8px; font-weight:700; color:#92400e;">${val.damage_or_destroyed_rate_pct}%</td>
-                        </tr>`;
-                    });
-                    html += `</tbody></table></div>`;
-                } else if (pendingPropertyChars) {
-                    html += `<p style="font-size:12px; color:#888; margin-top:12px;">No nearby structures with enough matching characteristics to produce a comparison.</p>`;
-                }
-    
-                // Top incidents
-                const incidents = dins.top_incidents || {};
-                const incidentEntries = Object.entries(incidents);
-                if (incidentEntries.length > 0) {
-                    html += `<div style="margin-top:14px; font-size:12px; color:#666;">
-                        <strong>Top incidents in this area:</strong> ${incidentEntries.map(([name, count]) => `${name} (${count} structures)`).join(' · ')}
-                    </div>`;
-                }
-    
-                if (dins.year_range) {
-                    html += `<div style="margin-top:6px; font-size:11px; color:#aaa;">Data covers ${dins.year_range}. Radius: ${dins.radius_miles} miles.</div>`;
-                }
-    
-                content.innerHTML = html;
-            }
-
-            function processRecommendationText(text) {
-                return text.replace(/\[\[([^\]]+)\]\]/g, (match, term) => {
-                    const url = glossary[term.toLowerCase()];
-                    return url
-                        ? `<a href="${url}" target="_blank" rel="noopener" style="color:#7A6240;font-style:normal;text-decoration:underline;">${term}</a>`
-                        : term;
+                    ${rateChange ? `<div>
+                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Rate Change</div>
+                        <div style="font-size:16px; font-weight:600; color:#333;">${rateChange}</div>
+                    </div>` : ''}
+                </div>
+            `;
+ 
+            // Year-by-year table
+            if (doi.years && doi.years.length > 0) {
+                html += `<table style="width:100%; border-collapse:collapse; font-size:12px; margin-top:8px;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #e5e7eb; color:#999; text-align:left;">
+                            <th style="padding:4px 8px;">Year</th>
+                            <th style="padding:4px 8px;">Renewed</th>
+                            <th style="padding:4px 8px;">Non-Renewed</th>
+                            <th style="padding:4px 8px;">Non-Renewal Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                doi.years.slice().reverse().forEach(y => {
+                    const rate = y.nonrenewal_rate_pct !== null ? y.nonrenewal_rate_pct + '%' : '—';
+                    html += `<tr style="border-bottom:1px solid #f3f4f6;">
+                        <td style="padding:4px 8px;">${y.year}</td>
+                        <td style="padding:4px 8px;">${y.renewed !== null ? y.renewed.toLocaleString() : '—'}</td>
+                        <td style="padding:4px 8px;">${y.non_renewed !== null ? y.non_renewed.toLocaleString() : '—'}</td>
+                        <td style="padding:4px 8px; font-weight:600; color:${trendColor};">${rate}</td>
+                    </tr>`;
                 });
+                html += `</tbody></table>`;
             }
+ 
+            content.innerHTML = html;
+        }
+ 
+        // Render DINS structural damage section
+        function renderDins(dins) {
+            const section = document.getElementById('dins-section');
+            const content = document.getElementById('dins-content');
 
-            function linkifyUrls(text) {
-                return text.replace(
-                    /(https?:\/\/[^\s)]+)/g,
-                    '<a href="$1" target="_blank" rel="noopener" style="color:#7A6240;font-style:normal;">$1</a>'
-                );
-            }
-            
-
-            function renderMitigationBanner(mitigationText) {
-                const banner = document.getElementById('mitigation-banner');
-                const chevrons = document.getElementById('mitigation-chevrons');
-
-                if (!mitigationText || userType !== 'homeowner') {
-                    banner.classList.remove('visible');
-                    return;
-                }
-
-                // Split on numbered list patterns: "1.", "1)", or newlines between sentences
-                // The LLM typically returns "1. ... 2. ... 3. ..."
-                const items = mitigationText
-                    .split(/(?=\b[1-9]\.\s)/)          // split before "1. " "2. " etc.
-                    .map(s => s.replace(/^\d+\.\s*/, '').trim())
-                    .filter(Boolean);
-
-                // Fallback: if no numbered split worked, split on newlines
-                const recs = items.length >= 2
-                    ? items
-                    : mitigationText.split(/\n+/).map(s => s.trim()).filter(Boolean);
-
-                chevrons.innerHTML = recs.slice(0, 3).map((text, i) => `
-                    <div class="mitigation-chevron">
-                        <span class="mitigation-chevron-number">${i + 1}</span>
-                        <div class="mitigation-chevron-body">
-                            <span class="mitigation-chevron-label">Recommendation ${i + 1}</span>
-                            <span class="mitigation-chevron-text">${processRecommendationText(linkifyUrls(text))}</span>
-                        </div>
-                    </div>
-                `).join('');
-
-                banner.classList.add('visible');
-            }
-
-            function renderVulnerabilitySection(dins) {
-                const section = document.getElementById('vulnerability-section');
-                const content = document.getElementById('vulnerability-dins-content');
-
-                if (!dins || userType !== 'homeowner') {
-                    section.classList.remove('visible');
-                    return;
-                }
-
-                // Reuse the same dins rendering logic — copy result into vulnerability content
-                // First render into the hidden dins-section as usual (renderDins handles that),
-                // then clone its innerHTML here.
-                section.classList.add('visible');
-
-                // After renderDins() has run, copy its content across
-                const dinsContent = document.getElementById('dins-content');
-                if (dinsContent) {
-                    content.innerHTML = dinsContent.innerHTML || 
-                        '<p style="color:#888;">No inspected structures found within 5 miles of this location.</p>';
-                }
-            }
-
-            //////////////////////
-            function highlightReportText(text) {
-                // First escape everything
-                const s = String(text ?? '')
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
-
-                // Restore <strong> tags the LLM inserted (they got escaped above)
-                const withStrong = s
-                    .replace(/&lt;strong&gt;/g, '<strong>')
-                    .replace(/&lt;\/strong&gt;/g, '</strong>');
-
-                // Apply your existing highlight regex
-                const re = /\b(likelihood|probability|chance|increasingly|decreasingly|significantly|sharply|substantially)\b|\d+(?:\.\d+)?(?:\s*(?:[–-]|to)\s*\d+(?:\.\d+)?)?\s*%/gi;
-
-                return withStrong.replace(re, '<mark class="report-highlight">$&</mark>');
-            }
-
-            function setResultHtml(id, text) {
-                const el = document.getElementById(id);
-                if (text == null || text === '') {
-                    el.textContent = '—';
-                    return;
-                }
-                el.innerHTML = highlightReportText(text);
-            }
-            // build FAIR Plan summary text based on structured data from the 
-            // FAIR Plan dataset
-            function buildFairPlanSummary(fairPlan) {
-                if (!fairPlan || !fairPlan.zipcode) return '';
-
-                if (fairPlan.error) {
-                    return `FAIR Plan ZIP data unavailable for ${fairPlan.zipcode}.`;
-                }
-
-                if (!fairPlan.found) {
-                    return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} does not appear in the current residential exposure report.`;
-                }
-
-                if (!fairPlan.covered_by_fair_plan) {
-                    return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} appears historically in the report, but no FY${fairPlan.latest_fiscal_year || 'latest'} exposure is reported.`;
-                }
-
-                const latestYear = fairPlan.latest_fiscal_year || 'latest';
-                const latestExposure = typeof fairPlan.latest_total_exposure === 'number'
-                    ? `$${fairPlan.latest_total_exposure.toLocaleString()}`
-                    : 'unavailable';
-                const change = fairPlan.five_year_pct_change;
-                const changeText = typeof change === 'number' ? `${change}%` : 'N/A';
-
-                return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} shows reported residential exposure. FY${latestYear} total insured value: ${latestExposure}. Five-year change: ${changeText}.`;
-            }
-
-            function renderGauge(trends, gaugeExplanation) {
-                if (!trends || !trends.composite) return;
-
-                const composite = trends.composite;
-                const label = composite.composite_label || "insufficient data";
-                const signals = composite.signals || [];
-
-                // Map label to needle angle (-90 = far left, 90 = far right)
-                const angles = {
-                    "lower risk based on available data": -80,
-                    "moderate risk": -20,
-                    "moderate to high risk": 30,
-                    "high and increasing risk": 80,
-                };
-                const angle = angles[label] ?? 0;
-
-                // Rotate needle
-                const needle = document.getElementById('gauge-needle');
-                needle.setAttribute('transform', `rotate(${angle}, 100, 100)`);
-                
-                // Set label
-                document.getElementById('composite-label').textContent = label;
-
-                // Parse gauge explanation
-                const methodology = gaugeExplanation?.methodology || 
-                    "This score is computed from 4 objective indicators: fire proximity trend, fire frequency trend, official hazard zone classification, and recent fire distances.";
-                const signalExplanations = gaugeExplanation?.signal_explanations || [];
-
-                // Update methodology tooltip
-                document.getElementById('gauge-tooltip-content').textContent = methodology;
-
-                // Populate signals with per-signal hover
-                const ul = document.getElementById('risk-signals');
-                ul.innerHTML = '';
-                signals.forEach((s, i) => {
-                    const li = document.createElement('li');
-                    li.className = s.direction || 'neutral';
-
-                    const signalExpl = signalExplanations.find(e => e.index === i);
-
-                    if (signalExpl?.explanation) {
-                        // Wrap in a hoverable container
-                        li.innerHTML = `
-                            <div class="signal-hover-wrapper">
-                                <span class="signal-text">${s.text || s}</span>
-                                <div class="signal-tooltip">${signalExpl.explanation}</div>
-                            </div>
-                        `;
-                    } else {
-                        li.textContent = s.text || s;
-                    }
-
-                    ul.appendChild(li);
-                });
-            }
-
-            // Button activation/deactivations
-            function activateReportBtn() {
-                document.getElementById('analyze-loc-btn').classList.add('active');
-            }
-
-            function deactivateReportBtn() {
-                document.getElementById('analyze-loc-btn').classList.remove('active');
-                selectedLat = null;
-                selectedLon = null;
-                selectedZip = null;
-            }
-
-            function activateSearchBtn() {
-                document.getElementById('search-btn').classList.add('active');
-            }
-
-            function deactivateSearchBtn() {
-                document.getElementById('search-btn').classList.remove('active');
-            }
-            // /////////
-
-            // display generated report details
-            function renderReport(data) {
-                console.log("zhvi:", data.zhvi);
-                console.log("dins:", data.dins);
-                console.log("doi:", data.doi);
-
-                renderHomeValChart(data.zhvi, data.zillow_overlay, data.fire_history);
-                renderGauge(data.trends, data.gauge_explanation);
-                renderChartObservations(data);
-                renderDoi(data.doi);
-                renderDins(data.dins);
-                // Homeowner-specific top sections
-                renderMitigationBanner(data.mitigation_recommendations);
-                renderVulnerabilitySection(data.dins);
-
-                // Hide the old mitigation and dins sections for homeowners
-                // (their content is now shown in the top banner / vulnerability section)
+            if (!dins || !dins.found) {
                 if (userType === 'homeowner') {
-                    document.getElementById('mitigation-section').style.display = 'none';
-                    document.getElementById('dins-section').style.display = 'none';
-                }
-
-                const zone = data.hazard_zone || 'Unknown';
-                
-                // color based on zone
-                const colors = {
-                    'Very High': '#d73027',
-                    'High': '#fc8d59', 
-                    'Moderate': '#fee08b',
-                    'Unknown': '#aaaaaa'
-                };
-                const color = colors[zone] || '#aaaaaa';
-
-                // Text fields (highlight key terms in narrative sections)
-                setResultHtml('result-val', data.home_value_impact);
-                
-                // add FAIR Plan context to insurance outlook narrative 
-                // based on the ZIP code of the selected location
-                const fairPlanSummary = buildFairPlanSummary(data.fair_plan);
-                const insuranceText = fairPlanSummary
-                    ? `${fairPlanSummary} ${data.insurance_outlook || ''}`.trim()
-                    : data.insurance_outlook;
-                setResultHtml('result-insurability', insuranceText);
-                setResultHtml('result-affordability', data.affordability_score);
-                setResultHtml('result-hazard-zone', data.hazard_zone || 'Unknown');
-
-                // Keep section order consistent for both homeowner and homebuyer:
-                // Official Hazard Zone first, Overview directly below it.
-                const resultsContainer = document.getElementById('modal-results');
-                const hazardSection = document.getElementById('official-hazard-zone-section');
-                const overviewSection = document.getElementById('ai-analysis-row');
-                if (resultsContainer && hazardSection && overviewSection) {
-                    resultsContainer.insertBefore(hazardSection, resultsContainer.firstChild);
-                    resultsContainer.insertBefore(overviewSection, hazardSection.nextSibling);
-                }
-
-                // Add mitigation section 
-                const mitigation = data.mitigation_recommendations;
-                if (mitigation) {
-                    document.getElementById('mitigation-section').style.display = 'block';
-                    setResultHtml('result-mitigation', mitigation);
+                    section.style.display = 'block';
+                    content.innerHTML = `<p style="color:#888;">${dins?.message || 'No inspected structures found within 5 miles of this location.'}</p>`;
                 } else {
-                    document.getElementById('mitigation-section').style.display = 'none';
+                    section.style.display = 'none';
                 }
+                return;
+            }
 
-                // Swtich from loading state to results state
-                document.getElementById('modal-loading').style.display = 'none';
-                document.getElementById('modal-results').style.display = 'grid';
+            section.style.display = 'block';
+
+            const rates = dins.damage_rates || {};
+            const total = rates.total || 0;
+            const noD = rates.no_damage || 0;
+            const destructionRate = rates.destruction_rate_pct ?? '—';
+            const damageOrDestroyedRate = rates.damage_or_destroyed_rate_pct ?? '—';
+
+            function ratioLabel(pct, verb) {
+                const n = parseFloat(pct);
+                if (isNaN(n)) return '';
+                if (n >= 75) return `About 3 in 4 ${verb}`;
+                if (n >= 60) return `About 2 in 3 ${verb}`;
+                if (n >= 50) return `More than 1 in 2 ${verb}`;
+                if (n >= 33) return `About 1 in 3 ${verb}`;
+                if (n >= 20) return `About 1 in 5 ${verb}`;
+                return `Fewer than 1 in 5 ${verb}`;
+            }
+
+            function ratioFromPct(pct) {
+                const n = parseFloat(pct);
+                if (n >= 75) return '3 in 4';
+                if (n >= 60) return '2 in 3';
+                if (n >= 50) return '1 in 2';
+                if (n >= 33) return '1 in 3';
+                if (n >= 20) return '1 in 5';
+                return 'fewer than 1 in 5';
+            }
+
+            // Stats row
+            let html = `<div class="dins-stats-grid">
+                <div class="dins-stat-card">
+                    <div class="dins-stat-label">Structures inspected</div>
+                    <div class="dins-stat-value">${total.toLocaleString()}</div>
+                    <div class="dins-stat-sub">within 5 miles</div>
+                </div>
+                <div class="dins-stat-card">
+                    <div class="dins-stat-label">Destruction rate</div>
+                    <div class="dins-stat-value danger">${destructionRate}%</div>
+                    <div class="dins-stat-sub">${ratioLabel(destructionRate, 'destroyed')}</div>
+                </div>
+                <div class="dins-stat-card">
+                    <div class="dins-stat-label">Damaged or destroyed</div>
+                    <div class="dins-stat-value warning">${damageOrDestroyedRate}%</div>
+                    <div class="dins-stat-sub">${ratioLabel(damageOrDestroyedRate, 'affected')}</div>
+                </div>
+                <div class="dins-stat-card">
+                    <div class="dins-stat-label">No damage</div>
+                    <div class="dins-stat-value success">${noD.toLocaleString()}</div>
+                    <div class="dins-stat-sub">survived intact</div>
+                </div>
+            </div>`;
+
+            // Vulnerability profile chips
+            const vuln = dins.vulnerability_profile || {};
+            const vulnLabels = {
+                roof_construction: 'Roof', eaves: 'Eaves', exterior_siding: 'Siding',
+                vent_screen: 'Vent screen', window_pane: 'Windows', fence_attached: 'Fence',
+            };
+            const vulnEntries = Object.entries(vuln).filter(([_, v]) => v && v.length > 0);
+            if (vulnEntries.length > 0) {
+                html += `<div class="dins-comp-label">Most common in damaged/destroyed structures nearby</div>
+                    <div class="dins-vuln-chips">`;
+                vulnEntries.forEach(([key, vals]) => {
+                    html += `<div class="dins-vuln-chip">
+                        <span class="dins-vuln-chip-label">${vulnLabels[key] || key}:</span>${vals.join(', ')}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            // Property comparison cards
+            const comparison = dins.property_comparison || {};
+            const compEntries = Object.entries(comparison);
+
+            if (compEntries.length > 0) {
+                html += `<div class="dins-comp-label">Your home's risk factors compared to damaged structures nearby</div>
+                    <div class="dins-char-cards">`;
+
+                compEntries.forEach(([key, val]) => {
+                    const tier = val.risk_tier || 'mod';
+                    const tierReason = val.tier_reason || '';
+                    const barW = Math.min(Math.round(parseFloat(val.destruction_rate_pct) || 0), 100);
+                    const matched = (val.matched_structures || 0).toLocaleString();
+                    const desc = val.desc || '';
+                    const action = val.action || '';
+
+                    const tierLabels = { high: 'ⓘ Higher risk', mod: 'ⓘ Moderate risk', low: 'ⓘ Lower risk' };
+
+                    html += `<div class="dins-char-card risk-${tier}">
+                        <div>
+                            <div class="dins-char-name">${vulnLabels[key] || key}</div>
+                            <div class="dins-char-value">${val.user_value}</div>
+                            ${desc ? `<div class="dins-char-desc">${desc}</div>` : ''}
+                            ${action ? `<div class="dins-char-action">↳ ${action}</div>` : ''}
+                        </div>
+                        <div class="dins-char-right">
+                            <div class="dins-tier-wrapper">
+                                <span class="dins-tier-pill risk-${tier}">${tierLabels[tier]}</span>
+                                ${tierReason ? `<div class="dins-tier-tooltip">${tierReason}</div>` : ''}
+                            </div>
+                            <div class="dins-bar-track">
+                                <div class="dins-bar-fill risk-${tier}" style="width:${barW}%"></div>
+                            </div>
+                            <div class="dins-bar-meta-wrapper">
+                                <div class="dins-rate-wrapper">
+                                    <span class="dins-rate-value">${val.destruction_rate_pct}% destruction rate</span>
+                                    <div class="dins-rate-tooltip">The percentage of homes with this characteristic that were fully destroyed in nearby fire events — not just damaged, but a total loss.</div>
+                                </div>
+                                <span class="dins-bar-meta-sep"> · </span>
+                                <span class="dins-bar-meta">${matched} similar homes</span>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            } else if (pendingPropertyChars) {
+                html += `<p class="dins-char-desc" style="margin-top:12px;">No nearby structures with enough matching characteristics to produce a comparison.</p>`;
+            }
+
+            // Incidents + footer
+            const incidents = dins.top_incidents || {};
+            const incidentEntries = Object.entries(incidents);
+            if (incidentEntries.length > 0) {
+                html += `<div class="dins-incidents">
+                    <strong>Top incidents in this area:</strong> ${incidentEntries.map(([name, count]) => `${name} (${count.toLocaleString()} structures)`).join(' · ')}
+                </div>`;
+            }
+            if (dins.year_range) {
+                html += `<div class="dins-footer">
+                    Data covers ${dins.year_range}. Radius: ${dins.radius_miles} miles.
+                    <br><a href="https://gis.data.cnra.ca.gov/datasets/CALFIRE-Forestry::cal-fire-damage-inspection-dins-data">
+                        Source: CAL FIRE Damage Inspection Data
+                    </a>
+                    </div>`;
+                // html += `<div class="dins-footer">Data covers ${dins.year_range}. Radius: ${dins.radius_miles} miles.<a>Source: <href='https://gis.data.cnra.ca.gov/datasets/CALFIRE-Forestry::cal-fire-damage-inspection-dins-data'>CAL FIRE Damage Inspection Data</a></div>`;
+            }
+
+            content.innerHTML = html;
+        }
+
+        function processRecommendationText(text) {
+            return text.replace(/\[\[([^\]]+)\]\]/g, (match, term) => {
+                const url = glossary[term.toLowerCase()];
+                return url
+                    ? `<a href="${url}" target="_blank" rel="noopener" style="color:#7A6240;font-style:normal;text-decoration:underline;">${term}</a>`
+                    : term;
+            });
+        }
+
+        function linkifyUrls(text) {
+            return text.replace(
+                /(https?:\/\/[^\s)]+)/g,
+                '<a href="$1" target="_blank" rel="noopener" style="color:#7A6240;font-style:normal;">$1</a>'
+            );
+        }
+        
+
+        function renderMitigationBanner(mitigationText) {
+            const banner = document.getElementById('mitigation-banner');
+            const chevrons = document.getElementById('mitigation-chevrons');
+
+            if (!mitigationText || userType !== 'homeowner') {
+                banner.classList.remove('visible');
+                return;
+            }
+
+            // Split on numbered list patterns: "1.", "1)", or newlines between sentences
+            // The LLM typically returns "1. ... 2. ... 3. ..."
+            const items = mitigationText
+                .split(/(?=\b[1-9]\.\s)/)          // split before "1. " "2. " etc.
+                .map(s => s.replace(/^\d+\.\s*/, '').trim())
+                .filter(Boolean);
+
+            // Fallback: if no numbered split worked, split on newlines
+            const recs = items.length >= 2
+                ? items
+                : mitigationText.split(/\n+/).map(s => s.trim()).filter(Boolean);
+
+            chevrons.innerHTML = recs.slice(0, 3).map((text, i) => `
+                <div class="mitigation-chevron">
+                    <span class="mitigation-chevron-number">${i + 1}</span>
+                    <div class="mitigation-chevron-body">
+                        <span class="mitigation-chevron-label">Recommendation ${i + 1}</span>
+                        <span class="mitigation-chevron-text">${processRecommendationText(linkifyUrls(text))}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            banner.classList.add('visible');
+        }
+
+        function renderVulnerabilitySection(dins) {
+            const section = document.getElementById('vulnerability-section');
+            const content = document.getElementById('vulnerability-dins-content');
+
+            if (!dins || userType !== 'homeowner') {
+                section.classList.remove('visible');
+                return;
+            }
+
+            // Reuse the same dins rendering logic — copy result into vulnerability content
+            // First render into the hidden dins-section as usual (renderDins handles that),
+            // then clone its innerHTML here.
+            section.classList.add('visible');
+
+            // After renderDins() has run, copy its content across
+            const dinsContent = document.getElementById('dins-content');
+            if (dinsContent) {
+                content.innerHTML = dinsContent.innerHTML || 
+                    '<p style="color:#888;">No inspected structures found within 5 miles of this location.</p>';
+            }
+        }
+
+        //////////////////////
+        function highlightReportText(text) {
+            // First escape everything
+            const s = String(text ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+
+            // Restore <strong> tags the LLM inserted (they got escaped above)
+            const withStrong = s
+                .replace(/&lt;strong&gt;/g, '<strong>')
+                .replace(/&lt;\/strong&gt;/g, '</strong>');
+
+            // Apply your existing highlight regex
+            const re = /\b(likelihood|probability|chance|increasingly|decreasingly|significantly|sharply|substantially)\b|\d+(?:\.\d+)?(?:\s*(?:[–-]|to)\s*\d+(?:\.\d+)?)?\s*%/gi;
+
+            return withStrong.replace(re, '<mark class="report-highlight">$&</mark>');
+        }
+
+        function setResultHtml(id, text) {
+            const el = document.getElementById(id);
+            if (text == null || text === '') {
+                el.textContent = '—';
+                return;
+            }
+            el.innerHTML = highlightReportText(text);
+        }
+        // build FAIR Plan summary text based on structured data from the 
+        // FAIR Plan dataset
+        function buildFairPlanSummary(fairPlan) {
+            if (!fairPlan || !fairPlan.zipcode) return '';
+
+            if (fairPlan.error) {
+                return `FAIR Plan ZIP data unavailable for ${fairPlan.zipcode}.`;
+            }
+
+            if (!fairPlan.found) {
+                return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} does not appear in the current residential exposure report.`;
+            }
+
+            if (!fairPlan.covered_by_fair_plan) {
+                return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} appears historically in the report, but no FY${fairPlan.latest_fiscal_year || 'latest'} exposure is reported.`;
+            }
+
+            const latestYear = fairPlan.latest_fiscal_year || 'latest';
+            const latestExposure = typeof fairPlan.latest_total_exposure === 'number'
+                ? `$${fairPlan.latest_total_exposure.toLocaleString()}`
+                : 'unavailable';
+            const change = fairPlan.five_year_pct_change;
+            const changeText = typeof change === 'number' ? `${change}%` : 'N/A';
+
+            return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} shows reported residential exposure. FY${latestYear} total insured value: ${latestExposure}. Five-year change: ${changeText}.`;
+        }
+
+        function renderGauge(trends, gaugeExplanation) {
+            if (!trends || !trends.composite) return;
+
+            const composite = trends.composite;
+            const label = composite.composite_label || "insufficient data";
+            const signals = composite.signals || [];
+
+            // Map label to needle angle (-90 = far left, 90 = far right)
+            const angles = {
+                "lower risk based on available data": -80,
+                "moderate risk": -20,
+                "moderate to high risk": 30,
+                "high and increasing risk": 80,
+            };
+            const angle = angles[label] ?? 0;
+
+            // Rotate needle
+            const needle = document.getElementById('gauge-needle');
+            needle.setAttribute('transform', `rotate(${angle}, 100, 100)`);
             
-                if (window.hazardCircle) {
-                    map.removeLayer(window.hazardCircle);
-                }
-                window.hazardCircle = L.circle([selectedLat, selectedLon], {
-                    radius: 1000,
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.35,
-                    weight: 2
-                }).addTo(map);
+            // Set label
+            document.getElementById('composite-label').textContent = label;
 
+            // Parse gauge explanation
+            const methodology = gaugeExplanation?.methodology || 
+                "This score is computed from 4 objective indicators: fire proximity trend, fire frequency trend, official hazard zone classification, and recent fire distances.";
+            const signalExplanations = gaugeExplanation?.signal_explanations || [];
 
-                localStorage.setItem('wildfire_report', JSON.stringify(data));
-                localStorage.setItem('wildfire_report_address', selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`);
-                document.getElementById('open-report-btn').style.display = 'inline-block';
+            // Update methodology tooltip
+            document.getElementById('gauge-tooltip-content').textContent = methodology;
 
-            }
-    
-            function showError(msg) {
-                document.getElementById('modal-loading').textContent = `Error: ${msg}`;
-            }
+            // Populate signals with per-signal hover
+            const ul = document.getElementById('risk-signals');
+            ul.innerHTML = '';
+            signals.forEach((s, i) => {
+                const li = document.createElement('li');
+                li.className = s.direction || 'neutral';
 
-            ///////////////////////
-            // Map selection/view helper funcs
-            //////////////////////
+                const signalExpl = signalExplanations.find(e => e.index === i);
 
-            // View lat/lon selection on map
-            function updateMarker(lat, lon) {
-                const latlng = [lat, lon];
-
-                if (marker) {
-                    marker.setLatLng(latlng);
+                if (signalExpl?.explanation) {
+                    // Wrap in a hoverable container
+                    li.innerHTML = `
+                        <div class="signal-hover-wrapper">
+                            <span class="signal-text">${s.text || s}</span>
+                            <div class="signal-tooltip">${signalExpl.explanation}</div>
+                        </div>
+                    `;
                 } else {
-                    marker = L.marker(latlng).addTo(map);
+                    li.textContent = s.text || s;
                 }
 
-                map.setView(latlng, 15);
+                ul.appendChild(li);
+            });
+        }
 
-                document.getElementById('select-dirs').textContent =
-                    `Selected: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        // Button activation/deactivations
+        function activateReportBtn() {
+            document.getElementById('analyze-loc-btn').classList.add('active');
+        }
+
+        function deactivateReportBtn() {
+            document.getElementById('analyze-loc-btn').classList.remove('active');
+            selectedLat = null;
+            selectedLon = null;
+            selectedZip = null;
+        }
+
+        function activateSearchBtn() {
+            document.getElementById('search-btn').classList.add('active');
+        }
+
+        function deactivateSearchBtn() {
+            document.getElementById('search-btn').classList.remove('active');
+        }
+        // /////////
+
+        // display generated report details
+        function renderReport(data) {
+            console.log("zhvi:", data.zhvi);
+            console.log("dins:", data.dins);
+            console.log("doi:", data.doi);
+
+            renderHomeValChart(data.zhvi, data.zillow_overlay, data.fire_history);
+            renderGauge(data.trends, data.gauge_explanation);
+            console.log('chart_observations:', data.chart_observations);
+            console.log('all data keys:', Object.keys(data));
+            renderChartObservations(data);
+            renderDoi(data.doi);
+            renderDins(data.dins);
+            // Homeowner-specific top sections
+            renderMitigationBanner(data.mitigation_recommendations);
+            renderVulnerabilitySection(data.dins);
+
+            // Hide the old mitigation and dins sections for homeowners
+            // (their content is now shown in the top banner / vulnerability section)
+            if (userType === 'homeowner') {
+                // document.getElementById('mitigation-section').style.display = 'none';
+                document.getElementById('dins-section').style.display = 'none';
+
+                const fp = document.getElementById('fair-plan-standalone');
+                if (fp) fp.style.display = 'none';
+
+                const ii = document.getElementById('insurability-info-section');
+                if (ii) ii.style.display = 'none';
+
+                const doi = document.getElementById('doi-section');
+                if (doi) doi.style.display = 'none';
+            
+                const gauge = document.getElementById('top-row');
+                if (gauge) gauge.style.display = 'none';
+                
+                const financialVal = document.getElementById('financial-val-section');
+                if (financialVal) financialVal.style.display = 'none';
+
             }
 
+            // Confidence 
+            const score = document.getElementById('response-confidence');
+            const confidence = (data.confidence || 'low').toLowerCase();
+            const zone = data.hazard_zone || 'Unknown';
+            
+            // color based on zone
+            const colors = {
+                'Very High': '#d73027',
+                'High': '#fc8d59', 
+                'Moderate': '#fee08b',
+                'Unknown': '#aaaaaa'
+            };
+            const color = colors[zone] || '#aaaaaa';
 
-            // extract address from lat/lon selection
-            async function reverseGeocode(lat, lon) {
-                try {
-                    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    if (data && data.display_name) {
-                        document.getElementById('address-input').value = data.display_name;
-                        selectedAddress = data.display_name || null;
-                    } else {
-                        document.getElementById('address-input').value = '';
-                    }
-                    // extract zip from address object
-                    const postcode = data.address?.postcode || null;
-                    if (postcode) {
-                        const zipMatch = String(postcode).match(/\d{5}/);
-                        selectedZip = zipMatch ? zipMatch[0] : selectedZip;
-                    }
-                } catch (err) {
-                    console.error('Reverse geocode failed', err);
+            score.textContent = `LLM Response Confidence: ${confidence}`;
+            score.className = '';
+            score.classList.add(confidence);
+            const hazardBar = document.getElementById('hazard-zone-bar');
+            if (hazardBar) {
+                hazardBar.className = 'hazard-zone-card';
+                hazardBar.classList.add(zone.toLowerCase().replace(' ', '-'));
+                hazardBar.innerHTML = `
+                    <div class="hazard-zone-label">Fire Hazard Severity Zone:</div>
+                    <div class="hazard-zone-value">${zone}</div>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip" style="margin-top:10px;">
+                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                        <div id="ai-analysis-tooltip-content">
+                            Source:
+                            <a href="https://www.fire.ca.gov/osfm/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones" target="_blank" rel="noopener noreferrer">
+                                CAL FIRE Fire Hazard Severity Zones
+                            </a>
+                        </div>
+                    </div>
+                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                        <span id="ai-analysis-tooltip-trigger" style="font-size: 10px;margin-top:10px;background-color:transparent; font-style: italic; text-decoration-line:underline;color:#000ce9;">What does this mean?</span>
+                        <div id="ai-analysis-tooltip-content">
+                            The official state fire hazard classification for your zipcode reflects inherent wildfire risk based on things like vegetation, terrain, and climate. 
+                            This is not a holistic risk assessment score.  
+                        </div>
+                    </div>
+                `;
+            }
+            // const hazardBar = document.getElementById('hazard-zone-bar');
+            // if (hazardBar) {
+            //     hazardBar.className = '';
+            //     hazardBar.classList.add(zone.toLowerCase().replace(' ', '-'));
+            //     hazardBar.style.display = 'block';
+            //     hazardBar.innerHTML = `
+            //         Fire Hazard Zone: ${zone}
+            //         <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip" style="display:inline-block; margin-left:8px;">
+            //             <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+            //             <div id="ai-analysis-tooltip-content">
+            //                 Source:
+            //                 <a href="https://www.fire.ca.gov/what-we-do/natural-resource-management/fire-hazard-severity-zones" target="_blank" rel="noopener noreferrer">
+            //                     CAL FIRE Fire Hazard Severity Zones
+            //                 </a>
+            //             </div>
+            //         </div>
+            //     `;
+            // }
+ 
+            // Text fields (highlight key terms in narrative sections)
+            setResultHtml('result-val', data.home_value_impact);
+            
+            // add FAIR Plan context to insurance outlook narrative 
+            // based on the ZIP code of the selected location
+            const fairPlanSummary = buildFairPlanSummary(data.fair_plan);
+            const insuranceText = fairPlanSummary
+                ? `${fairPlanSummary} ${data.insurance_outlook || ''}`.trim()
+                : data.insurance_outlook;
+            setResultHtml('result-insurability', insuranceText);
+            setResultHtml('result-affordability', data.affordability_score);
+            // setResultHtml('result-hazard-zone', data.hazard_zone || 'Unknown');
+
+            renderInsuranceRisk(data.fair_plan, data.doi, insuranceText);
+
+            // Add mitigation section 
+            // const mitigation = data.mitigation_recommendations;
+            // if (mitigation) {
+            //     document.getElementById('mitigation-section').style.display = 'block';
+            //     setResultHtml('result-mitigation', mitigation);
+            // } else {
+            //     document.getElementById('mitigation-section').style.display = 'none';
+            // }
+
+            // Swtich from loading state to results state
+            document.getElementById('modal-loading').style.display = 'none';
+            document.getElementById('modal-results').style.display = 'grid';
+        
+            if (window.hazardCircle) {
+                map.removeLayer(window.hazardCircle);
+            }
+            window.hazardCircle = L.circle([selectedLat, selectedLon], {
+                radius: 1000,
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.35,
+                weight: 2
+            }).addTo(map);
+
+
+            localStorage.setItem('wildfire_report', JSON.stringify(data));
+            localStorage.setItem('wildfire_report_address', selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`);
+            document.getElementById('open-report-btn').style.display = 'inline-block';
+
+        }
+ 
+        function showError(msg) {
+            document.getElementById('modal-loading').textContent = `Error: ${msg}`;
+        }
+
+        ///////////////////////
+        // Map selection/view helper funcs
+        //////////////////////
+
+        // View lat/lon selection on map
+        function updateMarker(lat, lon) {
+            const latlng = [lat, lon];
+
+            if (marker) {
+                marker.setLatLng(latlng);
+            } else {
+                marker = L.marker(latlng).addTo(map);
+            }
+
+            map.setView(latlng, 15);
+
+            document.getElementById('select-dirs').textContent =
+                `Selected: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        }
+
+
+        // extract address from lat/lon selection
+        async function reverseGeocode(lat, lon) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data && data.display_name) {
+                    document.getElementById('address-input').value = data.display_name;
+                    selectedAddress = data.display_name || null;
+                } else {
                     document.getElementById('address-input').value = '';
                 }
+                // extract zip from address object
+                const postcode = data.address?.postcode || null;
+                if (postcode) {
+                    const zipMatch = String(postcode).match(/\d{5}/);
+                    selectedZip = zipMatch ? zipMatch[0] : selectedZip;
+                }
+            } catch (err) {
+                console.error('Reverse geocode failed', err);
+                document.getElementById('address-input').value = '';
             }
+        }
 
-        </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-    </body>
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+</body>
 
-    </html>
+</html>
