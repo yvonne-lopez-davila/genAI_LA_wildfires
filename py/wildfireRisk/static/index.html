@@ -292,7 +292,6 @@
                 <div id="charts-row" class="results full-width" style="display:grid; grid-template-columns: 40% 60%; gap:24px; margin-top:8px;">
                     <div id="charts-section">
                         <canvas id="zhvi-chart" height="180" style="display:none;"></canvas>
-                        <canvas id="fire-history-chart" height="120" style="display:none; margin-top:12px;"></canvas>
                     </div>
 
                     <div id="chart-observations-section">
@@ -845,11 +844,65 @@
 
         var zhviChartInstance = null;
 
-        // Render home value chart
-        function renderHomeValChart(zhvi, zillowOverlay) {
+        const wildfireEventLinePlugin = {
+            id: 'wildfireEventLinePlugin',
+            afterDatasetsDraw(chart, args, pluginOptions) {
+                const events = Array.isArray(pluginOptions?.events) ? pluginOptions.events : [];
+                if (!events.length) return;
+
+                const { ctx, chartArea, scales } = chart;
+                const xScale = scales.x;
+                if (!xScale) return;
+
+                ctx.save();
+                ctx.setLineDash([5, 4]);
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = '#9ca3af';
+                events.forEach(event => {
+                    const labelIndex = chart.data.labels.indexOf(event.year);
+                    if (labelIndex < 0) return;
+                    const xPos = xScale.getPixelForValue(labelIndex);
+                    if (!Number.isFinite(xPos) || xPos < chartArea.left || xPos > chartArea.right) return;
+                    ctx.beginPath();
+                    ctx.moveTo(xPos, chartArea.top);
+                    ctx.lineTo(xPos, chartArea.bottom);
+                    ctx.stroke();
+                });
+                ctx.restore();
+            }
+        };
+
+        // Render home value chart with close wildfire markers
+        function renderHomeValChart(zhvi, zillowOverlay, fireHistory) {
             const canvas = document.getElementById('zhvi-chart');
             const hasZhvi = !!(zhvi && zhvi.found && zhvi.timeseries);
             const hasOverlay = !!(zillowOverlay && zillowOverlay.found && zillowOverlay.timeseries);
+            const wildfireMaxDistanceMiles = 20;
+            const wildfireDatasetLabel = `Nearby wildfire (<=${wildfireMaxDistanceMiles} mi)`;
+
+            const closeFiresByYear = {};
+            const fires = fireHistory?.fires || [];
+            fires
+                .map(f => ({
+                    ...f,
+                    parsed_distance: Number(f.distance_miles),
+                    parsed_year: Number(f.year)
+                }))
+                .filter(f => Number.isFinite(f.parsed_distance) && Number.isFinite(f.parsed_year) && f.parsed_distance <= wildfireMaxDistanceMiles)
+                .forEach(f => {
+                    const year = String(Math.trunc(f.parsed_year));
+                    if (!closeFiresByYear[year] || f.parsed_distance < closeFiresByYear[year].parsed_distance) {
+                        closeFiresByYear[year] = f;
+                    }
+                });
+            const wildfireEvents = Object.keys(closeFiresByYear)
+                .sort()
+                .map(year => ({
+                    year,
+                    fire_name: closeFiresByYear[year].fire_name,
+                    distance_miles: closeFiresByYear[year].parsed_distance
+                }));
+
             if (!hasZhvi && !hasOverlay) {
                 canvas.style.display = 'none';
                 return;
@@ -890,6 +943,28 @@
                 });
             }
 
+            // Add invisible hover targets so each vertical wildfire line has a tooltip.
+            // Keep this dataset present even when no events qualify, so legend styling remains consistent.
+            const targetAxis = hasZhvi ? 'y' : 'y1';
+            const sourceValues = hasZhvi
+                ? labels.map(y => Number(zhvi.timeseries?.[y])).filter(v => Number.isFinite(v))
+                : labels.map(y => Number(zillowOverlay.timeseries?.[y])).filter(v => Number.isFinite(v));
+            const maxValue = sourceValues.length ? Math.max(...sourceValues) : 1;
+            const markerHeight = maxValue * 0.98;
+            datasets.push({
+                label: wildfireDatasetLabel,
+                data: labels.map(y => (wildfireEvents.some(e => e.year === y) ? markerHeight : null)),
+                yAxisID: targetAxis,
+                showLine: false,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHitRadius: 14,
+                pointBackgroundColor: '#9ca3af',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 1.5,
+                borderWidth: 0
+            });
+
             canvas.style.display = 'block';
 
             if (zhviChartInstance) {
@@ -898,6 +973,7 @@
 
             zhviChartInstance = new Chart(canvas, {
                 type: 'line',
+                plugins: [wildfireEventLinePlugin],
                 data: {
                     labels: labels,
                     datasets: datasets
@@ -905,15 +981,29 @@
                 options: {
                     responsive: true,
                     plugins: {
+                        wildfireEventLinePlugin: {
+                            events: wildfireEvents
+                        },
                         legend: { display: true, position: 'top' },
                         tooltip: {
                             callbacks: {
                                 label: ctx => {
+                                    if (ctx.dataset?.label === wildfireDatasetLabel) {
+                                        return wildfireDatasetLabel;
+                                    }
                                     const value = ctx.parsed.y;
                                     if (ctx.dataset?.yAxisID === 'y1') {
                                         return `$${value.toLocaleString()}`;
                                     }
                                     return `$${value.toLocaleString()}`;
+                                },
+                                afterBody: ctx => {
+                                    const year = ctx?.[0]?.label;
+                                    const eventsThisYear = wildfireEvents.filter(e => e.year === year);
+                                    if (!eventsThisYear.length) return [];
+                                    return eventsThisYear.map(e =>
+                                        `Nearby wildfire: ${e.fire_name} (${Number(e.distance_miles).toFixed(1)} mi)`
+                                    );
                                 }
                             }
                         }
@@ -1007,71 +1097,6 @@
                 badge.innerHTML = '<span style="background:#d4edda; color:#1a6b2e; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700;">NO</span>';
                 detail.textContent = `ZIP ${fairPlan.zipcode} does not appear in the current FAIR Plan residential exposure report.`;
             }
-        }
-
-
-        var fireHistoryChartInstance = null;
-
-        function renderFireHistoryChart(fireHistory) {
-            const canvas = document.getElementById('fire-history-chart');
-            if (!fireHistory || !fireHistory.found || !fireHistory.fires.length) {
-                canvas.style.display = 'none';
-                return;
-            }
-
-            // Aggregate fires by year — pick the closest fire per year
-            const byYear = {};
-            fireHistory.fires
-                .filter(f => f.distance_miles !== null)
-                .forEach(f => {
-                    if (!byYear[f.year] || f.distance_miles < byYear[f.year].distance_miles) {
-                        byYear[f.year] = f;
-                    }
-                });
-
-            const labels = Object.keys(byYear).sort();
-            const distances = labels.map(y => byYear[y].distance_miles);
-            const names = labels.map(y => byYear[y].fire_name);
-
-            canvas.style.display = 'block';
-
-            if (fireHistoryChartInstance) fireHistoryChartInstance.destroy();
-
-            fireHistoryChartInstance = new Chart(canvas, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Closest fire distance (miles)',
-                        data: distances,
-                        backgroundColor: distances.map(d =>
-                            d < 5  ? 'rgba(215, 48, 39, 0.8)'  :  // very close - red
-                            d < 15 ? 'rgba(252, 141, 89, 0.8)' :  // close - orange
-                                    'rgba(254, 224, 139, 0.8)'   // far - yellow
-                        ),
-                        borderWidth: 0,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                title: ctx => `${ctx[0].label} — ${names[ctx[0].dataIndex]} Fire`,
-                                label: ctx => `${ctx.parsed.y} miles away`
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            reverse: true,  // closer = higher bar
-                            title: { display: true, text: 'Miles from location' },
-                            ticks: { callback: val => `${val}mi` }
-                        }
-                    }
-                }
-            });
         }
 
         // ///////////////////////
@@ -1472,8 +1497,7 @@
             console.log("dins:", data.dins);
             console.log("doi:", data.doi);
 
-            renderHomeValChart(data.zhvi, data.zillow_overlay);
-            renderFireHistoryChart(data.fire_history);
+            renderHomeValChart(data.zhvi, data.zillow_overlay, data.fire_history);
             renderGauge(data.trends, data.gauge_explanation);
             renderChartObservations(data);
             renderDoi(data.doi);
