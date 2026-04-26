@@ -39,6 +39,19 @@
             color: #aaa;
         }
 
+        #report-role {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: #f5f0e8;
+            color: #3c331f;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         .section {
             margin-bottom: 28px;
             padding-bottom: 20px;
@@ -52,6 +65,62 @@
             letter-spacing: 0.06em;
             color: #e63946;
             margin-bottom: 8px;
+        }
+
+        .section-banner {
+            background: #C4853A;
+            color: #fff8f0;
+            border-radius: 8px 8px 0 0;
+            padding: 12px 16px;
+            margin-bottom: 0;
+        }
+
+        .section-banner h2 {
+            color: #fff8f0;
+            font-size: 18px;
+            font-style: italic;
+            text-transform: none;
+            letter-spacing: 0;
+            margin: 0 0 2px;
+        }
+
+        .section-banner p {
+            color: #f5dfc0;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .section-banner.blue { background: #558a9b; }
+        .section-banner.red { background: #cf6f6f; }
+        .section-banner.blue p,
+        .section-banner.red p { color: #f5f5f5; }
+
+        .section-body {
+            border: 1px solid #eadbc4;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background: #fffbf4;
+            padding: 14px;
+        }
+
+        .print-card {
+            border: 1px solid #eadbc4;
+            border-radius: 8px;
+            background: #fffdf8;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+
+        .print-card:last-child { margin-bottom: 0; }
+
+        .card-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9B7A48;
+            margin-bottom: 4px;
         }
 
         .section p, .section div {
@@ -194,6 +263,7 @@
     <h1>California Wildfire Risk Report</h1>
     <div id="report-address"></div>
     <div id="report-meta"></div>
+    <div id="report-role"></div>
 </div>
 
 <div id="report-body">
@@ -205,58 +275,86 @@
 
         <div id="confidence-badge"></div>
 
-        <!-- Gauge + signals -->
         <div class="section">
-            <h2>Risk Summary Score</h2>
-            <div id="gauge-row">
-                <svg id="risk-gauge-svg" viewBox="0 0 200 120" width="160" height="96">
-                    <path d="M 20 100 A 80 80 0 0 1 60 27" fill="none" stroke="#d4edda" stroke-width="18" stroke-linecap="round"/>
-                    <path d="M 60 27 A 80 80 0 0 1 140 27" fill="none" stroke="#fff3cd" stroke-width="18" stroke-linecap="round"/>
-                    <path d="M 140 27 A 80 80 0 0 1 178 100" fill="none" stroke="#b1000f88" stroke-width="18" stroke-linecap="round"/>
-                    <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
-                    <circle cx="100" cy="100" r="5" fill="#1a1a2e"/>
-                    <text x="14" y="118" font-size="9" fill="#666">Low</text>
-                    <text x="88" y="18" font-size="9" fill="#666" text-anchor="middle">Moderate</text>
-                    <text x="172" y="118" font-size="9" fill="#666" text-anchor="end">High</text>
-                </svg>
-                <div id="composite-label"></div>
-            </div>
-            <ul id="risk-signals"></ul>
-        </div>
-
-        <div class="section">
-            <h2>Overview — Home Value Impact</h2>
+            <h2>Overview</h2>
             <p id="result-val"></p>
+            <div class="print-card" style="margin-top:12px;">
+                <span class="card-label">Fire Hazard Severity Zone</span>
+                <p id="result-hazard-zone"></p>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>Insurability Info</h2>
-            <p id="result-insurability"></p>
+        <div class="section" id="buyer-key-considerations-section" style="display:none;">
+            <div class="section-banner blue">
+                <h2>3 Key Considerations</h2>
+                <p>Use these signals to compare purchase risk, insurance access, and long-term affordability.</p>
+            </div>
+            <div class="section-body" id="buyer-key-considerations"></div>
         </div>
 
         <div class="section" id="mitigation-section" style="display:none;">
-            <h2>Mitigation Recommendations</h2>
-            <p id="result-mitigation"></p>
-        </div>
-
-        <div class="section" id="doi-section" style="display:none;">
-            <h2>Insurance Non-Renewal Trends</h2>
-            <div id="doi-content"></div>
+            <div class="section-banner">
+                <h2>What Can I Do?</h2>
+                <p>Based on your property assessment, here are your top recommended steps to reduce your property risk.</p>
+            </div>
+            <div class="section-body">
+                <p id="result-mitigation"></p>
+            </div>
         </div>
 
         <div class="section" id="dins-section" style="display:none;">
-            <h2>Nearby Structural Damage (CAL FIRE DINS)</h2>
-            <div id="dins-content"></div>
+            <div class="section-banner blue">
+                <h2>Understanding Structural Damage from Wildfires</h2>
+                <p>How do my property characteristics compare to historically damaged structures?</p>
+            </div>
+            <div class="section-body" id="dins-content"></div>
         </div>
 
         <div class="section">
-            <h2>Financial / Value Info</h2>
-            <p id="result-affordability"></p>
+            <div class="section-banner blue">
+                <h2>Home Value & Market Trends</h2>
+                <p>How has wildfire activity tracked against property values in this area?</p>
+            </div>
+            <div class="section-body" id="market-trends-content"></div>
         </div>
 
-        <div class="section">
-            <h2>Official Hazard Zone</h2>
-            <p id="result-hazard-zone"></p>
+        <div class="section" id="homeowner-insurance-section" style="display:none;">
+            <div class="section-banner blue">
+                <h2>Insurance Risk</h2>
+                <p>How has insurance coverage changed in my zipcode?</p>
+            </div>
+            <div class="section-body">
+                <div id="insurance-metrics"></div>
+                <div class="print-card">
+                    <span class="card-label">What this means</span>
+                    <p id="result-insurability"></p>
+                </div>
+                <div id="doi-section" style="display:none;">
+                    <span class="card-label">Insurance Non-Renewal Trends</span>
+                    <div id="doi-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="buyer-insurability-section" style="display:none;">
+            <div class="section-banner red">
+                <h2>Local Insurability Trends</h2>
+                <p>Local insurance and financial context for this property.</p>
+            </div>
+            <div class="section-body">
+                <div class="print-card">
+                    <span class="card-label">Is this Zipcode covered by FAIR Plan?</span>
+                    <div id="fair-plan-detail"></div>
+                </div>
+                <div class="print-card">
+                    <span class="card-label">Insurability Info</span>
+                    <p id="buyer-result-insurability"></p>
+                </div>
+                <div class="print-card">
+                    <span class="card-label">Financial / Value Info</span>
+                    <p id="result-affordability"></p>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -267,19 +365,26 @@
 <script>
     const raw = localStorage.getItem('wildfire_report');
     const address = localStorage.getItem('wildfire_report_address');
+    const storedUserType = localStorage.getItem('wildfire_report_user_type');
     localStorage.removeItem('wildfire_report');
     localStorage.removeItem('wildfire_report_address');
+    localStorage.removeItem('wildfire_report_user_type');
 
     if (!raw) {
         document.getElementById('error-msg').style.display = 'block';
     } else {
         const data = JSON.parse(raw);
+        const userType = storedUserType || (data.mitigation_recommendations ? 'homeowner' : 'buyer');
+        const isBuyer = userType === 'buyer';
+        const isHomeowner = userType === 'homeowner';
         document.getElementById('report-content').style.display = 'block';
 
         // Header
         document.getElementById('report-address').textContent = address || '';
         document.getElementById('report-meta').textContent =
             `Generated ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}`;
+        document.getElementById('report-role').textContent =
+            isBuyer ? 'Prospective Buyer Report' : 'Current Homeowner Report';
 
         // Confidence
         const confidence = (data.confidence || 'low').toLowerCase();
@@ -287,27 +392,7 @@
         badge.textContent = `Confidence: ${confidence}`;
         badge.className = confidence;
 
-        // Gauge
-        const angles = {
-            "lower risk based on available data": -80,
-            "moderate risk": -20,
-            "moderate to high risk": 30,
-            "high and increasing risk": 80,
-        };
         const composite = data.trends?.composite || {};
-        const label = composite.composite_label || '';
-        const angle = angles[label] ?? 0;
-        document.getElementById('gauge-needle').setAttribute('transform', `rotate(${angle}, 100, 100)`);
-        document.getElementById('composite-label').textContent = label;
-
-        // Signals
-        const ul = document.getElementById('risk-signals');
-        (composite.signals || []).forEach(s => {
-            const li = document.createElement('li');
-            li.className = s.direction || 'neutral';
-            li.textContent = s.text || s;
-            ul.appendChild(li);
-        });
 
         // Text sections
         setResultHtml('result-val', data.home_value_impact);
@@ -316,20 +401,29 @@
             ? `${fairPlanSummary} ${data.insurance_outlook || ''}`.trim()
             : data.insurance_outlook;
         setResultHtml('result-insurability', insuranceText);
+        setResultHtml('buyer-result-insurability', insuranceText);
         setResultHtml('result-affordability', data.affordability_score);
         setResultHtml('result-hazard-zone', data.hazard_zone || 'Unknown');
+        renderMarketTrends(data);
+
+        if (isBuyer) {
+            renderBuyerKeyConsiderations(composite.signals || []);
+            document.getElementById('buyer-insurability-section').style.display = 'block';
+            document.getElementById('fair-plan-detail').innerHTML = highlightReportText(buildFairPlanSummary(data.fair_plan) || 'FAIR Plan ZIP data unavailable.');
+        }
 
         // Mitigation (homeowner only)
-        if (data.mitigation_recommendations) {
+        if (isHomeowner && data.mitigation_recommendations) {
             document.getElementById('mitigation-section').style.display = 'block';
             setResultHtml('result-mitigation', data.mitigation_recommendations);
         }
 
-        // DOI
-        renderDoi(data.doi);
-
-        // DINS
-        renderDins(data.dins, data.property_chars);
+        if (isHomeowner) {
+            document.getElementById('homeowner-insurance-section').style.display = 'block';
+            renderInsuranceMetrics(data.fair_plan, data.doi);
+            renderDoi(data.doi);
+            renderDins(data.dins, data.property_chars);
+        }
     }
 
     function highlightReportText(text) {
@@ -350,6 +444,54 @@
         el.innerHTML = highlightReportText(text);
     }
 
+    function renderBuyerKeyConsiderations(signals) {
+        const section = document.getElementById('buyer-key-considerations-section');
+        const content = document.getElementById('buyer-key-considerations');
+        section.style.display = 'block';
+
+        const items = (signals || []).slice(0, 3);
+        if (!items.length) {
+            content.innerHTML = '<p>Risk signal data is unavailable for this location.</p>';
+            return;
+        }
+
+        content.innerHTML = items.map((signal, i) => `
+            <div class="print-card">
+                <span class="card-label">Key Fact ${i + 1}</span>
+                ${highlightReportText(signal.text || signal)}
+            </div>
+        `).join('');
+    }
+
+    function renderMarketTrends(data) {
+        const content = document.getElementById('market-trends-content');
+        const zip = data.zhvi?.zipcode || data.zillow_overlay?.zipcode || data.fair_plan?.zipcode || '';
+        const city = data.zhvi?.city || '';
+        const obs = data.chart_observations || '';
+
+        let html = '';
+        if (zip) {
+            html += `<div class="print-card"><span class="card-label">ZIP</span>${zip}${city ? ' (' + city + ')' : ''}</div>`;
+        }
+        html += `<div class="print-card"><span class="card-label">Home Prices & Wildfire Events</span>${highlightReportText(obs || 'Observations unavailable.')}</div>`;
+        content.innerHTML = html;
+    }
+
+    function renderInsuranceMetrics(fairPlan, doi) {
+        const content = document.getElementById('insurance-metrics');
+        const fairLabel = fairPlan?.covered_by_fair_plan ? 'YES' : fairPlan?.found ? 'PARTIAL' : 'NO';
+        const rate = doi?.found && doi.latest_nonrenewal_rate !== null ? `${doi.latest_nonrenewal_rate}%` : '—';
+        const exposure = fairPlan?.covered_by_fair_plan && fairPlan.five_year_pct_change !== null
+            ? `${fairPlan.five_year_pct_change > 0 ? '+' : ''}${fairPlan.five_year_pct_change}%`
+            : '—';
+
+        content.innerHTML = `
+            <div class="print-card"><span class="card-label">FAIR Plan Coverage</span>${fairLabel}</div>
+            <div class="print-card"><span class="card-label">Non-Renewal Rate</span>${rate}${doi?.latest_year ? ` (${doi.latest_year})` : ''}</div>
+            <div class="print-card"><span class="card-label">5-Year Exposure Change</span>${exposure}</div>
+        `;
+    }
+
     function buildFairPlanSummary(fairPlan) {
         if (!fairPlan || !fairPlan.zipcode) return '';
         if (fairPlan.error) return `FAIR Plan ZIP data unavailable for ${fairPlan.zipcode}.`;
@@ -368,15 +510,9 @@
         if (!doi || !doi.found) return;
         section.style.display = 'block';
 
-        const trendColors = { worsening:'#b91c1c', improving:'#16a34a', stable:'#92400e', 'insufficient data':'#666' };
-        const trend = doi.trend_label || 'insufficient data';
-        const trendColor = trendColors[trend] || '#666';
-
         let html = `<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:10px;">
             <div><div style="font-size:11px;color:#999;text-transform:uppercase;">Non-Renewal Rate (${doi.latest_year || 'latest'})</div>
             <div style="font-size:20px;font-weight:700;">${doi.latest_nonrenewal_rate !== null ? doi.latest_nonrenewal_rate + '%' : 'N/A'}</div></div>
-            <div><div style="font-size:11px;color:#999;text-transform:uppercase;">Trend</div>
-            <div style="font-size:18px;font-weight:700;color:${trendColor};text-transform:capitalize;">${trend}</div></div>
             ${doi.rate_change_pp !== null ? `<div><div style="font-size:11px;color:#999;text-transform:uppercase;">Rate Change</div>
             <div style="font-size:15px;font-weight:600;">${doi.rate_change_pp > 0 ? '+' : ''}${doi.rate_change_pp} pp</div></div>` : ''}
         </div>`;
@@ -390,7 +526,7 @@
                     <td>${y.year}</td>
                     <td>${y.renewed !== null ? y.renewed.toLocaleString() : '—'}</td>
                     <td>${y.non_renewed !== null ? y.non_renewed.toLocaleString() : '—'}</td>
-                    <td style="font-weight:700;color:${trendColor};">${y.nonrenewal_rate_pct !== null ? y.nonrenewal_rate_pct + '%' : '—'}</td>
+                    <td style="font-weight:700;color:#333;">${y.nonrenewal_rate_pct !== null ? y.nonrenewal_rate_pct + '%' : '—'}</td>
                 </tr>`;
             });
             html += `</tbody></table>`;

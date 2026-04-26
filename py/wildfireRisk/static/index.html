@@ -248,6 +248,27 @@
                     </div>
                 </div>
 
+                <!-- ── HOMEBUYER TOP: Key Considerations ─────────────── -->
+                <div id="buyer-considerations-section" class="results full-width">
+                    <div class="report-section-banner buyer-section-banner">
+                        <div class="buyer-considerations-header">
+                            <h2 style="color: #f5f4ed;">3 Key Considerations</h2>
+                            <div id="ai-analysis-tooltip-wrapper">
+                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    AI-powered considerations considers: official fire hazard zone classification, 
+                                    nearby fire history, risk trend signals, Zillow median home values 
+                                    and price changes, and California FAIR Plan insurance exposure data.
+                                </div>
+                            </div>
+                        </div>
+                        <p class="buyer-considerations-subtitle">Use these signals to compare purchase risk, insurance access, and long-term affordability.</p>
+                    </div>
+                    <div id="buyer-considerations-list">
+                        <!-- populated by renderBuyerConsiderations() in JS -->
+                    </div>
+                </div>
+
                 <!-- ── HOMEOWNER: How Vulnerable is my home? ─────────── -->
                 <div id="vulnerability-section">
                     <div class="vulnerability-banner">
@@ -259,7 +280,7 @@
                         <!-- DINS content will be cloned here by JS -->
                     </div>
                 </div>
-
+                
                 <!-- Top row: gauge left, signals right -->
                 <div id="top-row" style="display:grid; grid-template-columns: 45% 55%; gap:24px; margin-top:-24px;">
                     <div id="risk-gauge-section">
@@ -421,53 +442,71 @@
                         </div>
                     </div>
 
+                <div id="buyer-info-subsection" class="results full-width">
+                    <div class="report-section-banner local-insurability-banner">
+                        <h2 style="color: #f5f4ed;">Local Insurability Trends</h2>
+                        <p class="buyer-considerations-subtitle">Local insurance and financial context for this property.</p>
+                    </div>
+                    <div class="buyer-info-body">
+                        <div id="fair-plan-standalone">
+                            <h3>Is this Zipcode covered by FAIR Plan?</h3>
+                            <div id="fair-plan-badge"></div>
+                            <p id="fair-plan-detail" class="market-trends-fairplan-detail"></p>
+                            <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    Source:
+                                    <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
+                                        California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
 
+                        <!-- Full width sections -->
+                        <div class="results full-width" id="insurability-info-section">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <h3 style="margin-bottom:0; white-space:nowrap;">Insurability Info</h3>
+                                <div id="ai-analysis-tooltip-wrapper">
+                                    <span id="ai-analysis-tooltip-trigger">ⓘ</span>
+                                    <div id="ai-analysis-tooltip-content">
+                                        Fair Plan is California's insurance option 
+                                        of last resort for properties that are high 
+                                        risk and often declined by private insurers. 
+                                        This section indicates
+                                        whether property is currently covered 
+                                        and provides details on what 
+                                        that means for insurability and financial risk.
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="result-insurability"></p>
+                            <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    Source:
+                                    <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
+                                        California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
 
-                <div>
-
-                <div id="fair-plan-standalone">
-                    <h3>Is this Zipcode covered by FAIR Plan?</h3>
-                    <div id="fair-plan-badge"></div>
-                    <p id="fair-plan-detail" class="market-trends-fairplan-detail"></p>
-                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
-                        <div id="ai-analysis-tooltip-content">
-                            Source:
-                            <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
-                                California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
-                            </a>
+                        <div class="results full-width" id="financial-val-section">
+                            <h3>Financial/Value Info</h3>
+                            <p id="result-affordability"></p>
+                            <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
+                                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
+                                <div id="ai-analysis-tooltip-content">
+                                    Source:
+                                    <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
+                                        Zillow Research Data (ZHVI)
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Full width sections -->
-               <div class="results full-width" id="insurability-info-section">
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <h3 style="margin-bottom:0; white-space:nowrap;">Insurability Info</h3>
-                        <div id="ai-analysis-tooltip-wrapper">
-                            <span id="ai-analysis-tooltip-trigger">ⓘ</span>
-                            <div id="ai-analysis-tooltip-content">
-                                Fair Plan is California's insurance option 
-                                of last resort for properties that are high 
-                                risk and often declined by private insurers. 
-                                This section indicates
-                                whether property is currently covered 
-                                and provides details on what 
-                                that means for insurability and financial risk.
-                            </div>
-                        </div>
-                    </div>
-                <p id="result-insurability"></p>
-                <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
-                            <div id="ai-analysis-tooltip-content">
-                                Source:
-                                <a href="https://www.cfpnet.com/wp-content/uploads/2025/11/CFP-5-yr-TIV-Zip-FY25-DWE-251114.pdf" target="_blank" rel="noopener noreferrer">
-                                    California FAIR Plan dataset (CFP 5-year TIV by ZIP, FY25 DWE)
-                                </a>
-                            </div>
-                        </div>
-            </div>
 
                 <!-- DOI Non-Renewal Section -->
                 <div class="results full-width" id="doi-section" style="display:none;">
@@ -526,19 +565,6 @@
                 </div> -->
  
 
-                <div class="results full-width" id="financial-val-section">
-                    <h3>Financial/Value Info</h3>
-                    <p id="result-affordability"></p>
-                    <div id="ai-analysis-tooltip-wrapper" class="source-inline-tooltip">
-                        <span id="ai-analysis-tooltip-trigger" class="source-pill">View Source</span>
-                            <div id="ai-analysis-tooltip-content">
-                                Source:
-                                <a href="https://www.zillow.com/research/data/" target="_blank" rel="noopener noreferrer">
-                                    Zillow Research Data (ZHVI)
-                                </a>
-                            </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -1184,21 +1210,10 @@
             const section = document.getElementById('insurance-risk-section');
             if (!section) return;
 
-            // ── Verdict badge ──
+            // Meeting note: omit speculative insurance risk classification from header.
             const verdict = document.getElementById('insurance-risk-verdict');
             const rate = doi?.latest_nonrenewal_rate;
-            const trend = doi?.trend_label || '';
-            let verdictLabel, verdictClass;
-            if (!doi?.found && !fairPlan?.covered_by_fair_plan) {
-                verdictLabel = 'Data Limited'; verdictClass = 'verdict-neutral';
-            } else if (rate >= 15 || fairPlan?.five_year_pct_change > 300) {
-                verdictLabel = 'High Risk'; verdictClass = 'verdict-high';
-            } else if (rate >= 8 || trend === 'worsening') {
-                verdictLabel = 'Moderate Risk'; verdictClass = 'verdict-mod';
-            } else {
-                verdictLabel = 'Lower Risk'; verdictClass = 'verdict-low';
-            }
-            verdict.innerHTML = `<span class="insurance-verdict-pill ${verdictClass}">${verdictLabel}</span>`;
+            if (verdict) verdict.innerHTML = '';
 
             // ── FAIR Plan tile ──
             const fairBadge = document.getElementById('insurance-fair-badge');
@@ -1221,10 +1236,8 @@
             const nrVal = document.getElementById('insurance-nonrenewal-value');
             const nrSub = document.getElementById('insurance-nonrenewal-sub');
             if (doi?.found && rate !== null) {
-                const trendArrow = trend === 'worsening' ? '↑' : trend === 'improving' ? '↓' : '→';
-                const trendColor = trend === 'worsening' ? '#b91c1c' : trend === 'improving' ? '#16a34a' : '#92400e';
                 nrVal.textContent = `${rate}%`;
-                nrSub.innerHTML = `<span style="color:${trendColor}">${trendArrow} ${trend}</span> · ${doi.latest_year || ''}`;
+                nrSub.textContent = doi.latest_year ? `Latest year: ${doi.latest_year}` : 'Latest available year';
             } else {
                 nrVal.textContent = '—';
                 nrSub.textContent = 'No data for this ZIP';
@@ -1316,15 +1329,6 @@
  
             section.style.display = 'block';
  
-            const trendColors = {
-                'worsening': '#b91c1c',
-                'improving': '#16a34a',
-                'stable': '#92400e',
-                'insufficient data': '#666',
-            };
-            const trend = doi.trend_label || 'insufficient data';
-            const trendColor = trendColors[trend] || '#666';
- 
             const rateChange = doi.rate_change_pp !== null && doi.rate_change_pp !== undefined
                 ? `${doi.rate_change_pp > 0 ? '+' : ''}${doi.rate_change_pp} pp change over available period`
                 : null;
@@ -1334,10 +1338,6 @@
                     <div>
                         <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Non-Renewal Rate (${doi.latest_year || 'latest'})</div>
                         <div style="font-size:22px; font-weight:700; color:#1a1a2e;">${doi.latest_nonrenewal_rate !== null ? doi.latest_nonrenewal_rate + '%' : 'N/A'}</div>
-                    </div>
-                    <div>
-                        <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Trend</div>
-                        <div style="font-size:18px; font-weight:700; color:${trendColor}; text-transform:capitalize;">${trend}</div>
                     </div>
                     ${rateChange ? `<div>
                         <div style="font-size:11px; color:#999; text-transform:uppercase; letter-spacing:0.05em;">Rate Change</div>
@@ -1364,7 +1364,7 @@
                         <td style="padding:4px 8px;">${y.year}</td>
                         <td style="padding:4px 8px;">${y.renewed !== null ? y.renewed.toLocaleString() : '—'}</td>
                         <td style="padding:4px 8px;">${y.non_renewed !== null ? y.non_renewed.toLocaleString() : '—'}</td>
-                        <td style="padding:4px 8px; font-weight:600; color:${trendColor};">${rate}</td>
+                        <td style="padding:4px 8px; font-weight:600; color:#333;">${rate}</td>
                     </tr>`;
                 });
                 html += `</tbody></table>`;
@@ -1579,6 +1579,48 @@
             banner.classList.add('visible');
         }
 
+        function renderBuyerConsiderations(data) {
+            const section = document.getElementById('buyer-considerations-section');
+            const list = document.getElementById('buyer-considerations-list');
+
+            if (userType !== 'buyer') {
+                section.classList.remove('visible');
+                list.innerHTML = '';
+                return;
+            }
+
+            const signals = data.trends?.composite?.signals || [];
+            const signalExplanations = data.gauge_explanation?.signal_explanations || [];
+            const items = signals.slice(0, 3).map((signal, i) => ({
+                label: `Key Consideration ${i + 1}`,
+                text: signal.text || signal,
+                explanation: signalExplanations.find(e => e.index === i)?.explanation || '',
+            }));
+
+            if (items.length === 0) {
+                items.push({
+                    label: 'Key Consideration',
+                    text: 'Risk signal data is unavailable for this location.',
+                });
+            }
+
+            list.innerHTML = items.map((item, i) => `
+                <div class="mitigation-chevron buyer-consideration-card">
+                        <span class="mitigation-chevron-number">${i + 1}</span>
+                        <div class="mitigation-chevron-body">
+                            <span class="mitigation-chevron-label">${item.label}</span>
+                            <span class="mitigation-chevron-text">
+                                ${item.explanation
+                                    ? `<span class="signal-hover-wrapper">${highlightReportText(item.text)}<span class="signal-tooltip">${item.explanation}</span></span>`
+                                    : highlightReportText(item.text)}
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+
+            section.classList.add('visible');
+        }
+
         function renderVulnerabilitySection(dins) {
             const section = document.getElementById('vulnerability-section');
             const content = document.getElementById('vulnerability-dins-content');
@@ -1619,6 +1661,15 @@
             const re = /\b(likelihood|probability|chance|increasingly|decreasingly|significantly|sharply|substantially)\b|\d+(?:\.\d+)?(?:\s*(?:[–-]|to)\s*\d+(?:\.\d+)?)?\s*%/gi;
 
             return withStrong.replace(re, '<mark class="report-highlight">$&</mark>');
+        }
+
+        function escapeHtml(text) {
+            return String(text ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         function setResultHtml(id, text) {
@@ -1745,6 +1796,7 @@
             renderDins(data.dins);
             // Homeowner-specific top sections
             renderMitigationBanner(data.mitigation_recommendations);
+            renderBuyerConsiderations(data);
             renderVulnerabilitySection(data.dins);
 
             // Hide the old mitigation and dins sections for homeowners
@@ -1759,6 +1811,12 @@
                 const ii = document.getElementById('insurability-info-section');
                 if (ii) ii.style.display = 'none';
 
+                const buyerInfo = document.getElementById('buyer-info-subsection');
+                if (buyerInfo) buyerInfo.classList.remove('visible');
+
+                const insuranceRisk = document.getElementById('insurance-risk-section');
+                if (insuranceRisk) insuranceRisk.style.display = 'block';
+
                 const doi = document.getElementById('doi-section');
                 if (doi) doi.style.display = 'none';
             
@@ -1768,6 +1826,29 @@
                 const financialVal = document.getElementById('financial-val-section');
                 if (financialVal) financialVal.style.display = 'none';
 
+            }
+            else {
+                const fp = document.getElementById('fair-plan-standalone');
+                if (fp) fp.style.display = 'block';
+
+                const ii = document.getElementById('insurability-info-section');
+                if (ii) ii.style.display = 'block';
+
+                const buyerInfo = document.getElementById('buyer-info-subsection');
+                if (buyerInfo) buyerInfo.classList.add('visible');
+
+                // Homebuyer path uses "Local Insurability Trends" instead of the
+                // larger Insurance Risk chart section.
+                const insuranceRisk = document.getElementById('insurance-risk-section');
+                if (insuranceRisk) insuranceRisk.style.display = 'none';
+            
+                // Homebuyer path uses the top "3 Key Considerations" cards instead
+                // of showing the older risk gauge + signal bars row.
+                const gauge = document.getElementById('top-row');
+                if (gauge) gauge.style.display = 'none';
+                
+                const financialVal = document.getElementById('financial-val-section');
+                if (financialVal) financialVal.style.display = 'block';
             }
 
             // Confidence 
@@ -1784,7 +1865,13 @@
             };
             const color = colors[zone] || '#aaaaaa';
 
-            score.textContent = `LLM Response Confidence: ${confidence}`;
+            const confidenceExplanation = data.confidence_explanation ||
+                'Confidence reflects the amount and specificity of available data for this property.';
+            score.innerHTML = `
+                <span>LLM Response Confidence: ${escapeHtml(confidence)}</span>
+                <span class="confidence-tooltip-trigger">ⓘ</span>
+                <span class="confidence-tooltip">${escapeHtml(confidenceExplanation)}</span>
+            `;
             score.className = '';
             score.classList.add(confidence);
             const hazardBar = document.getElementById('hazard-zone-bar');

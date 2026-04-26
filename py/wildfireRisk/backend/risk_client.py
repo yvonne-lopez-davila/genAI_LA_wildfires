@@ -168,6 +168,9 @@ Given a property location, assess:
     Do not manufacture encouragement.
 
 5. CONFIDENCE: "high", "medium", or "low" based on data availability.
+   Also provide "confidence_explanation": exactly one sentence explaining why you
+   chose that confidence category, based on which data sources were available,
+   missing, or ZIP-level rather than property-level.
 
 Be direct. The homeowner already lives here — do not frame this as a purchase decision.
 Focus on what they can control. Use <strong> tags for 3-5 key terms per section.
@@ -185,7 +188,8 @@ You must respond ONLY with a valid JSON object in exactly this format:
   "insurance_outlook": "...",
   "affordability_score": "...",
   "mitigation_recommendations": "...",
-  "confidence": "high" or "medium" or "low"
+  "confidence": "high" or "medium" or "low",
+  "confidence_explanation": "..."
 }
 """
 
@@ -212,6 +216,9 @@ Given a property location, assess:
    Flag systemic unaffordability risks explicitly.
 
 4. CONFIDENCE: "high", "medium", or "low" based on data availability.
+   Also provide "confidence_explanation": exactly one sentence explaining why you
+   chose that confidence category, based on which data sources were available,
+   missing, or ZIP-level rather than property-level.
 
 Be direct. The buyer has not yet committed — give them the information they need 
 to make an informed decision. Use <strong> tags for 3-5 key terms per section.
@@ -229,7 +236,8 @@ You must respond ONLY with a valid JSON object in exactly this format:
   "insurance_outlook": "...",
   "affordability_score": "...",
   "mitigation_recommendations": null,
-  "confidence": "high" or "medium" or "low"
+  "confidence": "high" or "medium" or "low",
+  "confidence_explanation": "..."
 }
 """
 
@@ -542,4 +550,3 @@ if __name__ == "__main__":
         else:
             print(report)
         print("\n" + "=" * 60)
-
