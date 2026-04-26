@@ -363,18 +363,17 @@
 <button id="print-btn" onclick="window.print()">Print / Save as PDF</button>
 
 <script>
-    const raw = localStorage.getItem('wildfire_report');
-    const address = localStorage.getItem('wildfire_report_address');
-    const storedUserType = localStorage.getItem('wildfire_report_user_type');
-    localStorage.removeItem('wildfire_report');
-    localStorage.removeItem('wildfire_report_address');
-    localStorage.removeItem('wildfire_report_user_type');
+    const params = new URLSearchParams(window.location.search);
+    const reportId = params.get('report_id');
+    const snapshotRaw = reportId ? localStorage.getItem(reportId) : null;
+    const snapshot = snapshotRaw ? JSON.parse(snapshotRaw) : null;
 
-    if (!raw) {
+    if (!snapshot || !snapshot.data) {
         document.getElementById('error-msg').style.display = 'block';
     } else {
-        const data = JSON.parse(raw);
-        const userType = storedUserType || (data.mitigation_recommendations ? 'homeowner' : 'buyer');
+        const data = snapshot.data;
+        const address = snapshot.address || '';
+        const userType = snapshot.userType || (data.mitigation_recommendations ? 'homeowner' : 'buyer');
         const isBuyer = userType === 'buyer';
         const isHomeowner = userType === 'homeowner';
         document.getElementById('report-content').style.display = 'block';

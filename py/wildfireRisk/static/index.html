@@ -618,6 +618,7 @@
         var selectedAddress = null;
         var pendingPropertyChars = null; // Set after DINS form, cleared on each new report
         var locationRequestId = 0;
+        var printableReportId = null;
         
         // Initialize map UI with interactive coord selection    
         var map = L.map('map-container').setView([34.0522, -118.2437], 9);
@@ -866,7 +867,11 @@
         }
 
         function openPrintableReport() {
-            window.open('/report.html', '_blank');
+            if (!printableReportId) {
+                alert('Please generate a report first.');
+                return;
+            }
+            window.open(`/report.html?report_id=${encodeURIComponent(printableReportId)}`, '_blank');
         }
 
         function runLoadingSteps(lat, lon) {
@@ -1958,8 +1963,12 @@
             }).addTo(map);
 
 
-            localStorage.setItem('wildfire_report', JSON.stringify(data));
-            localStorage.setItem('wildfire_report_address', selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`);
+            printableReportId = `report_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            localStorage.setItem(printableReportId, JSON.stringify({
+                data,
+                address: selectedAddress || `${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`,
+                userType: userType || ''
+            }));
             document.getElementById('open-report-btn').style.display = 'inline-block';
 
         }
