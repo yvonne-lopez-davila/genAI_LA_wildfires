@@ -132,6 +132,12 @@
                 <ul id="autocomplete-list"></ul>
             </div>
             <button id="search-btn">Search</button>
+            <button id="clear-search-btn" type="button">Clear</button>
+        </div>
+
+        <div id="map-context-bar">
+            <div id="role-status">Role: Not selected</div>
+            <button id="change-role-btn" type="button">Change Role</button>
         </div>
 
         <div id="map-container">            
@@ -551,8 +557,14 @@
         };
         
         document.getElementById('get-started-btn').addEventListener('click', openUserTypeModal)
+        document.getElementById('change-role-btn').addEventListener('click', openUserTypeModal);
+        document.getElementById('clear-search-btn').addEventListener('click', resetSelection);
 
         var userType = null;
+        const roleLabels = {
+            homeowner: 'Current Homeowner',
+            buyer: 'Prospective Buyer',
+        };
 
         function openUserTypeModal() {
             document.getElementById('user-type-modal').classList.add('active');
@@ -561,7 +573,13 @@
         function selectUserType(type) {
             userType = type;
             document.getElementById('user-type-modal').classList.remove('active');
+            updateRoleStatus();
             document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateRoleStatus() {
+            const roleStatus = document.getElementById('role-status');
+            roleStatus.textContent = `Role: ${roleLabels[userType] || 'Not selected'}`;
         }
 
         var marker = null;
@@ -573,6 +591,7 @@
         var selectedZip = null;
         var selectedAddress = null;
         var pendingPropertyChars = null; // Set after DINS form, cleared on each new report
+        var locationRequestId = 0;
         
         // Initialize map UI with interactive coord selection    
         var map = L.map('map-container').setView([34.0522, -118.2437], 9);
@@ -582,23 +601,12 @@
 
 
         map.on('click', function(e) {
-            selectedLat = e.latlng.lat;
-            selectedLon = e.latlng.lng;
+            const lat = e.latlng.lat;
+            const lon = e.latlng.lng;
 
-            // See lat/lon on map and nat lang address  
-            updateMarker(selectedLat, selectedLon);
-            reverseGeocode(selectedLat, selectedLon);
-
-            activateReportBtn();
-
-            if (marker) {
-                marker.setLatLng(e.latlng);
-            } else {
-                marker = L.marker(e.latlng).addTo(map);
-            }
-
-            document.getElementById('select-dirs').textContent =
-                `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
+            // See lat/lon on map and nat lang address
+            setSelectedLocation(lat, lon);
+            reverseGeocode(lat, lon, locationRequestId);
 
         });
 
@@ -612,10 +620,14 @@
 
             // input cleared — reset everything
             if (val.length === 0) {
-                deactivateReportBtn();
+                clearLocationState();
                 deactivateSearchBtn();
                 closeAutocomplete();
                 return;
+            }
+
+            if (selectedLat !== null && val !== selectedAddress) {
+                clearLocationState();
             }
             
             activateSearchBtn();
@@ -643,16 +655,12 @@
 
         document.getElementById('search-btn').addEventListener('click', () => {
             const address = document.getElementById('address-input').value.trim();
-            const searchBtn = document.getElementById('search-btn');
-            
-            // If search button is inactive, don't proceed
-            if (!searchBtn.classList.contains('active')) {
-                if (selectedLat !== null) {
-                    alert('A location is already selected. Generate a risk report or select/enter a new address to search.');
-                }
+
+            if (!address) {
+                alert('Please enter an address or click a location on the map.');
                 return;
             }
-            
+
             geocodeAddressInput(address);
         });
 
@@ -684,21 +692,12 @@
                 li.textContent = result.display_name;
                 li.addEventListener('click', () => {
                     document.getElementById('address-input').value = result.display_name;
-                    selectedLat = parseFloat(result.lat);
-                    selectedLon = parseFloat(result.lon);
-                    activateReportBtn();
-                    deactivateSearchBtn();
-                    closeAutocomplete();
-
-                    const latlng = [selectedLat, selectedLon];
-                    if (marker) marker.setLatLng(latlng);
-                    else marker = L.marker(latlng).addTo(map);
-                    map.setView(latlng, 15);
-
-                    document.getElementById('select-dirs').textContent =
-                        `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
-
-                    reverseGeocode(selectedLat, selectedLon);
+                    setSelectedLocation(
+                        parseFloat(result.lat),
+                        parseFloat(result.lon),
+                        result.display_name,
+                        extractZipFromAddress(result.address) || extractZipFromText(result.display_name)
+                    );
                     closeAutocomplete();
                 });
                 list.appendChild(li);
@@ -729,53 +728,42 @@
             // 90210
         async function geocodeAddressInput(address) {
             address = (address || '').trim();
-            const typedZipMatch = address.match(/\b\d{5}\b/);
-            if (typedZipMatch) {
-                // Fallback for ZIP-only searches so backend always gets a ZIP.
-                selectedZip = typedZipMatch[0];
+            if (!address) {
+                alert('Please enter an address.');
+                return;
             }
+
+            const requestId = ++locationRequestId;
+            const typedZipMatch = address.match(/\b\d{5}\b/);
+            const typedZip = typedZipMatch ? typedZipMatch[0] : null;
             
             const cleanAddress = address
                 .replace(/,?\s*california,?\s*usa?$/i, '')
-                .replace(/,?\s*CA\s*\d{5}.*$/i, '')
+                .replace(/,?\s*usa$/i, '')
                 .trim();
-
-            // handle no typed address (and selected lat/lon)
-            if (!address) {
-                if (selectedLat == null && selectedLon == null) {
-                    return alert('Please enter address')
-                } else {
-                    activateReportBtn();
-                    return;
-                }
-            }
-            const query = encodeURIComponent(cleanAddress + ", California, USA");
+            const queryAddress = /\bCA\b|california/i.test(cleanAddress)
+                ? `${cleanAddress}, USA`
+                : `${cleanAddress}, California, USA`;
+            const query = encodeURIComponent(queryAddress);
             try {
                 // Uses (opensource) OpenStreeMap/Nominatim API for geocoding 
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`);
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1&addressdetails=1&countrycodes=us`);
                 const results = await response.json();
+                if (requestId !== locationRequestId) return;
+
                 if (results.length === 0) {
-                    deactivateReportBtn();
+                    clearLocationState();
                     return alert('Please search for or select an address in California.');
                 }
 
-                selectedLat = parseFloat(results[0].lat);
-                selectedLon = parseFloat(results[0].lon);
-                selectedAddress = results[0].display_name || address;
-
-                activateReportBtn();
-                deactivateSearchBtn();
-
-                const latlng = [selectedLat, selectedLon];
-                if (marker) marker.setLatLng(latlng);
-                else marker = L.marker(latlng).addTo(map);
-
-                map.setView(latlng, 15);
-
-                document.getElementById('select-dirs').textContent =
-                    `Selected: ${selectedLat.toFixed(4)}, ${selectedLon.toFixed(4)}`;
-                
-                reverseGeocode(selectedLat, selectedLon);
+                const result = results[0];
+                const zip = typedZip || extractZipFromAddress(result.address) || extractZipFromText(result.display_name);
+                setSelectedLocation(
+                    parseFloat(result.lat),
+                    parseFloat(result.lon),
+                    formatSearchedAddress(result.display_name || address, typedZip),
+                    zip
+                );
             } catch (err) {
                 alert('Failed to geocode the address.');
             }
@@ -785,6 +773,11 @@
         function openModal() {
             if (selectedLat === null) {
                 alert('Please click a location on the map first.');
+                return;
+            }
+
+            if (!userType) {
+                openUserTypeModal();
                 return;
             }
 
@@ -1726,9 +1719,6 @@
 
         function deactivateReportBtn() {
             document.getElementById('analyze-loc-btn').classList.remove('active');
-            selectedLat = null;
-            selectedLon = null;
-            selectedZip = null;
         }
 
         function activateSearchBtn() {
@@ -1896,6 +1886,69 @@
         //////////////////////
 
         // View lat/lon selection on map
+        function extractZipFromText(text) {
+            const match = String(text || '').match(/\b\d{5}\b/);
+            return match ? match[0] : null;
+        }
+
+        function extractZipFromAddress(address) {
+            const postcode = address?.postcode || null;
+            return extractZipFromText(postcode);
+        }
+
+        function formatSearchedAddress(displayName, preferredZip = null) {
+            if (!preferredZip) return displayName;
+            const text = String(displayName || '');
+            return text.match(/\b\d{5}\b/)
+                ? text.replace(/\b\d{5}\b/, preferredZip)
+                : text;
+        }
+
+        function setSelectedLocation(lat, lon, address = null, zip = null) {
+            locationRequestId += 1;
+            selectedLat = lat;
+            selectedLon = lon;
+            selectedAddress = address;
+            selectedZip = zip;
+            pendingPropertyChars = null;
+
+            updateMarker(lat, lon);
+            if (address) {
+                document.getElementById('address-input').value = address;
+            }
+            activateReportBtn();
+            deactivateSearchBtn();
+        }
+
+        function clearLocationState() {
+            locationRequestId += 1;
+            selectedLat = null;
+            selectedLon = null;
+            selectedZip = null;
+            selectedAddress = null;
+            pendingPropertyChars = null;
+            deactivateReportBtn();
+
+            document.getElementById('select-dirs').textContent = 'Click to select a location';
+            document.getElementById('open-report-btn').style.display = 'none';
+
+            if (marker) {
+                map.removeLayer(marker);
+                marker = null;
+            }
+            if (window.hazardCircle) {
+                map.removeLayer(window.hazardCircle);
+                window.hazardCircle = null;
+            }
+        }
+
+        function resetSelection() {
+            document.getElementById('address-input').value = '';
+            closeAutocomplete();
+            deactivateSearchBtn();
+            clearLocationState();
+        }
+
         function updateMarker(lat, lon) {
             const latlng = [lat, lon];
 
@@ -1913,11 +1966,13 @@
 
 
         // extract address from lat/lon selection
-        async function reverseGeocode(lat, lon) {
+        async function reverseGeocode(lat, lon, requestId = locationRequestId) {
             try {
-                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`;
                 const response = await fetch(url);
                 const data = await response.json();
+                if (requestId !== locationRequestId) return;
+
                 if (data && data.display_name) {
                     document.getElementById('address-input').value = data.display_name;
                     selectedAddress = data.display_name || null;
@@ -1925,13 +1980,10 @@
                     document.getElementById('address-input').value = '';
                 }
                 // extract zip from address object
-                const postcode = data.address?.postcode || null;
-                if (postcode) {
-                    const zipMatch = String(postcode).match(/\d{5}/);
-                    selectedZip = zipMatch ? zipMatch[0] : selectedZip;
-                }
+                selectedZip = extractZipFromAddress(data.address) || extractZipFromText(data.display_name) || null;
             } catch (err) {
                 console.error('Reverse geocode failed', err);
+                if (requestId !== locationRequestId) return;
                 document.getElementById('address-input').value = '';
             }
         }
