@@ -1,0 +1,118 @@
+[
+  {
+    "id": "homeowner_topanga_high_context",
+    "user_type": "homeowner",
+    "address": "1440 N Topanga Canyon Blvd, Topanga, CA 90290",
+    "lat": 34.0928,
+    "lon": -118.5986,
+    "zipcode": "90290",
+    "property_chars": {
+      "roof_construction": "Asphalt",
+      "eaves": "Unenclosed",
+      "exterior_siding": "Wood"
+    },
+    "notes": "High-risk WUI homeowner case with property characteristics."
+  },
+  {
+    "id": "homeowner_malibu_coastal_wui",
+    "user_type": "homeowner",
+    "address": "Malibu, CA 90265",
+    "lat": 34.0259,
+    "lon": -118.7798,
+    "zipcode": "90265",
+    "property_chars": {
+      "roof_construction": "Tile",
+      "eaves": "Enclosed",
+      "exterior_siding": "Stucco Brick Cement"
+    },
+    "notes": "Homeowner case with more protective self-reported characteristics."
+  },
+  {
+    "id": "homeowner_altadena_foothills",
+    "user_type": "homeowner",
+    "address": "Altadena, CA 91001",
+    "lat": 34.1897,
+    "lon": -118.1312,
+    "zipcode": "91001",
+    "property_chars": {
+      "roof_construction": "Asphalt",
+      "eaves": "No Eaves",
+      "exterior_siding": "Stucco Brick Cement"
+    },
+    "notes": "Foothill homeowner case for fire-history and hazard-zone grounding."
+  },
+  {
+    "id": "homeowner_paradise_postfire",
+    "user_type": "homeowner",
+    "address": "Paradise, CA 95969",
+    "lat": 39.7596,
+    "lon": -121.6219,
+    "zipcode": "95969",
+    "property_chars": {
+      "roof_construction": "Metal",
+      "eaves": "Enclosed",
+      "exterior_siding": "Ignition Resistant"
+    },
+    "notes": "Post-fire community homeowner case; should be specific and careful."
+  },
+  {
+    "id": "homeowner_downtown_la_low_data",
+    "user_type": "homeowner",
+    "address": "Downtown Los Angeles, CA 90012",
+    "lat": 34.0522,
+    "lon": -118.2437,
+    "zipcode": "90012",
+    "property_chars": null,
+    "notes": "Urban homeowner case; should avoid overconfident mitigation if hazard data is limited."
+  },
+  {
+    "id": "buyer_sf_market_zip_precision",
+    "user_type": "buyer",
+    "address": "595 Market St, San Francisco, CA 94105",
+    "lat": 37.7890,
+    "lon": -122.4000,
+    "zipcode": "94105",
+    "property_chars": null,
+    "notes": "Buyer case for ZIP handling and avoiding structural-property leakage."
+  },
+  {
+    "id": "buyer_malibu_purchase_risk",
+    "user_type": "buyer",
+    "address": "Malibu, CA 90265",
+    "lat": 34.0259,
+    "lon": -118.7798,
+    "zipcode": "90265",
+    "property_chars": null,
+    "notes": "Buyer in a known coastal WUI market; should emphasize purchase and insurance access."
+  },
+  {
+    "id": "buyer_sacramento_urban_baseline",
+    "user_type": "buyer",
+    "address": "Sacramento, CA 95814",
+    "lat": 38.5816,
+    "lon": -121.4944,
+    "zipcode": "95814",
+    "property_chars": null,
+    "notes": "Urban buyer baseline; should avoid overstating wildfire-specific conclusions."
+  },
+  {
+    "id": "buyer_auburn_foothills",
+    "user_type": "buyer",
+    "address": "Auburn, CA 95603",
+    "lat": 38.8966,
+    "lon": -121.0769,
+    "zipcode": "95603",
+    "property_chars": null,
+    "notes": "Foothill buyer case with likely wildfire/insurance relevance."
+  },
+  {
+    "id": "buyer_oakhurst_sierra_gateway",
+    "user_type": "buyer",
+    "address": "Oakhurst, CA 93644",
+    "lat": 37.3280,
+    "lon": -119.6493,
+    "zipcode": "93644",
+    "property_chars": null,
+    "notes": "Sierra gateway buyer case; should distinguish ZIP-level value/insurance data from property-level risk."
+  }
+]
