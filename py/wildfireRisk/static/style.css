@@ -2077,3 +2077,153 @@ main {
 #gauge-tooltip-wrapper-header:hover #gauge-tooltip-content-header {
     display: block;
 }
+
+
+
+/* *********  CHATBOT STYLING  ********* */
+/* Chat bubble button */
+#chat-bubble-btn {
+    display: none;
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 200001;
+    align-items: center;
+    gap: 8px;
+    background: #70a68b;
+    color: #fff;
+    border: none;
+    border-radius: 28px;
+    padding: 12px 20px 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+#chat-bubble-btn.visible { display: flex; }
+#chat-bubble-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.22); }
+
+/* Chat panel */
+#chat-panel {
+    position: fixed;
+    bottom: 90px;
+    right: 28px;
+    width: 360px;
+    max-height: 520px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+    display: none;
+    flex-direction: column;
+    z-index: 200001;
+    overflow: hidden;
+}
+#chat-panel.open { display: flex; }
+
+#chat-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px 16px 12px;
+    background: #70a68b;
+    color: #fff;
+}
+#chat-panel-title { font-size: 14px; font-weight: 600; color: #fff; }
+#chat-panel-subtitle { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+#chat-close-btn { background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 16px; padding: 0; line-height: 1; }
+#chat-close-btn:hover { color: #fff; }
+
+#chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-msg { display: flex; }
+.chat-msg.user { justify-content: flex-end; }
+.chat-msg.assistant { justify-content: flex-start; }
+
+.chat-bubble {
+    max-width: 82%;
+    padding: 9px 13px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+.chat-msg.user .chat-bubble { background: #1a3a2a; color: #fff; border-bottom-right-radius: 4px; }
+.chat-msg.assistant .chat-bubble { background: #f3f4f6; color: #1a1a2e; border-bottom-left-radius: 4px; }
+
+/* Suggestions */
+#chat-suggestions { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.chat-suggestion {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 7px 11px;
+    font-size: 12px;
+    color: #374151;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s, border-color 0.12s;
+}
+.chat-suggestion:hover { background: #f0fdf4; border-color: #4a7c59; color: #1a3a2a; }
+
+/* Typing indicator */
+.chat-bubble.typing {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 12px 16px;
+}
+.chat-bubble.typing span {
+    width: 7px; height: 7px;
+    background: #9ca3af;
+    border-radius: 50%;
+    animation: typingDot 1.2s infinite ease-in-out;
+}
+.chat-bubble.typing span:nth-child(2) { animation-delay: 0.2s; }
+.chat-bubble.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingDot { 0%,80%,100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
+/* Input row */
+#chat-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid #e5e7eb;
+}
+#chat-input {
+    flex: 1;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    outline: none;
+    color: #1a1a2e;
+}
+#chat-input:focus { border-color: #4a7c59; }
+#chat-send-btn {
+    background: #1a3a2a;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.12s;
+}
+#chat-send-btn:hover { background: #2d5a3d; }
+#chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+#chat-disclaimer {
+    text-align: center;
+    font-size: 10px;
+    color: #9ca3af;
+    padding: 6px 12px 10px;
+}

@@ -11,7 +11,7 @@ Endpoints:
 
 
 """
-
+import json
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -41,6 +41,8 @@ from services.damage_inspection_service import get_dins_risk
 ## California DOI insurance non-renewal data
 from services.doi_nonrenewal_service import get_nonrenewal_status
 
+## Internal chatbot
+
 app = FastAPI()
 
 
@@ -59,6 +61,29 @@ class AnalysisRequest(BaseModel):
     user_type: Optional[str] = None
     property_chars: Optional[Dict[str, str]] = None  # DINS property characteristics (homeowner only)
 
+
+class ChatRequest(BaseModel):
+    message: str
+    history: Optional[list] = []
+    report_context: Optional[dict] = None  # the full data object from /analyzeFireRisk
+    session_id: Optional[str] = "anonymous"
+
+@app.post("/chat")
+def chat(body: ChatRequest):
+    # Serialize report context to a compact string for the system prompt
+    context_str = json.dumps(body.report_context or {}, indent=2)
+
+    # Use a per-user client so session_id isolates conversation history
+    # If you add auth later, replace session_id with a real user identifier
+    chat_client = HomeRiskClient(session_id=body.session_id + "_chat")
+
+    reply = chat_client.chat(
+        message=body.message,
+        history=body.history or [],
+        report_context=context_str,
+    )
+
+    return {"reply": reply}
 
 ## ENDPOINTS
 

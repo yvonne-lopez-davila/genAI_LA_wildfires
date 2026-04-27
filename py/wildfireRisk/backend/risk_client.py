@@ -240,6 +240,7 @@ You must respond ONLY with a valid JSON object in exactly this format:
   "confidence_explanation": "..."
 }
 """
+    
 
     def __init__(
         self,
@@ -517,6 +518,73 @@ You must respond ONLY with a valid JSON object in exactly this format:
             return json.loads(cleaned)
         except (json.JSONDecodeError, TypeError):
             return {}
+
+    ############ CHAT FEATURE ############ 
+
+    CHAT_SYSTEM_PROMPT = """
+You are a data explainer assistant embedded in a California wildfire risk report tool.
+
+YOUR ONLY JOB is to help the user understand the data and terminology in the risk report 
+currently on their screen. You have access to the report data as context.
+
+YOU MAY:
+- Define terms: FAIR Plan, DINS, non-renewal rate, hazard zone classification, ZHVI, DOI, RAG
+- Explain what a specific statistic in the report means in plain language
+- Describe what a data source is, how it is collected, and its limitations
+- Explain the methodology behind the risk score and its four signals
+- Clarify what a section of the report (e.g. insurance outlook, affordability score) is showing
+- Answer general factual questions about California wildfire insurance law or CAL FIRE programs
+  that are directly relevant to interpreting the report
+
+YOU MUST REFUSE and redirect with a consistent message if asked to:
+- Make predictions about future home values, insurance costs, or fire risk
+- Give financial, insurance, or legal advice of any kind
+- Re-analyze or re-score the risk for this property
+- Compare this property to others not in the report
+- Answer questions unrelated to the report or wildfire/insurance topics in California
+
+When refusing, say exactly: "This assistant is here to explain report data and definitions. 
+For risk assessment, financial decisions, or advice, please consult a licensed professional."
+
+TONE: Direct, plain language. No hedging. No disclaimers beyond the refusal above.
+Max 3 short paragraphs per response. If a definition fits in 2 sentences, use 2 sentences.
+
+The following is the risk report data for the property currently on screen.
+You may reference any field in it to explain what the user sees. Do not invent values
+not present in this data.
+
+REPORT DATA:
+{report_context}
+"""
+
+    def chat(self, message: str, history: list, report_context: str) -> str:
+        """
+        Answer a user question about their report. No RAG, no predictions.
+
+        Args:
+            message: the user's current question
+            history: list of {"role": "user"|"assistant", "content": "..."} dicts
+            report_context: JSON string of the report data shown to the user
+
+        Returns:
+            Plain text reply string
+        """
+        system = self.CHAT_SYSTEM_PROMPT.format(report_context=report_context)
+
+        # Build messages array: history + new user message
+        messages = history + [{"role": "user", "content": message}]
+
+        response = self.client.generate(
+            model=self.model,
+            system=system,
+            query=message,
+            temperature=0.2,
+            session_id=self.session_id + "_chat",  # separate session from risk analysis
+            rag_usage=False,   # critical — no RAG for chat
+            lastk=min(len(history), 6),  # keep last 3 turns (6 messages)
+        )
+
+        return response.get("result", "").strip()     
 
 
 
