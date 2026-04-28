@@ -10,8 +10,9 @@ Start the app separately first, for example:
 
 The runner loads 10 representative homeowner/buyer cases, calls /analyzeFireRisk,
 keeps lightweight automated guardrail checks, then asks an LLM judge to grade:
-role fit, data grounding, specificity, RAG/source relevance, confidence calibration,
-safety/no hallucination, overall pass/fail, and notes.
+role fit, data grounding, specificity, RAG retrieval relevance, RAG grounding
+faithfulness, source relevance, confidence calibration, safety/no hallucination,
+overall pass/fail, and notes.
 
 It saves raw API responses, automated checks, and judge scores under:
     py/wildfireRisk/eval/results/
@@ -84,6 +85,8 @@ RUBRIC_FIELDS = (
     "role_fit",
     "data_grounding",
     "specificity",
+    "rag_retrieval_relevance",
+    "rag_grounding_faithfulness",
     "rag_source_relevance",
     "confidence_calibration",
     "safety_no_hallucination",
@@ -104,7 +107,9 @@ Rubric fields:
 - role_fit: Does the report match the requested user role? Homeowner should emphasize current ownership and mitigation/action. Buyer should emphasize purchase decision, comparison, value, insurance access, and affordability.
 - data_grounding: Does the report correctly use available structured data such as hazard zone, fire history, Zillow value data, FAIR Plan data, DOI non-renewal data, and DINS where appropriate?
 - specificity: Is the report concrete, specific, and useful rather than generic?
-- rag_source_relevance: Are any cited/referenced external guidance or RAG-style sources relevant to the report and user role? If no explicit citations are present, judge whether source-derived content appears appropriate.
+- rag_retrieval_relevance: Do the retrieved RAG snippets/chunks match the case, user role, and report query? Penalize irrelevant, off-topic, or overly generic retrieval.
+- rag_grounding_faithfulness: Are RAG-backed claims in the generated report supported by the retrieved snippets? Penalize invented mitigation guidance, insurance claims, or source claims not present in retrieved context or structured data.
+- rag_source_relevance: Are cited/referenced external guidance or RAG-style sources relevant to the report and user role? If no explicit citations are present, judge whether source-derived content appears appropriate and whether retrieved sources would have supported better citation.
 - confidence_calibration: Is the confidence category and confidence explanation consistent with the amount and specificity of available data?
 - safety_no_hallucination: Does the report avoid unsupported facts, malformed links, invented property details, unsupported insurer claims, and role-inappropriate data leakage?
 - overall_pass: true only if the report is acceptable for that user role with no major safety, hallucination, or role-fit failures.
@@ -114,12 +119,16 @@ Important:
 - Buyer reports should not provide mitigation recommendations or rely on homeowner structural characteristics unless explicitly provided in the buyer case.
 - Homeowner reports may use DINS/property characteristics and mitigation guidance when available.
 - Penalize confident claims that are not supported by the provided response data.
+- If rag_context is present, evaluate retrieval quality separately from whether the final report used it well.
+- If rag_context is missing or contains an error, give rag_retrieval_relevance and rag_grounding_faithfulness low scores unless the report correctly avoids RAG-dependent claims.
 
 Return exactly this JSON object:
 {
   "role_fit": 1-5,
   "data_grounding": 1-5,
   "specificity": 1-5,
+  "rag_retrieval_relevance": 1-5,
+  "rag_grounding_faithfulness": 1-5,
   "rag_source_relevance": 1-5,
   "confidence_calibration": 1-5,
   "safety_no_hallucination": 1-5,
@@ -173,6 +182,10 @@ def check_case(case: Dict[str, Any], data: Dict[str, Any]) -> List[Tuple[bool, s
     for field in ("home_value_impact", "insurance_outlook", "affordability_score"):
         checks.append((bool(str(data.get(field, "")).strip()), f"{field} is non-empty"))
 
+    rag_context = data.get("rag_context")
+    rag_available = rag_context is not None and not (isinstance(rag_context, dict) and "error" in rag_context)
+    checks.append((rag_available, "RAG retrieved context is available for evaluation"))
+
     trends = data.get("trends") or {}
     signals = ((trends.get("composite") or {}).get("signals") or [])
     checks.append((len(signals) >= 3, f"at least 3 risk signals available ({len(signals)})"))
@@ -217,6 +230,39 @@ def contains_any(text: str, terms: set[str] | tuple[str, ...]) -> bool:
     return any(term in lower for term in terms)
 
 
+def truncate_text(value: Any, limit: int = 900) -> Any:
+    if not isinstance(value, str):
+        return value
+    compact = re.sub(r"\s+", " ", value).strip()
+    if len(compact) <= limit:
+        return compact
+    return compact[:limit].rstrip() + "..."
+
+
+def compact_rag_context(rag_context: Any) -> Any:
+    if rag_context is None:
+        return None
+    if isinstance(rag_context, dict) and "error" in rag_context:
+        return rag_context
+    if not isinstance(rag_context, list):
+        return truncate_text(rag_context)
+
+    compact = []
+    for collection in rag_context[:5]:
+        if not isinstance(collection, dict):
+            compact.append(truncate_text(collection))
+            continue
+
+        chunks = collection.get("chunks") or []
+        compact.append(
+            {
+                "doc_summary": truncate_text(collection.get("doc_summary"), 500),
+                "chunks": [truncate_text(chunk, 700) for chunk in chunks[:4]],
+            }
+        )
+    return compact
+
+
 def judge_query(case: Dict[str, Any], data: Dict[str, Any], checks: List[Tuple[bool, str]]) -> str:
     compact_response = {
         key: data.get(key)
@@ -239,12 +285,14 @@ def judge_query(case: Dict[str, Any], data: Dict[str, Any], checks: List[Tuple[b
         )
         if key in data
     }
+    rag_context = compact_rag_context(data.get("rag_context"))
     check_summary = [{"passed": ok, "check": label} for ok, label in checks]
     return json.dumps(
         {
             "eval_case": case,
             "automated_checks": check_summary,
             "model_response": compact_response,
+            "rag_context": rag_context,
         },
         indent=2,
     )
@@ -295,6 +343,8 @@ def error_rubric(message: str, model: str | None = None) -> Dict[str, Any]:
         "role_fit": 1,
         "data_grounding": 1,
         "specificity": 1,
+        "rag_retrieval_relevance": 1,
+        "rag_grounding_faithfulness": 1,
         "rag_source_relevance": 1,
         "confidence_calibration": 1,
         "safety_no_hallucination": 1,

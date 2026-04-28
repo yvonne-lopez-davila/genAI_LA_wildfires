@@ -329,6 +329,15 @@ You must respond ONLY with a valid JSON object in exactly this format:
         if "error" in response:
             return {"error": response["error"], "raw_response": response}
 
+        rag_context = response.get("rag_context")
+        if rag_context is None:
+            rag_context = self.client.retrieve(
+                query=query,
+                session_id=self.session_id,
+                rag_threshold=self.rag_threshold,
+                rag_k=self.rag_k,
+            )
+
         result = response.get("result", "")
 
         # Remove '''json ...''' if present 
@@ -341,6 +350,7 @@ You must respond ONLY with a valid JSON object in exactly this format:
 
         return {
             "report": report_data,
+            "rag_context": rag_context,
             "raw_response": response
         }
     
