@@ -117,7 +117,15 @@ def analyze(body: AnalysisRequest):
     doi = get_nonrenewal_status(body.zipcode) if body.zipcode else {"found": False}
 
     # Analyze trends from services' data
-    trends = analyze_trends(fire_history, zhvi, hazard_zone=hazard_zone)
+    # trends = analyze_trends(fire_history, zhvi, hazard_zone=hazard_zone)
+    trends = analyze_trends(
+        fire_history,
+        zhvi,
+        hazard_zone=hazard_zone,
+        doi=doi,
+        fair_plan=fair_plan,
+        dins=dins,
+    )
 
     context_parts = []
 
@@ -139,7 +147,10 @@ def analyze(body: AnalysisRequest):
 
     if trends.get("composite"):
         composite = trends["composite"]
-        context_parts.append(f"Risk trend assessment: {composite['composite_label']}.")
+        context_parts.append(f"Risk signal summary: {composite['composite_label']}" 
+        f"({composite['risk_factor_count']} of "
+        f"{composite['risk_factors_scored']} risk factors triggered)."
+        )
         for signal in composite.get("signals", []):
             text = signal["text"] if isinstance(signal, dict) else signal
             context_parts.append(text)

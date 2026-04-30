@@ -165,35 +165,12 @@
                 </div>
 
                 <hr class="overview-divider">
+                
                 <div class="overview-hazard-row">
-
-                <!-- Gauge -->
-                <div class="header-gauge-wrap">
-                    <span class="header-gauge-label">Risk Trend Analysis</span>
-                    <span id="gauge-tooltip-wrapper-header">
-                        <span id="gauge-link-header">How is my risk score calculated?</span>
-                        <div id="gauge-tooltip-content-header"></div>
-                    </span>
-                    <svg id="risk-gauge-svg" viewBox="0 0 200 120" width="190" height="115">
-                        <path d="M 20 100 A 80 80 0 0 1 60 27" fill="none" stroke="#d4edda" stroke-width="18" stroke-linecap="round"/>
-                        <path d="M 60 27 A 80 80 0 0 1 140 27" fill="none" stroke="#fff3cd" stroke-width="18" stroke-linecap="round"/>
-                        <path d="M 140 27 A 80 80 0 0 1 178 100" fill="none" stroke="#b1000f88" stroke-width="18" stroke-linecap="round"/>
-                        <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
-                        <circle cx="100" cy="100" r="5" fill="#1a1a2e"/>
-                        <text x="14" y="118" font-size="9" fill="#666">Low</text>
-                        <text x="88" y="18" font-size="9" fill="#666" text-anchor="middle">Moderate</text>
-                        <text x="172" y="118" font-size="9" fill="#666" text-anchor="end">High</text>
-                    </svg>
-                    <div id="composite-label"></div>
+                    <div class="header-signals-col">
+                        <div id="risk-signals"></div>
+                    </div>
                 </div>
-
-                <!-- Signals -->
-                <ul id="risk-signals"></ul>
-
-                <!-- Hazard zone card (unchanged) -->
-                <div id="hazard-zone-bar" class="hazard-zone-card"></div>
-
-            </div>
 
             <!-- Overview text — no card, no section header -->
             <p id="result-val" class="overview-caption"></p>
@@ -314,35 +291,6 @@
                 
                 <!-- Top row: gauge left, signals right -->
                 <div id="top-row" style="display:grid; grid-template-columns: 45% 55%; gap:24px; margin-top:-24px;">
-                    <div id="risk-gauge-section">
-                        <div id="summary-title-wrapper";style="display:flex; align-items:center; gap:6px; margin-bottom:8px; align-self:flex-start;">
-
-                            <h3 style="margin-bottom:0;">Risk Summary Score</h3>
-                            <!-- <div id="ai-analysis-tooltip-wrapper">
-                                <span id="ai-analysis-tooltip-trigger">ⓘ</span>
-                                <div id="ai-analysis-tooltip-content">
-                                    AI-powered analysis considers: official fire hazard zone classification, 
-                                    nearby fire history, risk trend signals, Zillow median home values 
-                                    and price changes, and California FAIR Plan insurance exposure data.
-                                </div>
-                            </div> -->
-                        </div>
-                        <div id="gauge-tooltip-wrapper">
-                            <span id="gauge-tooltip-trigger">How is my risk score calculated?</span>
-                            <div id="gauge-tooltip-content"></div>
-                        </div>
-                        <svg id="risk-gauge-svg" viewBox="0 0 200 120" width="200" height="120">
-                            <path d="M 20 100 A 80 80 0 0 1 60 27" fill="none" stroke="#d4edda" stroke-width="18" stroke-linecap="round"/>
-                            <path d="M 60 27 A 80 80 0 0 1 140 27" fill="none" stroke="#fff3cd" stroke-width="18" stroke-linecap="round"/>
-                            <path d="M 140 27 A 80 80 0 0 1 178 100" fill="none" stroke="#b1000f88" stroke-width="18" stroke-linecap="round"/>
-                            <line id="gauge-needle" x1="100" y1="100" x2="100" y2="30" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
-                            <circle cx="100" cy="100" r="5" fill="#1a1a2e"/>
-                            <text x="14" y="118" font-size="9" fill="#666">Low</text>
-                            <text x="88" y="18" font-size="9" fill="#666" text-anchor="middle">Moderate</text>
-                            <text x="172" y="118" font-size="9" fill="#666" text-anchor="end">High</text>
-                        </svg>
-                        <div id="composite-label"></div>
-                    </div>
                     <div id="signals-section">
                         <div id="summary-title-wrapper";style="display:flex; align-items:right; gap:6px; margin-bottom:8px; align-self:flex-start;">
                             <div id="ai-analysis-tooltip-wrapper">
@@ -354,7 +302,7 @@
                                 </div>
                             </div>
                         </div>
-                        <ul id="risk-signals"></ul>
+                        <div id="risk-signals-detail"></div>
                     </div>
                         
 
@@ -1760,63 +1708,51 @@
             return `FAIR Plan dataset signal: ZIP ${fairPlan.zipcode} shows reported residential exposure. FY${latestYear} total insured value: ${latestExposure}. Five-year change: ${changeText}.`;
         }
 
-        function renderGauge(trends, gaugeExplanation) {
+        function renderSignalCards(trends, gaugeExplanation) {
             if (!trends || !trends.composite) return;
 
             const composite = trends.composite;
-            const label = composite.composite_label || "insufficient data";
             const signals = composite.signals || [];
-
-            // Map label to needle angle (-90 = far left, 90 = far right)
-            const angles = {
-                "lower risk based on available data": -80,
-                "moderate risk": -20,
-                "moderate to high risk": 30,
-                "high and increasing risk": 80,
-            };
-            const angle = angles[label] ?? 0;
-
-            // Rotate needle
-            const needle = document.getElementById('gauge-needle');
-            needle.setAttribute('transform', `rotate(${angle}, 100, 100)`);
-            
-            // Set label
-            document.getElementById('composite-label').textContent = label;
-
-            // Parse gauge explanation
-            const methodology = gaugeExplanation?.methodology || 
-                "This score is computed from 4 objective indicators: fire proximity trend, fire frequency trend, official hazard zone classification, and recent fire distances.";
             const signalExplanations = gaugeExplanation?.signal_explanations || [];
 
-            // Update methodology tooltip
-            // document.getElementById('gauge-tooltip-content').textContent = methodology;
-            document.getElementById('gauge-tooltip-content-header').textContent = methodology;
+            // Composite label
+            const labelEl = document.getElementById('composite-label');
+            if (labelEl) labelEl.textContent = composite.composite_label || 'insufficient data';
 
-            // Populate signals with per-signal hover
-            const ul = document.getElementById('risk-signals');
-            ul.innerHTML = '';
-            signals.slice(0,4).forEach((s, i) => {
-                const li = document.createElement('li');
-                li.className = s.direction || 'neutral';
+            // Methodology tooltip
+            const methodology = gaugeExplanation?.methodology ||
+                'This score is computed from up to 7 indicators: fire proximity trend, fire frequency, hazard zone classification, recent vs. historical fire distances, insurance non-renewal rate, FAIR Plan exposure growth, and nearby structural destruction rate.';
+            const tooltipEl = document.getElementById('gauge-tooltip-content-header');
+            if (tooltipEl) tooltipEl.textContent = methodology;
 
-                const signalExpl = signalExplanations.find(e => e.index === i);
+            // Signal cards — render all signals ordered by severity (already sorted server-side)
+            const container = document.getElementById('risk-signals');
+            if (!container) return;
+            container.innerHTML = '';
 
-                if (signalExpl?.explanation) {
-                    // Wrap in a hoverable container
-                    li.innerHTML = `
-                        <div class="signal-hover-wrapper">
-                            <span class="signal-text">${s.text || s}</span>
-                            <div class="signal-tooltip">${signalExpl.explanation}</div>
-                        </div>
-                    `;
-                } else {
-                    li.textContent = s.text || s;
-                }
+            signals.slice(0,6).forEach((s, i) => {
+                const expl = signalExplanations.find(e => e.index === i);
+                const card = document.createElement('div');
+                card.className = `signal-card signal-card--${s.direction}`;
+                card.addEventListener('click', () => {
+                    card.classList.toggle('expanded');
+                });
+                const barWidth = Math.round((s.severity || 0) * 100);
 
-                ul.appendChild(li);
+                card.innerHTML = `
+                    <div class="signal-card-body">
+                        <span class="signal-card-text">${s.text}</span>
+                        ${expl ? `<span class="signal-card-detail">${expl.explanation}</span>` : ''}
+                    </div>
+                    <div class="signal-severity-track">
+                        <div class="signal-severity-fill signal-severity--${s.direction}"
+                            style="width:${barWidth}%"></div>
+                    </div>
+                `;
+                container.appendChild(card);
             });
         }
-
+        
         // Button activation/deactivations
         function activateReportBtn() {
             document.getElementById('analyze-loc-btn').classList.add('active');
@@ -1842,7 +1778,9 @@
             console.log("doi:", data.doi);
 
             renderHomeValChart(data.zhvi, data.zillow_overlay, data.fire_history);
-            renderGauge(data.trends, data.gauge_explanation);
+            renderSignalCards(data.trends, data.gauge_explanation);
+            console.log('signals container innerHTML:', document.getElementById('risk-signals').innerHTML);
+            console.log('composite data:', data.trends?.composite);
             console.log('chart_observations:', data.chart_observations);
             console.log('all data keys:', Object.keys(data));
             renderChartObservations(data);

@@ -356,18 +356,23 @@ You must respond ONLY with a valid JSON object in exactly this format:
 
         query = f"""
     Risk score: {composite_label}
-    Risk factors triggered: {risk_factor_count} of 4
+    Risk factors triggered: {risk_factor_count} of {len(signals)}
 
-    Signals:
-    {chr(10).join(f'{i}. {s["text"]}' for i, s in enumerate(signal_data))}
+    Signals (ordered by severity, most severe first):
+    {chr(10).join(f'{i}. [{s.get("direction","neutral").upper()}] {s["text"]}' for i, s in enumerate(signal_data))}
 
     Return a JSON object with exactly these two keys:
 
-    "methodology": A 2-sentence static explanation of what the 4 risk indicators are and how they combine into a score. Do not reference specific data values. This should be the same for any property.
+    "methodology": A 2-sentence explanation of what the risk indicators are and how they combine.
+    The indicators may include any combination of: fire proximity trend, fire frequency trend, 
+    hazard zone classification, recent vs historical fire distances, insurance non-renewal rate, 
+    FAIR Plan residential exposure growth, and nearby structural destruction rate. 
+    Not all will be present for every property. Do not reference specific data values.
 
-    "signal_explanations": A list of objects, one per signal, in the same order as the signals above. Each object has:
-    - "index": the signal number (0-based)
-    - "explanation": one sentence explaining the magnitude or significance of this specific signal. Use specific numbers where available. Do not restate the signal text. Focus on what the magnitude means — is this value high, low, or typical? What does it imply about risk level?
+    "signal_explanations": A list of objects, one per signal, same order as above. Each:
+    - "index": 0-based signal number
+    - "explanation": one sentence on magnitude/significance. Use numbers where available.
+    Don't restate the signal text. What does this value imply about risk level?
 
     Return only valid JSON, no markdown.
     """

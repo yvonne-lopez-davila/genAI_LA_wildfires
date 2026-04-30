@@ -3,61 +3,40 @@ Trend analysis module.
 Computes fire proximity trends, fire frequency, and home value trajectory
 from fire history and ZHVI data already fetched by existing services.
 
-Inputs:
-    - fire_history: output of fire_history_service.get_nearby_fires()
-    - zhvi: output of zhvi_service.get_home_value_timeseries()
-
-Output:
-    - trend metrics dict ready to pass into extra_context for LLM or display directly
+Now also incorporates DOI non-renewal, FAIR Plan exposure, and DINS
+destruction rate as additional composite risk signals.
 """
 
 from __future__ import annotations
-
 from typing import Any, Dict, List, Optional
+
+
+# ---------------------------------------------------------------------------
+# Linear slope helper
+# ---------------------------------------------------------------------------
+
+def _linear_slope(xs: List[float], ys: List[float]) -> Optional[float]:
+    n = len(xs)
+    if n < 3:
+        return None
+    x_mean = sum(xs) / n
+    y_mean = sum(ys) / n
+    numerator = sum((x - x_mean) * (y - y_mean) for x, y in zip(xs, ys))
+    denominator = sum((x - x_mean) ** 2 for x in xs)
+    if denominator == 0:
+        return None
+    return numerator / denominator
 
 
 # ---------------------------------------------------------------------------
 # Fire proximity trend
 # ---------------------------------------------------------------------------
 
-def _linear_slope(xs: List[float], ys: List[float]) -> Optional[float]:
-    """
-    Simple linear regression slope (rise/run).
-    Returns None if insufficient data.
-    """
-    n = len(xs)
-    if n < 3:
-        return None
-
-    x_mean = sum(xs) / n
-    y_mean = sum(ys) / n
-
-    numerator = sum((x - x_mean) * (y - y_mean) for x, y in zip(xs, ys))
-    denominator = sum((x - x_mean) ** 2 for x in xs)
-
-    if denominator == 0:
-        return None
-
-    return numerator / denominator
-
-
 def analyze_fire_proximity_trend(fires: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Compute whether fires are getting closer over time.
-
-    Returns:
-        slope_miles_per_year: negative = fires getting closer, positive = moving away
-        trend_label: "increasing" | "decreasing" | "stable" | "insufficient data"
-        closest_fire: the single closest fire on record
-        recent_avg_distance: average distance of fires in last 5 years
-        historical_avg_distance: average distance of all fires
-    """
     valid = [f for f in fires if f.get("distance_miles") is not None]
-
     if not valid:
         return {"trend_label": "insufficient data"}
 
-    # One entry per year — use closest fire per year for trend
     by_year: Dict[int, float] = {}
     for f in valid:
         yr = f["year"]
@@ -67,22 +46,18 @@ def analyze_fire_proximity_trend(fires: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     years = sorted(by_year.keys())
     distances = [by_year[y] for y in years]
-
     slope = _linear_slope([float(y) for y in years], distances)
 
     if slope is None:
         trend_label = "insufficient data"
     elif slope < -0.3:
-        trend_label = "increasing"   # fires getting closer each year
+        trend_label = "increasing"
     elif slope > 0.3:
-        trend_label = "decreasing"   # fires moving further away
+        trend_label = "decreasing"
     else:
         trend_label = "stable"
 
-    # Closest fire overall
     closest = min(valid, key=lambda f: f["distance_miles"])
-
-    # Recent vs historical avg distance
     max_year = max(years)
     recent_fires = [f for f in valid if f["year"] >= max_year - 5]
     recent_avg = (
@@ -102,22 +77,16 @@ def analyze_fire_proximity_trend(fires: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Fire frequency analysis
+# Fire frequency
 # ---------------------------------------------------------------------------
 
 def analyze_fire_frequency(fires: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Compute fire frequency by 5-year window.
-    Tells you if fire activity is accelerating over time.
-    """
     if not fires:
         return {"trend_label": "insufficient data", "windows": {}}
 
     years = [f["year"] for f in fires]
-    min_year = min(years)
-    max_year = max(years)
+    min_year, max_year = min(years), max(years)
 
-    # Build 5-year windows
     windows: Dict[str, int] = {}
     start = (min_year // 5) * 5
     while start <= max_year:
@@ -128,7 +97,6 @@ def analyze_fire_frequency(fires: List[Dict[str, Any]]) -> Dict[str, Any]:
             windows[label] = count
         start += 5
 
-    # Compare most recent full window to previous
     window_counts = list(windows.values())
     if len(window_counts) >= 2:
         recent = window_counts[-1]
@@ -151,25 +119,18 @@ def analyze_fire_frequency(fires: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# ZHVI price trajectory
+# Price trajectory
 # ---------------------------------------------------------------------------
 
 def analyze_price_trajectory(timeseries: Dict[str, float]) -> Dict[str, Any]:
-    """
-    Compute price trend from ZHVI timeseries.
-    Focuses on last 5 years for near-term trajectory.
-    """
     if not timeseries or len(timeseries) < 2:
         return {"trend_label": "insufficient data"}
 
     years = sorted(timeseries.keys())
-    max_year = max(years)
-    min_year = min(years)
-
+    max_year, min_year = max(years), min(years)
     current_value = timeseries[max_year]
     oldest_value = timeseries[min_year]
 
-    # 5-year trend
     recent_start = str(int(max_year) - 5)
     recent_years = [y for y in years if y >= recent_start]
 
@@ -184,10 +145,8 @@ def analyze_price_trajectory(timeseries: Dict[str, float]) -> Dict[str, Any]:
         pct_change_5yr = None
         slope_5yr = None
 
-    # Overall trend
     pct_change_total = round((current_value - oldest_value) / oldest_value * 100, 1)
 
-    # Label recent trajectory
     if pct_change_5yr is None:
         trend_label = "insufficient data"
     elif pct_change_5yr > 20:
@@ -210,7 +169,140 @@ def analyze_price_trajectory(timeseries: Dict[str, float]) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Composite risk signal
+# per-domain signal builders
+# ---------------------------------------------------------------------------
+
+def _signal(text: str, direction: str, severity: float = 0.0) -> Dict[str, Any]:
+    return {"text": text, "direction": direction, "severity": round(severity, 3)}
+
+
+def _build_doi_signal(doi: Dict[str, Any]):
+    if not doi or not doi.get("found"):
+        return None, False
+
+    rate = doi.get("latest_nonrenewal_rate")
+    trend = (doi.get("trend_label") or "").lower()
+    rate_change = doi.get("rate_change_pp")
+    year = doi.get("latest_year", "")
+
+    try:
+        rate = float(rate) if rate is not None else None
+    except (ValueError, TypeError):
+        rate = None
+
+    try:
+        rate_change = float(rate_change) if rate_change is not None else None
+    except (ValueError, TypeError):
+        rate_change = None
+
+    high_absolute = rate is not None and rate > 8
+    accelerating = (
+        trend in ("worsening", "increasing")
+        and rate_change is not None
+        and rate_change > 2
+    )
+    is_risk = high_absolute or accelerating
+
+    if rate is None:
+        return _signal("Non-renewal data unavailable", "neutral", 0.0), False
+
+    severity = min(float(rate) / 16.0, 1.0)
+    rate_str = f"{rate}%"
+    year_str = f" ({year})" if year else ""
+
+    if high_absolute and accelerating:
+        return _signal(
+            f"Non-renewal rate {rate_str}{year_str}, rising (+{rate_change}pp)",
+            "negative", severity
+        ), True
+    elif high_absolute:
+        return _signal(
+            f"Non-renewal rate {rate_str}{year_str} — elevated",
+            "negative", severity
+        ), True
+    elif accelerating:
+        return _signal(
+            f"Non-renewal rate trending up (+{rate_change}pp → {rate_str})",
+            "negative", severity
+        ), True
+    else:
+        return _signal(
+            f"Non-renewal rate {rate_str}{year_str} ({trend})",
+            "neutral", severity
+        ), False
+
+
+def _build_fair_plan_signal(fair_plan: Dict[str, Any]):
+    if not fair_plan or not fair_plan.get("found"):
+        return None, False
+
+    covered = fair_plan.get("covered_by_fair_plan", False)
+    change = fair_plan.get("five_year_pct_change")
+    zipcode = fair_plan.get("zipcode", "this ZIP")
+
+    try:
+        change = float(change) if change is not None else None
+    except (ValueError, TypeError):
+        change = None
+
+    if not covered:
+        return _signal(
+            f"FAIR Plan: no current exposure in ZIP {zipcode}",
+            "neutral", 0.0
+        ), False
+
+    if change is None:
+        return _signal(
+            f"FAIR Plan exposure present in ZIP {zipcode}",
+            "neutral"
+        ), False
+
+    severity = min(max(float(change), 0) / 200.0, 1.0)
+    change_str = f"{'+' if change > 0 else ''}{change:.0f}%"
+
+    if change > 100:
+        return _signal(
+            f"FAIR Plan exposure {change_str} (5yr) — insurers exiting",
+            "negative", severity
+        ), True
+    elif change > 30:
+        return _signal(
+            f"FAIR Plan exposure up {change_str} over 5 years",
+            "neutral", severity
+        ), False
+    else:
+        return _signal(
+            f"FAIR Plan exposure stable ({change_str} / 5yr)",
+            "positive", severity
+        ), False
+
+
+def _build_dins_signal(destruction_rate_pct: Optional[float]):
+    if destruction_rate_pct is None:
+        return None, False
+
+    rate = round(float(destruction_rate_pct), 1)
+    severity = min(float(destruction_rate_pct) / 100.0, 1.0)
+
+    if rate > 60:
+        return _signal(
+            f"{rate}% of nearby structures destroyed in past fires",
+            "negative", severity
+        ), True
+    elif rate > 30:
+        return _signal(
+            f"{rate}% nearby structural destruction rate",
+            "neutral", severity
+        ), False
+    else:
+        return _signal(
+            f"Low nearby destruction rate ({rate}%)",
+            "positive", severity
+        ), False
+
+
+# ---------------------------------------------------------------------------
+# Composite signal
 # ---------------------------------------------------------------------------
 
 def compute_composite_signal(
@@ -218,113 +310,166 @@ def compute_composite_signal(
     fire_frequency: Dict[str, Any],
     price_trajectory: Dict[str, Any],
     hazard_zone: str,
+    doi: Optional[Dict[str, Any]] = None,
+    fair_plan: Optional[Dict[str, Any]] = None,
+    dins_destruction_rate: Optional[float] = None,
 ) -> Dict[str, Any]:
 
     signals = []
+    risk_factors: List[bool] = []
 
-    def signal(text, direction):
-        # direction: "negative" | "positive" | "neutral"
-        return {"text": text, "direction": direction}
-
+    # Fire proximity trend
     prox_trend = fire_proximity.get("trend_label", "insufficient data")
     if prox_trend == "increasing":
-        signals.append(signal("fires are trending closer over time", "negative"))
+        signals.append(_signal("Fires trending closer over time", "negative"))
+        risk_factors.append(True)
     elif prox_trend == "decreasing":
-        signals.append(signal("fires have been trending further away over time", "positive"))
+        signals.append(_signal("Fires trending further away", "positive"))
+        risk_factors.append(False)
 
+    # Closest fire
     closest = fire_proximity.get("closest_fire")
     if closest:
-        dist = closest['distance_miles']
+        dist = closest["distance_miles"]
         direction = "negative" if dist < 5 else "neutral" if dist < 15 else "positive"
-        signals.append(signal(
-            f"closest recorded fire was {closest['fire_name']} "
-            f"({closest['year']}, {closest['distance_miles']} miles away)",
-            direction
+        severity = max(0.0, min(1.0, 1.0 - (dist / 30.0)))
+        signals.append(_signal(
+            f"Closest fire: {closest['fire_name']} ({closest['year']}, {dist} mi away)",
+            direction, severity
         ))
 
+    # Recent vs historical avg
     recent_avg = fire_proximity.get("recent_avg_distance_miles")
     hist_avg = fire_proximity.get("historical_avg_distance_miles")
     if recent_avg and hist_avg and recent_avg < hist_avg * 0.8:
-        signals.append(signal(
-            f"recent fires (last 5 years) have averaged {recent_avg} miles away, "
-            f"closer than the historical average of {hist_avg} miles",
+        signals.append(_signal(
+            f"Recent fires avg {recent_avg} mi — closer than historical {hist_avg} mi",
             "negative"
         ))
+        risk_factors.append(True)
+    elif recent_avg and hist_avg:
+        risk_factors.append(False)
 
+    # Fire frequency
     freq_trend = fire_frequency.get("trend_label", "insufficient data")
     total = fire_frequency.get("total_fires", 0)
-    if freq_trend == "accelerating":
-        signals.append(signal(f"fire frequency is accelerating ({total} fires on record nearby)", "negative"))
-    elif freq_trend == "declining":
-        signals.append(signal(f"fire frequency has been declining recently ({total} fires on record)", "positive"))
-    else:
-        signals.append(signal(f"{total} fires on record within search radius", "neutral"))
+    freq_severity = {"accelerating": 0.8, "stable": 0.3, "declining": 0.0,
+                     "insufficient data": 0.2}.get(freq_trend, 0.2)
 
+    if freq_trend == "accelerating":
+        signals.append(_signal(
+            f"Fire frequency accelerating ({total} nearby on record)",
+            "negative", freq_severity
+        ))
+        risk_factors.append(True)
+    elif freq_trend == "declining":
+        signals.append(_signal(
+            f"Fire frequency declining ({total} nearby on record)",
+            "positive", freq_severity
+        ))
+        risk_factors.append(False)
+    else:
+        signals.append(_signal(
+            f"{total} fires on record nearby",
+            "neutral", freq_severity
+        ))
+        risk_factors.append(False)
+
+    # Home value
     price_trend = price_trajectory.get("trend_label", "insufficient data")
     pct_5yr = price_trajectory.get("pct_change_5yr")
     current = price_trajectory.get("current_value")
     if current and pct_5yr is not None:
         direction = "neutral" if pct_5yr > 0 else "negative"
-        signals.append(signal(
-            f"current median home value ~${current:,}, "
-            f"{'+' if pct_5yr > 0 else ''}{pct_5yr}% over last 5 years ({price_trend})",
-            direction
+        severity = max(0.0, min(1.0, -pct_5yr / 30.0)) if pct_5yr < 0 else 0.1
+        signals.append(_signal(
+            f"Median home value ~${current:,} ({'+' if pct_5yr > 0 else ''}{pct_5yr}% / 5yr)",
+            direction, severity
         ))
 
+    # Hazard zone
     if hazard_zone and hazard_zone != "Unknown":
         direction = "negative" if hazard_zone in ("Very High", "High") else "neutral"
-        signals.append(signal(f"official state hazard classification: {hazard_zone}", direction))
+        zone_severity = {"Very High": 1.0, "High": 0.7,
+                         "Moderate": 0.3, "Unknown": 0.0}.get(hazard_zone, 0.0)
+        signals.append(_signal(
+            f"State hazard zone: {hazard_zone}",
+            direction, zone_severity
+        ))
+        risk_factors.append(hazard_zone in ("Very High", "High"))
 
-    risk_factors = sum([
-        prox_trend == "increasing",
-        freq_trend == "accelerating",
-        hazard_zone in ("Very High", "High"),
-        recent_avg is not None and recent_avg < 10,
-    ])
+    # Insurance and structural signals
+    doi_signal, doi_risk = _build_doi_signal(doi)
+    if doi_signal:
+        signals.append(doi_signal)
+        risk_factors.append(doi_risk)
 
-    if risk_factors >= 3:
+    fair_signal, fair_risk = _build_fair_plan_signal(fair_plan)
+    if fair_signal:
+        signals.append(fair_signal)
+        risk_factors.append(fair_risk)
+
+    dins_signal, dins_risk = _build_dins_signal(dins_destruction_rate)
+    if dins_signal:
+        signals.append(dins_signal)
+        risk_factors.append(dins_risk)
+
+    # Score
+    n_risk = sum(risk_factors)
+    n_total = len(risk_factors)
+    proportion = n_risk / n_total if n_total > 0 else 0
+
+    if proportion >= 0.6:
         composite_label = "high and increasing risk"
-    elif risk_factors >= 2:
+    elif proportion >= 0.35:
         composite_label = "moderate to high risk"
-    elif risk_factors >= 1:
+    elif proportion > 0:
         composite_label = "moderate risk"
     else:
         composite_label = "lower risk based on available data"
 
+    signals.sort(key=lambda s: s["severity"], reverse=True)
+
     return {
         "composite_label": composite_label,
         "signals": signals,
-        "risk_factor_count": risk_factors,
+        "risk_factor_count": n_risk,
+        "risk_factors_scored": n_total,
     }
 
+
 # ---------------------------------------------------------------------------
-# Main entry point
+# Main entry
 # ---------------------------------------------------------------------------
 
 def analyze_trends(
     fire_history: Dict[str, Any],
     zhvi: Dict[str, Any],
     hazard_zone: str = "Unknown",
+    doi: Optional[Dict[str, Any]] = None,
+    fair_plan: Optional[Dict[str, Any]] = None,
+    dins: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """
-    Main function — takes outputs of existing services and returns full trend analysis.
 
-    Args:
-        fire_history: output of get_nearby_fires()
-        zhvi: output of get_home_value_timeseries()
-        hazard_zone: string from fire_hazard_service
-
-    Returns:
-        Full trend analysis dict including composite signal
-    """
     fires = fire_history.get("fires", []) if fire_history.get("found") else []
     timeseries = zhvi.get("timeseries", {}) if zhvi.get("found") else {}
 
     fire_proximity = analyze_fire_proximity_trend(fires)
     fire_frequency = analyze_fire_frequency(fires)
     price_trajectory = analyze_price_trajectory(timeseries)
+
+    dins_destruction_rate = None
+    if dins and dins.get("found"):
+        dins_destruction_rate = dins.get("damage_rates", {}).get("destruction_rate_pct")
+
     composite = compute_composite_signal(
-        fire_proximity, fire_frequency, price_trajectory, hazard_zone
+        fire_proximity,
+        fire_frequency,
+        price_trajectory,
+        hazard_zone,
+        doi=doi,
+        fair_plan=fair_plan,
+        dins_destruction_rate=dins_destruction_rate,
     )
 
     return {
@@ -333,34 +478,3 @@ def analyze_trends(
         "price_trajectory": price_trajectory,
         "composite": composite,
     }
-
-
-# ---------------------------------------------------------------------------
-# Quick test
-# ---------------------------------------------------------------------------
-
-if __name__ == "__main__":
-    # Mock data matching real service output shapes
-    mock_fire_history = {
-        "found": True,
-        "fires": [
-            {"fire_name": "Topanga", "year": 2005, "acres": 23396, "distance_miles": 10.3},
-            {"fire_name": "Corral", "year": 2007, "acres": 4708, "distance_miles": 8.9},
-            {"fire_name": "Woolsey", "year": 2018, "acres": 89551, "distance_miles": 11.7},
-            {"fire_name": "Getty", "year": 2019, "acres": 553, "distance_miles": 6.6},
-            {"fire_name": "Palisades", "year": 2021, "acres": 1203, "distance_miles": 1.7},
-            {"fire_name": "Palisades", "year": 2025, "acres": 23449, "distance_miles": 2.0},
-        ]
-    }
-    mock_zhvi = {
-        "found": True,
-        "timeseries": {
-            "2000": 380000, "2005": 750000, "2010": 620000,
-            "2015": 800000, "2020": 1050000, "2024": 1420000,
-        }
-    }
-
-    result = analyze_trends(mock_fire_history, mock_zhvi, hazard_zone="Very High")
-
-    import json
-    print(json.dumps(result, indent=2))

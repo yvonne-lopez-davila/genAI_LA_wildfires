@@ -373,41 +373,11 @@ main {
   padding-bottom: 22px;
 }
 
-/* .overview-hazard-row {
-    display: flex;
-    gap: 10px;
-    grid-column: 1 / -1;
-    margin-top: 0;
-    margin-bottom: 16px;
-    align-items: stretch;
-    justify-content: center;
-} */
+
 
 .overview-hazard-row {
-    display: grid;
-    grid-template-columns: 210px auto 155px;
-    gap: 16px;
-    align-items: start;
-    margin-bottom: 10px;
-    justify-content: center;
+    margin-bottom: 10px; 
 }
-
-/* .overview-card {
-    flex: 1;
-    max-width: 800px;
-    background: #F5F0E8;
-    border-color: #E8D9BC;
-    border-radius: 10px;
-    border: 0.5px solid #E8D9BC;
-    padding: 16px 18px;
-}
-
-.overview-card p {
-    font-size: 14px;
-    line-height: 1.7;
-    color: #2a2a2a;
-    margin: 0;
-} */
 
 .hazard-zone-card {
     border-radius: 10px;
@@ -716,27 +686,14 @@ main {
 }
 
 #risk-signals {
-    list-style: none;
     padding: 0;
-    margin-top: 28px;
-    width: fit-content;
-}
-
-#risk-signals li {
-    font-size: 12px;
-    color: #333;
-    line-height: 1.5;
-    padding: 6px 10px;
-    margin-bottom: 6px;
-    background: #f9f9f9;
-    border-left: 3px solid #e63946;
-    border-radius: 0 4px 4px 0;
-    display: block;
-    white-space: nowrap;
-}
-
-#risk-signals li::before {
-    content: none;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+    justify-content: center;
 }
 
 
@@ -2026,27 +1983,27 @@ main {
     margin-bottom: 0;
 }
 
-.header-gauge-wrap {
+/* new signals styling */
+.header-signals-col {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    justify-items: center;
 }
 
-.header-gauge-label {
-    font-size: 11px;
+.header-signals-top {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+#composite-label {
+    font-size: 15px;
     font-weight: 700;
-    letter-spacing: 0.06em;
-    color: #3A2810;
-    text-transform: uppercase;
-    font-family: sans-serif;
-    margin-bottom: 4px;
-    align-self: flex-start;
-}
-
-#gauge-tooltip-wrapper-header {
-    position: relative;
-    align-self: flex-start;
-    margin-bottom: 4px;
+    color: #1a1a2e;
+    text-transform: capitalize;
 }
 
 #gauge-link-header {
@@ -2077,7 +2034,6 @@ main {
 #gauge-tooltip-wrapper-header:hover #gauge-tooltip-content-header {
     display: block;
 }
-
 
 
 /* *********  CHATBOT STYLING  ********* */
@@ -2227,3 +2183,70 @@ main {
     color: #9ca3af;
     padding: 6px 12px 10px;
 }
+
+.signal-card {
+    background: #fff;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 10px;
+    border-top: 3px solid transparent;
+    padding: 10px 12px 8px;
+    margin-bottom: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 80px;
+    overflow: hidden;
+    flex: 0 1 160px; 
+}
+
+.signal-card--negative { border-top-color: #d73027; background: #fdf0f0; }
+.signal-card--neutral  { border-top-color: #f5a623; background: #fdf8ee; }
+.signal-card--positive { border-top-color: #2d8a4e; background: #f0f8f2; }
+
+.signal-card--negative .signal-card-text { color: #7f2020; }
+.signal-card--neutral  .signal-card-text { color: #7a4d00; }
+.signal-card--positive .signal-card-text { color: #103d22; }
+
+.signal-card-text {
+    font-size: 11px;
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-weight: 600;
+    display: block;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    justify-content: center;
+}
+
+.signal-card-detail {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.5;
+    display: none;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 0.5px solid #e0e0e0;
+}
+
+.signal-card:hover .signal-card-detail {
+    display: block;         /* show on hover */
+}
+
+.signal-severity-track {
+    height: 3px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.signal-severity-fill {
+    height: 100%;
+    border-radius: 2px;
+}
+
+.signal-severity--negative { background: #d73027; }
+.signal-severity--neutral  { background: #f5a623; }
+.signal-severity--positive { background: #2d8a4e; }
