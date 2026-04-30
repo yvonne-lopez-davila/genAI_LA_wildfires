@@ -15,12 +15,13 @@
       "notes": "High-risk WUI homeowner case with property characteristics."
     },
     "response": {
-      "home_value_impact": "The property is located in a Very High fire hazard zone with a current median home value of approximately <strong>$1,428,728</strong>, which has experienced a moderate growth of <strong>11.8%</strong> over the past five years. Despite the nearby Palisades fire occurring only <strong>1.7 miles</strong> away, the overall market appears resilient, although the proximity to such a significant fire event raises concerns about future value stability.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 90290 indicates a total insured value of approximately <strong>$2,804,784,550</strong>, with a notable increase of <strong>50.8%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options due to challenges in obtaining private coverage as wildfire risks persist.",
-      "affordability_score": "The property remains financially viable to own given its current value and moderate growth trend, but the substantial increase in FAIR Plan exposure may lead to higher insurance costs, which could impact long-term affordability and raise concerns about potential systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Replace your asphalt roof with a fire-resistant material such as metal or tile, as asphalt roofs have a high destruction rate in wildfire events (CAL FIRE Home Hardening). 2. Enclose your unenclosed eaves to prevent embers from entering your home, significantly reducing fire risk (Safer from Wildfires program). 3. Upgrade your wood siding to non-combustible materials like stucco or fiber-cement to enhance your home's fire resistance (CAL FIRE Low-Cost Retrofit List).",
+      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$1,428,728</strong>, which has seen a moderate growth of <strong>11.8%</strong> over the past five years. However, the proximity of the closest recorded fire just <strong>1.7 miles</strong> away and the classification of the area as <strong>Very High</strong> hazard significantly elevate the risk, potentially impacting future property values negatively.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 90290 indicates a total insured value of approximately <strong>$2,804,784,550</strong>, with a notable increase of <strong>50.8%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to escalating wildfire risks.",
+      "affordability_score": "Given the current home value and the increasing reliance on the FAIR Plan, the property may face financial viability challenges due to potential increases in insurance costs and the overall wildfire risk in the area.",
+      "mitigation_recommendations": "1. Upgrade your [[roof]] from asphalt to a Class A fire-rated material, such as metal or tile, to significantly enhance fire resistance and improve insurability (CAL FIRE Home Hardening). 2. Enclose your [[eaves]] with non-combustible materials to reduce the risk of ember intrusion, which is critical given the nearby fire history (Safer from Wildfires program). 3. Replace your [[wood siding]] with a fire-resistant option like stucco or fiber-cement to lower your fire risk and align with CAL FIRE recommendations (CAL FIRE Low-Cost Retrofit List).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Very High",
       "hazard_lookup_error": null,
       "hazard_attributes": {
@@ -776,15 +777,15 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The risk indicators assess various factors that contribute to wildfire susceptibility, including proximity to past fires, fire frequency, property value trends, and state hazard classifications. These indicators are combined to generate a risk score that reflects the overall wildfire risk for a property, with higher scores indicating greater risk levels.",
+        "methodology": "The four risk indicators assess the proximity and frequency of past fires, current home values, and state hazard classifications to determine the overall wildfire risk score. These indicators are combined to provide a comprehensive evaluation of the potential threat to properties in a given area.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The trend of fires moving closer over time suggests an increasing risk of wildfire proximity, which can elevate the overall risk score."
+            "explanation": "The trend of fires moving closer over time indicates an increasing risk, suggesting that the area may be experiencing heightened vulnerability to wildfires."
           },
           {
             "index": 1,
-            "explanation": "Having a recorded fire only 1.7 miles away indicates a significant nearby threat, which contributes to a higher risk assessment."
+            "explanation": "Having the closest recorded fire just 1.7 miles away is significant, as it shows that the area is within a short distance of recent wildfire activity, elevating the risk."
           },
           {
             "index": 2,
@@ -792,15 +793,15 @@
           },
           {
             "index": 3,
-            "explanation": "A current median home value of approximately $1,428,728, with an 11.8% increase over five years, indicates a strong market, which may correlate with higher risk due to increased development in vulnerable areas."
+            "explanation": "A current median home value of approximately $1,428,728, with an 11.8% increase over the last five years, indicates a strong real estate market, which can heighten the stakes in the event of a wildfire."
           },
           {
             "index": 4,
-            "explanation": "An official state hazard classification of Very High signifies that the area is recognized as having a significant risk for wildfires, directly impacting the overall risk score."
+            "explanation": "An official state hazard classification of Very High signifies a critical level of risk, indicating that the area is recognized as particularly susceptible to wildfires."
           }
         ]
       },
-      "chart_observations": "- **HOME TRENDS:** The current median home value in ZIP code 90290 is approximately $1.43 million, reflecting a moderate growth of 11.8% over the past five years. This indicates a positive trend in home values within the area.\n  \n- **RENT TRENDS:** Rent data unavailable for this ZIP.\n\n- **WILDFIRE TRENDS:** There have been 100 fires recorded within 30 miles, with a declining trend in fire frequency but an increasing trend in proximity. The average distance to fires has decreased from 22.6 miles historically to 21.4 miles in the last five years.\n\n- **CROSS-OBSERVATIONS:** There is a moderate negative correlation of -0.246 between home values and fire distance, suggesting that as homes are closer to fire incidents, their values may be adversely affected.",
+      "chart_observations": "- **HOME TRENDS:** The current median home value in ZIP code 90290 is approximately $1.43 million, reflecting a moderate growth of 11.8% over the past five years. This indicates a positive trend in home values within the area.\n  \n- **RENT TRENDS:** Rent data unavailable for this ZIP.\n\n- **WILDFIRE TRENDS:** There have been 100 fires recorded within 30 miles, with a declining trend in fire frequency but an increasing trend in proximity. The average distance to fires has decreased from 22.6 miles historically to 21.4 miles in the last five years.\n\n- **CROSS-OBSERVATIONS:** There is a moderate negative correlation of -0.246 between home values and fire distance, suggesting that as homes get closer to fire activity, their values may decrease.",
       "dins": {
         "found": true,
         "query_point": {
@@ -859,8 +860,8 @@
             "matched_structures": 4021,
             "destruction_rate_pct": 54.3,
             "damage_or_destroyed_rate_pct": 64.8,
-            "desc": "Having an asphalt roof means that your home is at a higher risk of destruction during a wildfire, with over half of similar structures experiencing damage. This indicates that the material may not withstand extreme heat and flames effectively.",
-            "action": "Can improve: Consider upgrading to a fire-resistant roofing material like metal or tile.",
+            "desc": "Your asphalt roof has a relatively high destruction rate of 54.3%, meaning that in the event of a wildfire, more than half of similar roofs have been destroyed. This indicates that asphalt may not provide the best protection against intense heat and flames.",
+            "action": "Can improve: Consider upgrading to a Class A fire-rated roofing material, such as metal or tile, to enhance your home's fire resistance.",
             "risk_tier": "mod",
             "tier_reason": "Destruction rate is 6.6pp above the area average (47.7%)"
           },
@@ -869,8 +870,8 @@
             "matched_structures": 2376,
             "destruction_rate_pct": 25.0,
             "damage_or_destroyed_rate_pct": 39.1,
-            "desc": "Unenclosed eaves can allow embers and flames to penetrate your home more easily, leading to a 25% destruction rate among similar homes. This design feature can create a pathway for fire to reach the interior of your house.",
-            "action": "Can improve: Enclose your eaves to reduce the risk of fire entry.",
+            "desc": "Having unenclosed eaves increases your fire risk, with a destruction rate of 25.0%. This design allows embers to easily enter and ignite the structure, making it more vulnerable during a wildfire.",
+            "action": "Can improve: Enclose your eaves with non-combustible materials to reduce the risk of ember intrusion.",
             "risk_tier": "low",
             "tier_reason": "Destruction rate is 22.7pp below the area average (47.7%)"
           },
@@ -879,8 +880,8 @@
             "matched_structures": 1223,
             "destruction_rate_pct": 32.1,
             "damage_or_destroyed_rate_pct": 41.5,
-            "desc": "Wood siding increases your home's vulnerability to fire, with over 30% of similar structures suffering damage. This material can ignite easily and contribute to the spread of flames.",
-            "action": "Can improve: Consider replacing wood siding with non-combustible materials like stucco or fiber-cement.",
+            "desc": "Wood siding has a destruction rate of 32.1%, indicating a significant risk during wildfires as it can easily catch fire. This means that homes with wood siding are more likely to sustain severe damage compared to those with fire-resistant materials.",
+            "action": "Can improve: Consider replacing wood siding with non-combustible options like stucco or fiber-cement to lower your fire risk.",
             "risk_tier": "low",
             "tier_reason": "Destruction rate is 15.6pp below the area average (47.7%)"
           }
@@ -919,6 +920,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (5)"
       ],
       [
@@ -931,14 +936,16 @@
       ]
     ],
     "rubric": {
-      "role_fit": 5,
+      "role_fit": 2,
       "data_grounding": 5,
-      "specificity": 5,
-      "rag_source_relevance": 5,
+      "specificity": 4,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 4,
-      "safety_no_hallucination": 5,
-      "overall_pass": true,
-      "notes": "The report effectively addresses the homeowner's needs with specific data and actionable mitigation recommendations.",
+      "safety_no_hallucination": 3,
+      "overall_pass": false,
+      "notes": "The report includes relevant data and specific recommendations for the homeowner but fails to utilize RAG context effectively and includes unsupported mitigation guidance.",
       "judge_model": "4o-mini"
     }
   },
@@ -958,12 +965,13 @@
       "notes": "Homeowner case with more protective self-reported characteristics."
     },
     "response": {
-      "home_value_impact": "The property is located in a Very High fire hazard zone with a current median home value of approximately <strong>$3,135,133</strong>, which has seen a moderate growth of <strong>11.0%</strong> over the past five years. Despite the proximity to significant fire events, such as the Franklin fire occurring <strong>5.0 miles</strong> away, the overall market appears resilient, although ongoing fire risks could impact future value stability.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 90265 indicates a total insured value of approximately <strong>$5,080,942,823</strong>, with a substantial increase of <strong>112.1%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options due to challenges in obtaining private coverage as wildfire risks persist.",
-      "affordability_score": "The property remains financially viable to own given its current value and moderate growth trend, but the significant increase in FAIR Plan exposure may lead to higher insurance costs, which could impact long-term affordability and raise concerns about potential systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Although your tile roof is relatively fire-resistant, consider adding a fire-resistant coating to enhance its protection against embers and flames (CAL FIRE Home Hardening). 2. Your enclosed eaves are beneficial, but ensure they are regularly maintained and free of debris to maximize their protective function (Safer from Wildfires program). 3. Your stucco brick cement siding is highly fire-resistant, but keep it in good condition to ensure its effectiveness against fire exposure.",
+      "home_value_impact": "The property is situated in an area with a current median home value of approximately <strong>$3,135,133</strong>, which has experienced a moderate growth of <strong>11.0%</strong> over the past five years. However, the classification of the area as <strong>Very High</strong> hazard and the proximity of the closest recorded fire just <strong>2.7 miles</strong> away could pose risks to future property values, especially in the context of wildfire threats.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 90265 indicates a total insured value of approximately <strong>$5,080,942,823</strong>, with a significant increase of <strong>112.1%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to escalating wildfire risks.",
+      "affordability_score": "Given the current home value and the increasing reliance on the FAIR Plan, the property may face financial viability challenges due to potential increases in insurance costs and the overall wildfire risk in the area.",
+      "mitigation_recommendations": "1. Your [[tile roof]] offers good fire resistance, but ensure it is well-maintained and consider adding a fire-resistant coating to enhance protection against embers (CAL FIRE Home Hardening). 2. Your [[enclosed eaves]] are a positive feature, but verify that they are constructed with non-combustible materials to further reduce ember intrusion risk (Safer from Wildfires program). 3. The [[stucco brick cement]] siding is highly fire-resistant, but ensure that your landscaping is well-maintained to prevent fire from reaching your home, as defensible space is crucial (Defensible Space guide).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Very High",
       "hazard_lookup_error": null,
       "hazard_attributes": {
@@ -1732,27 +1740,27 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The wildfire risk score is determined by evaluating four key indicators: fire frequency, home value trends, proximity to historical fires, and state hazard classifications. These indicators are combined to assess the overall risk level, with each factor contributing to the final score based on its significance and magnitude.",
+        "methodology": "The four risk indicators assess the likelihood of wildfire occurrence and the potential impact on properties. These indicators combine to produce a risk score that reflects the overall wildfire risk for a specific area.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 2.7 miles away indicates a relatively low immediate threat from past fire activity, suggesting a lower risk level."
+            "explanation": "The closest recorded fire being 2.7 miles away indicates a relatively low immediate threat, suggesting that recent fire activity has not been prevalent in the vicinity."
           },
           {
             "index": 1,
-            "explanation": "A decline in fire frequency, with 100 fires on record, suggests a trend towards reduced fire activity, which may imply a lower risk environment."
+            "explanation": "A decline in fire frequency, with 100 fires on record, suggests that the area may be experiencing a period of reduced wildfire activity, which could lower overall risk."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $3,135,133, with an 11.0% increase over the last five years, indicates a strong real estate market, which can correlate with higher risk as more valuable properties are at stake."
+            "explanation": "A current median home value of approximately $3,135,133, with an 11.0% increase over the last five years, indicates a strong real estate market, which may imply higher stakes in property protection against wildfires."
           },
           {
             "index": 3,
-            "explanation": "An official state hazard classification of Very High signifies a significant risk level, indicating that the area is prone to severe wildfire threats."
+            "explanation": "An official state hazard classification of Very High signifies a significant risk level, indicating that the area is prone to severe wildfire threats despite other mitigating factors."
           }
         ]
       },
-      "chart_observations": "- HOME TRENDS: The current median home value in ZIP code 90265 is approximately $3.14 million, reflecting a moderate growth of 11.0% over the past five years. This indicates a steady appreciation in property values since 2000.\n  \n- RENT TRENDS: The median rent in the area is around $16,590, which has experienced a significant increase of 23.6% in the last five years, suggesting a strong demand for rental properties.\n\n- WILDFIRE TRENDS: There have been a total of 100 fires within a 30-mile radius, with a declining trend in fire frequency and a stable trend in proximity. The average distance to fires has slightly decreased from 24.6 miles historically to 23.0 miles in the last five years.\n\n- CROSS-OBSERVATIONS: The correlation between home values and fire distance is minimal at 0.028, indicating no clear relationship. Similarly, the correlation between rent and fire distance is -0.005, further suggesting that fire proximity does not significantly influence rental prices in this area.",
+      "chart_observations": "- HOME TRENDS: The median home value in ZIP code 90265 is currently $3,135,133, reflecting a moderate growth of 11.0% over the past five years. This indicates a stable appreciation in home values since 2000.\n  \n- RENT TRENDS: The current median rent is $16,589.90, which has experienced a significant increase of 23.6% in the last five years, suggesting a strong demand for rental properties in the area.\n\n- WILDFIRE TRENDS: There have been 100 fires recorded within 30 miles, with a declining trend in fire frequency and a stable proximity trend. The average distance to fires has slightly decreased from 24.6 miles historically to 23.0 miles in the last five years.\n\n- CROSS-OBSERVATIONS: The correlation between home values and fire distance is very low at 0.028, indicating no clear relationship between home value changes and proximity to wildfires. Similarly, the correlation between rent and fire distance is -0.005, further supporting the lack of a significant connection between rental prices and wildfire proximity.",
       "dins": {
         "found": true,
         "query_point": {
@@ -1811,8 +1819,8 @@
             "matched_structures": 334,
             "destruction_rate_pct": 58.4,
             "damage_or_destroyed_rate_pct": 69.2,
-            "desc": "Your tile roof has a relatively high destruction rate of 58.4%, indicating that while it offers better fire resistance than some materials, it is still vulnerable in extreme fire conditions. This means that if a fire were to reach your home, there is a significant chance of damage to the roof.",
-            "action": "Can improve: Consider adding a fire-resistant coating to enhance your roof's protection.",
+            "desc": "Your tile roof has a moderate destruction rate of 58.4%, indicating that while it offers some fire resistance, it is still vulnerable to intense heat and flames. This means that in a wildfire scenario, your roof could sustain significant damage, potentially leading to structural loss.",
+            "action": "Can improve: Consider adding a fire-resistant coating or maintaining defensible space around your home.",
             "risk_tier": "low",
             "tier_reason": "Destruction rate is 13.6pp below the area average (72.0%)"
           },
@@ -1821,8 +1829,8 @@
             "matched_structures": 123,
             "destruction_rate_pct": 17.9,
             "damage_or_destroyed_rate_pct": 45.5,
-            "desc": "Having enclosed eaves reduces the risk of embers entering your home, reflected in a lower destruction rate of 17.9%. This design helps protect the vulnerable areas of your home from fire exposure.",
-            "action": "Structural \u2014 not changeable: Maintain your enclosed eaves and ensure they are free of debris to minimize fire risk.",
+            "desc": "Having enclosed eaves reduces the risk of embers entering your home, resulting in a lower destruction rate of 17.9%. This design helps protect the vulnerable areas of your house from fire exposure, making it a safer choice in wildfire-prone areas.",
+            "action": "Structural \u2014 not changeable: Focus on maintaining the surrounding landscape to minimize fire risk.",
             "risk_tier": "low",
             "tier_reason": "Destruction rate is 54.1pp below the area average (72.0%)"
           },
@@ -1831,8 +1839,8 @@
             "matched_structures": 133,
             "destruction_rate_pct": 0.8,
             "damage_or_destroyed_rate_pct": 0.8,
-            "desc": "Your stucco brick cement siding has an exceptionally low destruction rate of 0.8%, indicating it is highly resistant to fire. This means your home's exterior is well-protected against flames and heat.",
-            "action": "Structural \u2014 not changeable: Keep your siding in good condition to ensure its fire-resistant properties remain effective.",
+            "desc": "Your choice of stucco, brick, or cement siding is excellent, as it has a very low destruction rate of 0.8%. This means that your home's exterior is highly resistant to fire, significantly reducing the likelihood of damage during a wildfire.",
+            "action": "Structural \u2014 not changeable: Ensure that your landscaping is well-maintained to further enhance your home's fire safety.",
             "risk_tier": "low",
             "tier_reason": "Destruction rate is 71.2pp below the area average (72.0%)"
           }
@@ -1871,6 +1879,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (4)"
       ],
       [
@@ -1885,12 +1897,14 @@
     "rubric": {
       "role_fit": 4,
       "data_grounding": 5,
-      "specificity": 5,
-      "rag_source_relevance": 5,
+      "specificity": 4,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 4,
-      "safety_no_hallucination": 5,
-      "overall_pass": true,
-      "notes": "The report effectively addresses the homeowner's needs with specific data and actionable insights while maintaining high accuracy and relevance.",
+      "safety_no_hallucination": 3,
+      "overall_pass": false,
+      "notes": "The report provides relevant homeowner information but relies heavily on unsupported RAG claims and includes irrelevant mitigation recommendations.",
       "judge_model": "4o-mini"
     }
   },
@@ -1910,12 +1924,13 @@
       "notes": "Foothill homeowner case for fire-history and hazard-zone grounding."
     },
     "response": {
-      "home_value_impact": "The property is situated in a Very High fire hazard zone with a current median home value of approximately <strong>$1,103,381</strong>, which has experienced a moderate growth of <strong>6.7%</strong> over the past five years. Despite the proximity to significant fire events, such as the Eaton fire occurring <strong>2.3 miles</strong> away, the overall market shows resilience, although ongoing fire risks could impact future value stability.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 91001 indicates a total insured value of approximately <strong>$1,089,857,033</strong>, with a substantial increase of <strong>143.5%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options due to challenges in obtaining private coverage as wildfire risks persist.",
-      "affordability_score": "The property remains financially viable to own given its current value and moderate growth trend, but the significant increase in FAIR Plan exposure may lead to higher insurance costs, which could impact long-term affordability and raise concerns about potential systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Your asphalt roof has a destruction rate of 52% in similar structures; consider upgrading to a fire-resistant material like tile or metal to significantly enhance fire safety and insurability (CAL FIRE Home Hardening). 2. The absence of eaves can increase vulnerability to ember intrusion; focus on creating defensible space around your home to mitigate fire risk effectively (Safer from Wildfires program). 3. While your stucco brick cement siding is generally fire-resistant, ensure it is well-maintained and consider adding fire-resistant landscaping to further protect your home.",
+      "home_value_impact": "The property is located in a <strong>Very High</strong> fire hazard zone, with a current median home value of approximately <strong>$1,103,381</strong>, which has seen a moderate growth of <strong>6.7%</strong> over the past five years. However, the proximity of the closest recorded fire just <strong>2.3 miles</strong> away could pose risks to future property values, particularly in light of the area's wildfire threats.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 91001 indicates a total insured value of approximately <strong>$1,089,857,033</strong>, with a significant increase of <strong>143.5%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to escalating wildfire risks.",
+      "affordability_score": "Given the current home value and the increasing reliance on the FAIR Plan, the property may face financial viability challenges due to potential increases in insurance costs and the overall wildfire risk in the area.",
+      "mitigation_recommendations": "1. Your [[asphalt roof]] has a high destruction rate, with 52% of similar roofs affected by fire; consider upgrading to a fire-resistant roofing material like metal or tile to enhance protection (CAL FIRE Home Hardening). 2. The absence of [[eaves]] can leave your home exposed to embers; focus on creating defensible space around your property to mitigate fire risk (Defensible Space guide). 3. Your [[stucco brick cement]] siding is fire-resistant, but ensure that your landscaping is well-maintained to prevent fire from reaching your home, as defensible space is crucial (Safer from Wildfires program).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Very High",
       "hazard_lookup_error": null,
       "hazard_attributes": {
@@ -2669,27 +2684,27 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The wildfire risk score is determined by evaluating four key risk indicators that assess the likelihood and potential impact of wildfires in a given area. These indicators combine to provide a comprehensive risk assessment, with higher scores indicating greater risk levels.",
+        "methodology": "The four risk indicators assess various aspects of wildfire risk, including proximity to past fires, frequency of fire occurrences, property value trends, and official hazard classifications. These indicators are combined to generate a risk score that reflects the overall wildfire threat to a specific area.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 2.3 miles away suggests a moderate proximity to potential wildfire threats, which can influence risk levels."
+            "explanation": "The closest recorded fire being 2.3 miles away indicates a moderate level of proximity to potential wildfire threats."
           },
           {
             "index": 1,
-            "explanation": "A decline in fire frequency, with 100 fires on record, indicates a lower recent occurrence of wildfires, which may suggest a reduced immediate risk."
+            "explanation": "A decline in fire frequency, with 100 fires on record, suggests a decreasing trend in wildfire occurrences, which may lower overall risk."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $1,103,381, with a growth of 6.7% over the last 5 years, reflects a stable and appreciating property market, which can be associated with increased risk due to higher asset values."
+            "explanation": "A current median home value of approximately $1,103,381, with a 6.7% increase over the last five years, indicates a moderate growth trend that may correlate with increased risk due to higher property values attracting more development."
           },
           {
             "index": 3,
-            "explanation": "An official state hazard classification of Very High indicates a significant level of wildfire risk in the area, suggesting that conditions are favorable for wildfires to occur."
+            "explanation": "An official state hazard classification of Very High signifies a significant level of risk, indicating that the area is prone to severe wildfire threats."
           }
         ]
       },
-      "chart_observations": "- **HOME TRENDS:** The current median home value in ZIP code 91001 is approximately $1.1 million, reflecting a moderate growth of 6.7% over the past five years. This upward trend indicates a stable housing market in the area.\n\n- **RENT TRENDS:** The median rent stands at about $4,130, with a notable increase of 10.7% over the last five years, suggesting a rising demand for rental properties in the region.\n\n- **WILDFIRE TRENDS:** There have been 100 fires recorded within a 30-mile radius, but the frequency of these fires is declining. The average distance to fires has slightly increased from 23.7 miles historically to 24.5 miles in the last five years, indicating a stable proximity to fire risks.\n\n- **CROSS-OBSERVATIONS:** There is a weak negative correlation of -0.115 between home values and fire distance, suggesting that as homes are located further from fire incidents, their values may slightly increase, although the relationship is not strong enough to draw definitive conclusions.",
+      "chart_observations": "- **HOME TRENDS:** The current median home value in ZIP code 91001 is approximately $1.1 million, reflecting a moderate growth of 6.7% over the past five years. This indicates a steady appreciation in home values since 2000.\n  \n- **RENT TRENDS:** The median rent in the area is around $4,130, with a notable increase of 10.7% over the last five years, suggesting a robust rental market.\n\n- **WILDFIRE TRENDS:** There have been 100 fires recorded within a 30-mile radius, but the frequency of these fires is declining, while the average distance to fires has remained stable, increasing slightly from 23.7 miles historically to 24.5 miles in the last five years.\n\n- **CROSS-OBSERVATIONS:** The correlation between home values and fire distance is weak at -0.115, indicating a slight inverse relationship; however, this suggests no significant impact of fire proximity on home values in the area.",
       "dins": {
         "found": true,
         "query_point": {
@@ -2747,8 +2762,8 @@
             "matched_structures": 13157,
             "destruction_rate_pct": 52.0,
             "damage_or_destroyed_rate_pct": 58.1,
-            "desc": "Your asphalt roof has a significant destruction rate of 52%, indicating that it is vulnerable to fire damage. This means that over half of similar structures with asphalt roofs have experienced severe fire loss, highlighting the need for fire-resistant upgrades.",
-            "action": "Can improve: Consider replacing your roof with a fire-resistant material like metal or tile.",
+            "desc": "Your asphalt roof has a high destruction rate of 52%, indicating that it is vulnerable to fire damage. This means that more than half of similar structures with asphalt roofs have been significantly affected by wildfires.",
+            "action": "Can improve: Consider upgrading to a fire-resistant roofing material like metal or tile.",
             "risk_tier": "mod",
             "tier_reason": "Destruction rate is 1.5pp below the area average (53.5%)"
           },
@@ -2757,8 +2772,8 @@
             "matched_structures": 1410,
             "destruction_rate_pct": 24.0,
             "damage_or_destroyed_rate_pct": 35.5,
-            "desc": "Having no eaves can reduce the risk of fire catching from embers, but it also means there are fewer protective features to shield your home from direct flames. The 24% destruction rate suggests that homes without eaves still face a moderate risk of fire damage.",
-            "action": "Structural \u2014 not changeable: Focus on creating defensible space around your home to mitigate fire risk.",
+            "desc": "Having no eaves can reduce the risk of fire catching on overhanging structures, but it still leaves your home exposed to embers. The 24% destruction rate suggests that while it's better than some options, there is still a notable risk.",
+            "action": "Structural \u2014 not changeable: Focus on creating defensible space around your home.",
             "risk_tier": "low",
             "tier_reason": "Destruction rate is 29.5pp below the area average (53.5%)"
           },
@@ -2767,8 +2782,8 @@
             "matched_structures": 14581,
             "destruction_rate_pct": 55.9,
             "damage_or_destroyed_rate_pct": 62.0,
-            "desc": "Your stucco, brick, and cement siding has a high destruction rate of 55.9%, indicating that these materials can still be compromised by intense heat and flames. This suggests that while these materials are generally more fire-resistant, they are not immune to severe fire damage.",
-            "action": "Can improve: Consider adding fire-resistant barriers or landscaping to further protect your home.",
+            "desc": "Your stucco, brick, and cement siding has a destruction rate of 55.9%, indicating a significant risk of fire damage. This high percentage shows that many homes with similar siding have suffered severe losses in wildfires.",
+            "action": "Can improve: Consider adding a fire-resistant barrier or cladding to enhance protection.",
             "risk_tier": "mod",
             "tier_reason": "Destruction rate is 2.4pp above the area average (53.5%)"
           }
@@ -2807,6 +2822,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (4)"
       ],
       [
@@ -2821,12 +2840,14 @@
     "rubric": {
       "role_fit": 2,
       "data_grounding": 5,
-      "specificity": 4,
-      "rag_source_relevance": 4,
-      "confidence_calibration": 3,
-      "safety_no_hallucination": 4,
+      "specificity": 3,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 2,
+      "confidence_calibration": 4,
+      "safety_no_hallucination": 3,
       "overall_pass": false,
-      "notes": "The report includes mitigation recommendations inappropriate for a homeowner report, affecting role fit.",
+      "notes": "The report includes relevant data but fails to align with the homeowner role due to excessive mitigation recommendations and lacks proper grounding in retrieved context.",
       "judge_model": "4o-mini"
     }
   },
@@ -2846,12 +2867,13 @@
       "notes": "Post-fire community homeowner case; should be specific and careful."
     },
     "response": {
-      "home_value_impact": "The property is located in a Very High fire hazard zone with a current median home value of approximately <strong>$328,303</strong>, which has declined by <strong>24.8%</strong> over the past five years. This decline may reflect the impact of wildfire risks on property desirability and market stability, especially given the proximity to significant fire events like the Honey fire occurring <strong>2.5 miles</strong> away.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 95969 indicates a total insured value of approximately <strong>$1,735,837,405</strong>, with a staggering increase of <strong>788.1%</strong> in exposure from FY2021 to FY2025, highlighting a growing reliance on state-backed insurance options due to challenges in obtaining private coverage as wildfire risks persist.",
-      "affordability_score": "The property remains financially viable to own given its current value, but the significant increase in FAIR Plan exposure may lead to higher insurance costs, which could impact long-term affordability and raise concerns about potential systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Your metal roof is a strong asset against fire, but ensure it is well-maintained to prevent rust and deterioration, which can compromise its effectiveness (CAL FIRE Home Hardening). 2. Enclosed eaves are beneficial, but verify that all vents are screened to prevent ember intrusion, as this is critical for fire safety (Safer from Wildfires program). 3. While your ignition-resistant siding is advantageous, regularly inspect it for damage and maintain defensible space around your home to further enhance fire protection.",
+      "home_value_impact": "The property is located in a <strong>Very High</strong> fire hazard zone, with a current median home value of approximately <strong>$328,303</strong>, which has declined by <strong>24.8%</strong> over the past five years. The proximity of the closest recorded fire just <strong>2.5 miles</strong> away could further threaten property values, especially in a market already experiencing significant declines.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 95969 indicates a total insured value of approximately <strong>$1,735,837,405</strong>, with a staggering increase of <strong>788.1%</strong> in exposure from FY2021 to FY2025, highlighting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to escalating wildfire risks.",
+      "affordability_score": "Given the current home value and the increasing reliance on the FAIR Plan, the property may face financial viability challenges due to potential increases in insurance costs and the overall wildfire risk in the area.",
+      "mitigation_recommendations": "1. Your [[metal roof]] is a strong asset against fire, but consider enhancing your [[defensible space]] by maintaining a 30-foot clearance around your home to reduce fire risk (Defensible Space guide). 2. Your [[enclosed eaves]] provide some protection, but ensure that all [[vents]] are screened to prevent embers from entering your home (CAL FIRE Home Hardening). 3. While your [[ignition resistant siding]] is beneficial, regularly inspect your landscaping for flammable materials and maintain a well-watered perimeter to further protect your home (Safer from Wildfires program).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Very High",
       "hazard_lookup_error": null,
       "hazard_attributes": {
@@ -3609,27 +3631,27 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The wildfire risk score is determined by evaluating four key risk indicators that assess both historical fire activity and current environmental conditions. These indicators are combined to produce a score that reflects the overall risk level for a specific property, ranging from low to very high risk.",
+        "methodology": "The four risk indicators assess various aspects of wildfire risk, including proximity to past fires, frequency of fires in the area, property value trends, and official hazard classifications. These indicators are combined to generate a risk score that reflects the overall wildfire threat to a property.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 2.5 miles away indicates a moderate proximity to past fire activity, which can heighten the risk perception."
+            "explanation": "The closest recorded fire being 2.5 miles away indicates a moderate level of proximity to past wildfire activity, which can contribute to potential risk."
           },
           {
             "index": 1,
-            "explanation": "Having 100 fires on record within the search radius suggests a significant history of fire activity, indicating a potentially higher risk environment."
+            "explanation": "Having 100 fires on record within the search radius suggests a high frequency of fire incidents, indicating an elevated risk of future wildfires in the area."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $328,303, which has declined by 24.8% over the last five years, may reflect economic challenges that could affect property maintenance and preparedness against wildfires."
+            "explanation": "A current median home value of approximately $328,303, which has declined by 24.8% over the last five years, reflects a weakening market that may correlate with increased vulnerability to wildfire impacts."
           },
           {
             "index": 3,
-            "explanation": "An official state hazard classification of Very High signifies that the area is recognized as having a substantial risk for wildfires, warranting increased caution and preparedness."
+            "explanation": "An official state hazard classification of Very High signifies that the area is recognized as having a significant risk of wildfires, warranting heightened awareness and preparedness."
           }
         ]
       },
-      "chart_observations": "- **HOME TRENDS:** The median home value in ZIP code 95969 is currently $328,303, reflecting a significant decline of 24.8% over the past five years. This downward trend indicates a challenging market for homeowners in the area.  \n- **RENT TRENDS:** The current median rent is $1,501.80, showing moderate growth of 6.1% over the last five years, suggesting a stable rental market despite the declining home values.  \n- **WILDFIRE TRENDS:** There have been 100 fires within 30 miles, with a stable frequency and proximity trend. The average distance to recent fires has increased to 22.5 miles, compared to a historical average of 20.0 miles.  \n- **CROSS-OBSERVATIONS:** There is a weak negative correlation of -0.23 between home values and fire distance, indicating that as homes are located further from fires, their values may be slightly higher, although the relationship is not strong.",
+      "chart_observations": "- **HOME TRENDS:** The median home value in ZIP code 95969 is currently $328,303, reflecting a significant decline of 24.8% over the past five years. This downward trend indicates a challenging market for homeowners in the area.\n  \n- **RENT TRENDS:** The current median rent is $1,501.80, showing moderate growth of 6.1% over the last five years, suggesting a more stable rental market compared to home values.\n\n- **WILDFIRE TRENDS:** There have been 100 fires within 30 miles, with a stable frequency and proximity trend. The average distance of recent fires has increased to 22.5 miles, compared to a historical average of 20.0 miles.\n\n- **CROSS-OBSERVATIONS:** There is a weak negative correlation of -0.23 between home values and fire distance, indicating that as homes are located closer to fires, their values tend to decrease slightly. However, no correlation is available for rent in relation to fire distance.",
       "dins": {
         "found": true,
         "query_point": {
@@ -3686,8 +3708,8 @@
             "matched_structures": 2523,
             "destruction_rate_pct": 95.1,
             "damage_or_destroyed_rate_pct": 100.0,
-            "desc": "Having a metal roof significantly reduces the risk of fire damage, as metal is non-combustible and can withstand high temperatures. However, the high destruction rate of 95.1% indicates that even metal roofs can be affected by extreme fire conditions, especially if other factors are not managed.",
-            "action": "Can improve: Focus on maintaining defensible space around your home to reduce fire risk.",
+            "desc": "Having a metal roof significantly reduces the risk of fire damage, as metal is non-combustible and can withstand high temperatures. However, the high destruction rate of 95.1% among similar structures indicates that while your roof is a strong defense, other factors may still contribute to overall fire risk.",
+            "action": "Can improve: Focus on maintaining defensible space around your home to further reduce fire risk.",
             "risk_tier": "high",
             "tier_reason": "Destruction rate is 11.4pp above the area average (83.7%)"
           },
@@ -3696,8 +3718,8 @@
             "matched_structures": 2398,
             "destruction_rate_pct": 91.9,
             "damage_or_destroyed_rate_pct": 100.0,
-            "desc": "Enclosed eaves are beneficial as they prevent embers from entering the attic space, which can ignite a fire. Despite this, a destruction rate of 91.9% suggests that homes with enclosed eaves are still at significant risk during severe fire events.",
-            "action": "Can improve: Ensure that vents are properly screened to prevent ember intrusion.",
+            "desc": "Enclosed eaves are beneficial in preventing embers from entering your home, which is crucial in wildfire-prone areas. The destruction rate of 91.9% suggests that while your eaves provide some protection, they are not foolproof against the intense conditions of a wildfire.",
+            "action": "Can improve: Ensure that vents are screened and that there are no gaps where embers can enter.",
             "risk_tier": "mod",
             "tier_reason": "Destruction rate is 8.2pp above the area average (83.7%)"
           },
@@ -3706,8 +3728,8 @@
             "matched_structures": 6756,
             "destruction_rate_pct": 94.1,
             "damage_or_destroyed_rate_pct": 100.0,
-            "desc": "Ignition-resistant siding offers a strong defense against flames and heat, which is crucial in wildfire-prone areas. The destruction rate of 94.1% indicates that while this material is better than others, it is not completely fireproof and can still be compromised under extreme conditions.",
-            "action": "Can improve: Regularly inspect and maintain your siding to ensure it remains effective against fire.",
+            "desc": "Ignition-resistant siding offers a significant advantage in fire-prone areas, as it is designed to withstand flames and heat. However, the destruction rate of 94.1% indicates that even with this siding, homes can still be vulnerable to intense fires if other protective measures are not taken.",
+            "action": "Can improve: Regularly inspect and maintain your landscaping to minimize flammable materials near your home.",
             "risk_tier": "high",
             "tier_reason": "Destruction rate is 10.4pp above the area average (83.7%)"
           }
@@ -3746,6 +3768,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (4)"
       ],
       [
@@ -3758,14 +3784,16 @@
       ]
     ],
     "rubric": {
-      "role_fit": 5,
+      "role_fit": 4,
       "data_grounding": 5,
-      "specificity": 5,
-      "rag_source_relevance": 5,
+      "specificity": 4,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 4,
-      "safety_no_hallucination": 5,
-      "overall_pass": true,
-      "notes": "The report is highly specific, well-grounded in data, and appropriately tailored for a homeowner, with minor confidence calibration issues due to the lack of detailed insurance market trends.",
+      "safety_no_hallucination": 3,
+      "overall_pass": false,
+      "notes": "The report is specific and well-grounded in data, but it includes irrelevant RAG snippets and mitigation recommendations that are inappropriate for a homeowner report.",
       "judge_model": "4o-mini"
     }
   },
@@ -3781,12 +3809,13 @@
       "notes": "Urban homeowner case; should avoid overconfident mitigation if hazard data is limited."
     },
     "response": {
-      "home_value_impact": "The property is located in a lower risk area with a current median home value of approximately <strong>$594,875</strong>, which has declined by <strong>5.2%</strong> over the past five years. This decline may reflect broader market trends influenced by wildfire risks, but the overall lower risk assessment suggests that the property is less likely to be severely impacted by future fire events.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 90012 indicates a total insured value of approximately <strong>$58,948,592</strong>, with a notable increase of <strong>112.5%</strong> in exposure from FY2021 to FY2025, suggesting a growing reliance on state-backed insurance options as homeowners face challenges in obtaining private coverage due to wildfire risks.",
-      "affordability_score": "The property remains financially viable to own given its current value, but the increase in FAIR Plan exposure may lead to higher insurance costs, which could impact long-term affordability and raise concerns about potential systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Ensure that your [[eaves]] are enclosed and that all [[vents]] are screened to prevent ember intrusion, as this is critical for fire safety (CAL FIRE Home Hardening). 2. Regularly inspect your roof for any damage, as a well-maintained roof is essential for fire resistance; consider using materials rated Class A for optimal protection (Safer from Wildfires program). 3. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is crucial for reducing fire risk (Defensible Space guide).",
+      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$594,875</strong>, which has declined by <strong>5.2%</strong> over the past five years. The proximity of the closest recorded fire just <strong>5.8 miles</strong> away, combined with a history of <strong>100 fires</strong> within 30 miles, suggests that while the risk is currently assessed as lower, it could still impact property values in the future.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 90012 indicates a total insured value of approximately <strong>$58,948,592</strong>, with a significant increase of <strong>112.5%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to wildfire risks.",
+      "affordability_score": "Given the current home value and the increasing reliance on the FAIR Plan, the property may face financial viability challenges due to potential increases in insurance costs and the overall wildfire risk in the area.",
+      "mitigation_recommendations": "1. Ensure that your [[vents]] are screened to prevent embers from entering your home, as this is a critical measure for fire safety (CAL FIRE Home Hardening). 2. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is essential for reducing fire risk (Defensible Space guide). 3. Regularly inspect and maintain your [[roof]] and [[siding]] to ensure they are in good condition and meet ignition-resistant standards, as these are key components in fire hardening your home (Safer from Wildfires program).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Unknown",
       "hazard_lookup_error": null,
       "hazard_attributes": {},
@@ -4536,23 +4565,23 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The risk indicators assess various factors that contribute to wildfire risk, including proximity to past fires, frequency of fires, and economic conditions. These indicators are combined to generate a risk score that reflects the overall likelihood of wildfire incidents affecting a specific area.",
+        "methodology": "The wildfire risk score is determined by evaluating four key risk indicators, which include fire frequency, proximity to recent fires, and property value trends. These indicators are combined to assess the overall risk level, with higher scores indicating greater risk potential.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 5.8 miles away indicates a relatively low immediate threat from past fire activity."
+            "explanation": "The closest recorded fire being 5.8 miles away suggests a relatively low immediate threat from nearby wildfires."
           },
           {
             "index": 1,
-            "explanation": "A decline in fire frequency, with 100 fires on record, suggests a decreasing trend in wildfire occurrences, which may lower the overall risk."
+            "explanation": "A decline in fire frequency, with 100 fires on record, indicates a trend towards reduced wildfire activity, which lowers the overall risk."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $594,875, which has decreased by 5.2% over the last five years, may indicate economic challenges in the area, potentially affecting community resources for fire prevention."
+            "explanation": "The current median home value of approximately $594,875, along with a 5.2% decline over the last five years, suggests a weakening property market, which may correlate with lower investment in fire prevention measures and increased risk."
           }
         ]
       },
-      "chart_observations": "- HOME TRENDS: The median home value in ZIP code 90012 is currently $594,875, reflecting a decline of 5.2% over the past five years. This downward trend indicates a challenging market for homeowners in the area.\n  \n- RENT TRENDS: The current median rent stands at $2,434.40, showing a moderate growth of 8.2% over the last five years, suggesting a strengthening rental market despite the declining home values.\n\n- WILDFIRE TRENDS: There have been a total of 100 fires within 30 miles, but the frequency of these fires is on a decline, while the average distance to fires remains stable at approximately 25.3 miles over the last five years.\n\n- CROSS-OBSERVATIONS: There is a weak negative correlation of -0.185 between home values and fire distance, indicating that as homes are located farther from fires, their values tend to be slightly higher. Conversely, rent shows a positive correlation of 0.298 with fire distance, suggesting that rents increase as distance from fire activity grows.",
+      "chart_observations": "- HOME TRENDS: The median home value in ZIP code 90012 is currently $594,875, reflecting a decline of 5.2% over the past five years. This downward trend suggests a weakening market for home sales in the area.\n  \n- RENT TRENDS: The current median rent is $2,434.40, which has increased by 8.2% over the last five years, indicating a moderate growth in rental prices in the region.\n\n- WILDFIRE TRENDS: There have been 100 fires recorded within 30 miles, but the frequency of these fires is declining. The average distance to fires has remained stable, with a historical average of 25.1 miles compared to a recent average of 25.3 miles.\n\n- CROSS-OBSERVATIONS: The correlation between home values and fire distance is -0.185, suggesting a weak negative relationship, while the correlation between rent and fire distance is 0.298, indicating a moderate positive relationship. This implies that as proximity to fires increases, rent tends to rise, while home values may not be as significantly affected.",
       "dins": {
         "found": false,
         "query_point": {
@@ -4595,6 +4624,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (3)"
       ],
       [
@@ -4610,11 +4643,13 @@
       "role_fit": 2,
       "data_grounding": 4,
       "specificity": 3,
-      "rag_source_relevance": 3,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 3,
-      "safety_no_hallucination": 4,
+      "safety_no_hallucination": 2,
       "overall_pass": false,
-      "notes": "The report includes mitigation recommendations inappropriate for a homeowner report and lacks specific property characteristics.",
+      "notes": "The report includes relevant homeowner information but relies heavily on unsupported mitigation recommendations and lacks relevant RAG context, leading to low scores in retrieval and grounding faithfulness.",
       "judge_model": "4o-mini"
     }
   },
@@ -4630,12 +4665,13 @@
       "notes": "Buyer case for ZIP handling and avoiding structural-property leakage."
     },
     "response": {
-      "home_value_impact": "The property is situated in a moderate risk area with a current median home value of approximately <strong>$1,045,223</strong>, which has declined by <strong>10.9%</strong> over the past five years. This decline may reflect broader market challenges influenced by wildfire risks, particularly given the accelerating fire frequency in the vicinity.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 94105 indicates a total insured value of approximately <strong>$5,459,877</strong>, with a significant increase of <strong>264.0%</strong> in exposure from FY2021 to FY2025, suggesting a growing reliance on state-backed insurance options as homeowners face difficulties in obtaining private coverage due to wildfire risks.",
-      "affordability_score": "While the property remains financially viable to own given its current value, the substantial increase in FAIR Plan exposure may lead to higher insurance costs, raising concerns about long-term affordability and potential systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Implement CAL FIRE's home hardening recommendations by ensuring that eaves are enclosed and vents are screened to prevent ember intrusion (https://www.fire.ca.gov/home-hardening). 2. Regularly inspect your roof for damage and consider using Class A rated materials for optimal fire resistance (Safer from Wildfires program). 3. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is crucial for reducing fire risk (Defensible Space guide).",
+      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$1,045,223</strong>, which has declined by <strong>10.9%</strong> over the past five years, indicating a weakening market that may be influenced by increasing wildfire risks. The proximity of the closest recorded fire just <strong>5.1 miles</strong> away, combined with a history of <strong>85 fires</strong> within 30 miles, suggests that while the risk is assessed as moderate, it could further impact property values in the future.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 94105 indicates a total insured value of approximately <strong>$5,459,877</strong>, with a significant increase of <strong>264.0%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to wildfire risks.",
+      "affordability_score": "Given the current home value and the increasing reliance on the FAIR Plan, the property may face financial viability challenges due to potential increases in insurance costs and the overall wildfire risk in the area.",
+      "mitigation_recommendations": "1. Implement CAL FIRE's home hardening recommendations by ensuring that your [[roof]] and [[siding]] are made of fire-resistant materials to reduce ignition risk (CAL FIRE Home Hardening). 2. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is essential for reducing fire risk (Defensible Space guide). 3. Consider the CAL FIRE Low-Cost Retrofit List to identify affordable improvements that can enhance your home's fire resistance (CAL FIRE Low-Cost Retrofit List).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Unknown",
       "hazard_lookup_error": null,
       "hazard_attributes": {},
@@ -5310,23 +5346,23 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The wildfire risk score is determined by evaluating four key risk indicators, which include proximity to recent fires, fire frequency, property value trends, and vegetation conditions. These indicators are combined to produce a score that reflects the overall risk level for a specific property, with higher scores indicating greater risk of wildfire impact.",
+        "methodology": "The wildfire risk score is determined by evaluating four key indicators: proximity to recent fires, fire frequency in the area, current home values, and historical trends in property value changes. These indicators are combined to assess the overall risk level, with each factor contributing to the final score based on its significance and impact on potential wildfire threats.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 5.1 miles away suggests a moderate level of proximity to potential wildfire threats, which can influence risk but is not immediately alarming."
+            "explanation": "The closest recorded fire being 5.1 miles away indicates a moderate level of proximity to past wildfire activity, which can influence the risk assessment."
           },
           {
             "index": 1,
-            "explanation": "With 85 fires on record nearby, the accelerating fire frequency indicates a significant increase in wildfire activity, suggesting a heightened risk environment."
+            "explanation": "With 85 fires recorded nearby, the accelerating fire frequency suggests an increasing trend in wildfire occurrences, raising the overall risk level."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $1,045,223, which has declined by 10.9% over the last five years, reflects a weakening property market that may correlate with increased vulnerability to wildfire impacts."
+            "explanation": "A current median home value of approximately $1,045,223 indicates a high property value, but the 10.9% decline over the last five years suggests potential economic vulnerability, which can exacerbate risk perceptions."
           }
         ]
       },
-      "chart_observations": "- **HOME TRENDS:** The median home value in ZIP code 94105 is currently $1,045,223, reflecting a significant decline of 10.9% over the past five years. This downward trend indicates a challenging market for homeowners in the area.\n\n- **RENT TRENDS:** The median rent has surged to $4,865.20, showcasing a robust growth of 34.2% over the last five years, suggesting increasing demand for rental properties in the region.\n\n- **WILDFIRE TRENDS:** There have been 85 total fires within 30 miles, with an accelerating frequency trend. The average distance of recent fires has increased to 27.6 miles, compared to a historical average of 20.9 miles, indicating a shift in fire proximity.\n\n- **CROSS-OBSERVATIONS:** There is a moderate positive correlation (0.562) between home values and fire distance, suggesting that as homes are located further from fires, their values may be higher. In contrast, rent shows a negligible correlation (0.022) with fire distance, indicating that rental prices may not be significantly affected by proximity to wildfires.",
+      "chart_observations": "- **HOME TRENDS:** The median home value in ZIP code 94105 is currently $1,045,223, reflecting a significant decline of 10.9% over the past five years. This downward trend suggests a challenging market for homeowners in the area.\n\n- **RENT TRENDS:** The median rent has risen sharply to $4,865.20, with a robust increase of 34.2% over the last five years, indicating strong demand for rental properties in the region.\n\n- **WILDFIRE TRENDS:** There have been 85 fires recorded within 30 miles, with an accelerating frequency trend. The average distance to recent fires has increased to 27.6 miles, suggesting a stable proximity to fire risks.\n\n- **CROSS-OBSERVATIONS:** There is a moderate positive correlation (0.562) between home values and fire distance, indicating that as homes are located further from fire activity, their values tend to be higher. In contrast, rent appears unaffected by fire distance, with a correlation of only 0.022.",
       "dins": {
         "found": false,
         "query_point": {
@@ -5369,6 +5405,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (3)"
       ],
       [
@@ -5385,14 +5425,16 @@
       ]
     ],
     "rubric": {
-      "role_fit": 2,
-      "data_grounding": 5,
+      "role_fit": 1,
+      "data_grounding": 4,
       "specificity": 3,
-      "rag_source_relevance": 4,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 3,
-      "safety_no_hallucination": 3,
+      "safety_no_hallucination": 2,
       "overall_pass": false,
-      "notes": "The report includes mitigation recommendations and property characteristics, which are inappropriate for a buyer report.",
+      "notes": "The report fails to meet the buyer role requirements by including mitigation recommendations and property characteristics, which are inappropriate for this context.",
       "judge_model": "4o-mini"
     }
   },
@@ -5408,12 +5450,13 @@
       "notes": "Buyer in a known coastal WUI market; should emphasize purchase and insurance access."
     },
     "response": {
-      "home_value_impact": "The property is located in a <strong>Very High</strong> fire hazard zone with a current median home value of approximately <strong>$3,135,133</strong>, which has experienced a moderate growth of <strong>11.0%</strong> over the past five years. Despite the high hazard classification, the positive growth trend in home values suggests resilience in the local real estate market.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 90265 indicates a total insured value of approximately <strong>$5,080,942,823</strong>, with a significant increase of <strong>112.1%</strong> in exposure from FY2021 to FY2025, highlighting a growing reliance on state-backed insurance options as homeowners face challenges in obtaining private coverage due to wildfire risks.",
-      "affordability_score": "While the property remains financially viable to own given its current value, the substantial increase in FAIR Plan exposure may lead to higher insurance costs, raising concerns about long-term affordability and potential systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Implement CAL FIRE's home hardening recommendations by ensuring that eaves are enclosed and vents are screened to prevent ember intrusion (https://www.fire.ca.gov/home-hardening). 2. Regularly inspect your roof for damage and consider using Class A rated materials for optimal fire resistance (Safer from Wildfires program). 3. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is crucial for reducing fire risk (Defensible Space guide).",
+      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$3,135,133</strong>, which has experienced a moderate growth of <strong>11.0%</strong> over the past five years, indicating a stable market despite the surrounding wildfire risks. The proximity of the closest recorded fire just <strong>2.7 miles</strong> away, along with the recent significant fire event at <strong>5.0 miles</strong>, suggests that while the area is classified as Very High risk, the market has remained resilient.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 90265 indicates a total insured value of approximately <strong>$5,080,942,823</strong>, with a notable increase of <strong>112.1%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to the Very High fire hazard classification.",
+      "affordability_score": "Given the current home value and the increasing reliance on the FAIR Plan, the property may face financial viability challenges due to potential increases in insurance costs and the overall wildfire risk in the area.",
+      "mitigation_recommendations": "1. Implement CAL FIRE's home hardening recommendations by ensuring that your [[roof]] and [[siding]] are made of fire-resistant materials to reduce ignition risk (CAL FIRE Home Hardening). 2. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is essential for reducing fire risk (Defensible Space guide). 3. Consider the CAL FIRE Low-Cost Retrofit List to identify affordable improvements that can enhance your home's fire resistance (CAL FIRE Low-Cost Retrofit List).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Very High",
       "hazard_lookup_error": null,
       "hazard_attributes": {
@@ -6182,27 +6225,27 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The wildfire risk score is determined by evaluating four key risk indicators that assess both historical fire activity and current environmental conditions. These indicators are combined to provide an overall risk assessment, which can range from low to very high risk levels.",
+        "methodology": "The four risk indicators assess various aspects of wildfire risk, including historical fire activity, property values, and state hazard classifications. These indicators are combined to generate a risk score that reflects the overall vulnerability of a property to wildfires.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 2.7 miles away suggests a relatively low immediate threat, as proximity to past fires can indicate potential risk."
+            "explanation": "The closest recorded fire being 2.7 miles away indicates a relatively low immediate threat from past fire activity in the vicinity."
           },
           {
             "index": 1,
-            "explanation": "A decline in fire frequency, with 100 fires on record, indicates a trend towards lower fire activity, which may suggest a reduced risk over time."
+            "explanation": "A decline in fire frequency, with 100 fires on record, suggests that the area may be experiencing a period of reduced wildfire activity, which can lower overall risk."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $3,135,133, with an 11.0% increase over the last five years, reflects a strong real estate market, which can imply higher stakes in property protection against wildfire risks."
+            "explanation": "A current median home value of approximately $3,135,133, with an 11.0% increase over the last five years, indicates a strong real estate market, which may correlate with higher risk due to increased development in fire-prone areas."
           },
           {
             "index": 3,
-            "explanation": "An official state hazard classification of Very High signifies a significant risk level, indicating that the area is prone to severe wildfire threats."
+            "explanation": "An official state hazard classification of Very High signifies a significant level of risk due to environmental conditions conducive to wildfires, indicating that the area is particularly vulnerable."
           }
         ]
       },
-      "chart_observations": "- **HOME TRENDS:** The current median home value in ZIP code 90265 is approximately $3.14 million, reflecting a moderate growth of 11.0% over the past five years. This indicates a steady appreciation in property values since 2000.\n\n- **RENT TRENDS:** The median rent in the area is about $16,590, which has surged by 23.6% in the last five years, suggesting a strong demand for rental properties.\n\n- **WILDFIRE TRENDS:** There have been a total of 100 fires within a 30-mile radius, with a declining trend in fire frequency. The average distance to fires has slightly decreased from 24.6 miles historically to 23.0 miles in the last five years.\n\n- **CROSS-OBSERVATIONS:** The correlation between home values and fire distance is minimal at 0.028, indicating no significant relationship. Similarly, the correlation between rent and fire distance is -0.005, suggesting that fire proximity does not appear to influence rental prices in this area.",
+      "chart_observations": "- HOME TRENDS: The current median home value in ZIP code 90265 is approximately $3.14 million, reflecting a moderate growth of 11.0% over the past five years. This indicates a steady appreciation in home values since 2000.\n  \n- RENT TRENDS: The median rent has surged to about $16,590, with a significant increase of 23.6% over the last five years, suggesting a strong demand for rental properties in the area.\n\n- WILDFIRE TRENDS: There have been 100 fires recorded within a 30-mile radius, but the frequency of these fires is declining, while the average distance to recent fires has slightly decreased from 24.6 miles to 23.0 miles over the last five years.\n\n- CROSS-OBSERVATIONS: The correlation between home values and fire distance is minimal at 0.028, indicating no clear relationship. Similarly, the correlation between rent and fire distance is -0.005, further suggesting that fire proximity does not significantly influence market metrics in this area.",
       "dins": {
         "found": true,
         "query_point": {
@@ -6289,6 +6332,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (4)"
       ],
       [
@@ -6305,14 +6352,16 @@
       ]
     ],
     "rubric": {
-      "role_fit": 2,
+      "role_fit": 1,
       "data_grounding": 5,
-      "specificity": 4,
-      "rag_source_relevance": 5,
+      "specificity": 3,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 3,
-      "safety_no_hallucination": 3,
+      "safety_no_hallucination": 2,
       "overall_pass": false,
-      "notes": "The report includes mitigation recommendations and property characteristics, which are inappropriate for a buyer report.",
+      "notes": "The report fails to meet the buyer role requirements by including mitigation recommendations and property characteristics, which are inappropriate for this context.",
       "judge_model": "4o-mini"
     }
   },
@@ -6328,12 +6377,13 @@
       "notes": "Urban buyer baseline; should avoid overstating wildfire-specific conclusions."
     },
     "response": {
-      "home_value_impact": "The property is situated in an area with a current median home value of approximately <strong>$539,029</strong>, which has declined by <strong>10.6%</strong> over the past five years, indicating a weakening market that may be more susceptible to the impacts of wildfire risks. The presence of <strong>94 fires</strong> recorded within 30 miles and a notable recent fire 10.9 miles away suggests ongoing concerns for property values in the region.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 95814 indicates a total insured value of approximately <strong>$4,527,809</strong>, with a dramatic increase of <strong>389.8%</strong> in exposure from FY2021 to FY2025, highlighting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to escalating wildfire risks.",
-      "affordability_score": "While the property remains financially viable to own given its current value, the significant increase in FAIR Plan exposure raises concerns about potential future insurance costs, which could impact long-term affordability and lead to systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Implement defensible space guidelines by maintaining a clear area of at least 30 feet around the home to reduce fire risk (Defensible Space guide). 2. Use fire-resistant building materials for any renovations or repairs to enhance the property's resilience against wildfires (Safer from Wildfires program). 3. Regularly inspect and maintain roofs and gutters to prevent the accumulation of flammable debris (Fire Safe Council recommendations).",
+      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$539,029</strong>, which has experienced a decline of <strong>10.6%</strong> over the past five years, indicating a weakening market that may be influenced by increasing wildfire risks. The closest recorded fire being <strong>10.9 miles</strong> away, along with the accelerating fire frequency in the region, suggests that the property could face further value pressures if wildfire risks continue to rise.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 95814 indicates a total insured value of approximately <strong>$4,527,809</strong>, with a dramatic increase of <strong>389.8%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to the area's wildfire risk.",
+      "affordability_score": "Given the declining home value and the increasing reliance on the FAIR Plan, the property may face financial viability challenges due to potential increases in insurance costs and the overall wildfire risk in the area.",
+      "mitigation_recommendations": "1. Implement CAL FIRE's home hardening recommendations by ensuring that your [[roof]] and [[siding]] are made of fire-resistant materials to reduce ignition risk (CAL FIRE Home Hardening). 2. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is essential for reducing fire risk (Defensible Space guide). 3. Consider the CAL FIRE Low-Cost Retrofit List to identify affordable improvements that can enhance your home's fire resistance (CAL FIRE Low-Cost Retrofit List).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Unknown",
       "hazard_lookup_error": null,
       "hazard_attributes": {},
@@ -7055,23 +7105,23 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The wildfire risk score is determined by analyzing four key indicators that assess the likelihood of fire occurrence and the potential impact on properties. These indicators are combined to produce a score that reflects the overall risk level, ranging from low to high.",
+        "methodology": "The wildfire risk score is determined by evaluating four key risk indicators, which include proximity to past fires, fire frequency, current home value trends, and vegetation conditions. These indicators are combined to produce a score that reflects the overall wildfire risk for a property, with higher scores indicating greater risk levels.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 10.9 miles away indicates a relatively low immediate threat, but proximity to past fires can still suggest potential risk."
+            "explanation": "The closest recorded fire being 10.9 miles away suggests a moderate level of proximity to past fire events, which can indicate potential risk but is not immediately alarming."
           },
           {
             "index": 1,
-            "explanation": "With 94 fires recorded nearby, the accelerating fire frequency suggests an increasing trend in wildfire activity, which heightens the overall risk level."
+            "explanation": "With 94 fires on record nearby, the accelerating fire frequency indicates a significant increase in fire activity, which raises the overall risk level for the area."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $539,029, which has declined by 10.6% over the last five years, indicates a weakening property market that may be more vulnerable to the impacts of wildfires."
+            "explanation": "A current median home value of approximately $539,029, which has declined by 10.6% over the last five years, suggests a weakening market that may correlate with increased vulnerability to wildfire risks."
           }
         ]
       },
-      "chart_observations": "- HOME TRENDS: The median home value in ZIP code 95814 is currently $539,029, reflecting a significant decline of 10.6% over the past five years. This downward trend suggests a challenging market for homeowners in the area.\n  \n- RENT TRENDS: The current median rent stands at $1,931, showing moderate growth of 5.8% over the last five years, indicating a more stable rental market compared to home values.\n\n- WILDFIRE TRENDS: There have been 94 fires recorded within a 30-mile radius, with an accelerating frequency trend. The average distance to recent fires has decreased to 20.7 miles, down from a historical average of 23.4 miles.\n\n- CROSS-OBSERVATIONS: There is a weak negative correlation of -0.029 between home values and fire distance, suggesting no significant relationship. However, rent shows a strong positive correlation of 0.631 with fire distance, indicating that as distance from fires increases, rent tends to rise.",
+      "chart_observations": "- **HOME TRENDS:** The median home value in ZIP code 95814 is currently $539,029, reflecting a significant decline of 10.6% over the past five years. This downward trend indicates a challenging market for homeowners in the area.\n\n- **RENT TRENDS:** The current median rent stands at $1,931, showing a moderate growth of 5.8% over the last five years, suggesting a more stable rental market compared to home values.\n\n- **WILDFIRE TRENDS:** There have been 94 fires recorded within 30 miles, with an accelerating frequency trend. The average distance of recent fires has decreased to 20.7 miles, indicating a closer proximity to potential wildfire risks.\n\n- **CROSS-OBSERVATIONS:** There is a weak negative correlation of -0.029 between home values and fire distance, suggesting no significant relationship. However, rent shows a strong positive correlation of 0.631 with fire distance, indicating that as distance from fires increases, rent tends to rise.",
       "dins": {
         "found": false,
         "query_point": {
@@ -7114,6 +7164,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (3)"
       ],
       [
@@ -7131,13 +7185,15 @@
     ],
     "rubric": {
       "role_fit": 2,
-      "data_grounding": 5,
+      "data_grounding": 4,
       "specificity": 3,
-      "rag_source_relevance": 4,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 3,
-      "safety_no_hallucination": 4,
+      "safety_no_hallucination": 2,
       "overall_pass": false,
-      "notes": "The report includes mitigation recommendations and property characteristics, which are inappropriate for a buyer report.",
+      "notes": "The report includes mitigation recommendations and homeowner-specific details inappropriate for a buyer report, leading to significant role-fit and safety issues.",
       "judge_model": "4o-mini"
     }
   },
@@ -7153,12 +7209,13 @@
       "notes": "Foothill buyer case with likely wildfire/insurance relevance."
     },
     "response": {
-      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$603,686</strong>, which has experienced a moderate growth of <strong>6.0%</strong> over the past five years, indicating a stable market despite the presence of wildfire risks. The classification of the area as having a <strong>Moderate</strong> fire hazard zone, along with the proximity of the notable Bridge fire just 3.3 miles away, suggests that while there are risks, they are currently being managed within the market context.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 95603 indicates a total insured value of approximately <strong>$2,185,750,606</strong>, with a significant increase of <strong>297.2%</strong> in exposure from FY2021 to FY2025, highlighting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to wildfire risks.",
-      "affordability_score": "The property remains financially viable to own given its current value and moderate growth trends, but the substantial increase in FAIR Plan exposure raises concerns about potential future insurance costs, which could impact long-term affordability and lead to systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Maintain defensible space around the property by clearing flammable vegetation and debris to reduce fire risk (Defensible Space guide). 2. Consider using fire-resistant materials for roofing and siding to enhance the property's resilience against wildfires (Safer from Wildfires program). 3. Regularly inspect and clean gutters and roofs to prevent the accumulation of combustible materials (Fire Safe Council recommendations).",
+      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$603,686</strong>, which has seen a moderate growth of <strong>6.0%</strong> over the past five years, indicating a stable market despite the nearby wildfire risks. The closest recorded fire being <strong>3.3 miles</strong> away, along with the classification of the area as having a <strong>Moderate</strong> fire hazard, suggests that while there is some risk, it may not significantly impact property values in the near term.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 95603 indicates a total insured value of approximately <strong>$2,185,750,606</strong>, with a substantial increase of <strong>297.2%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to the area's wildfire risk.",
+      "affordability_score": "Given the moderate growth in home values and the increasing reliance on the FAIR Plan, the property appears to be financially viable, but potential increases in insurance costs due to wildfire risks should be considered.",
+      "mitigation_recommendations": "1. Implement CAL FIRE's home hardening recommendations by ensuring that your [[roof]] and [[siding]] are made of fire-resistant materials to reduce ignition risk (CAL FIRE Home Hardening). 2. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is essential for reducing fire risk (Defensible Space guide). 3. Consider the CAL FIRE Low-Cost Retrofit List to identify affordable improvements that can enhance your home's fire resistance (CAL FIRE Low-Cost Retrofit List).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "Moderate",
       "hazard_lookup_error": null,
       "hazard_attributes": {
@@ -7915,27 +7972,27 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The risk score is determined by evaluating four key indicators that assess the likelihood of wildfire occurrence and potential impact. These indicators are combined to produce a comprehensive score that reflects the overall wildfire risk for a specific area.",
+        "methodology": "The risk score is determined by evaluating four key indicators that assess the likelihood and potential impact of wildfire events in a given area. These indicators combine to provide a comprehensive view of the wildfire risk, with higher scores indicating greater risk levels.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 2.4 miles away is relatively distant, suggesting a lower immediate threat from nearby wildfires."
+            "explanation": "The closest recorded fire being 2.4 miles away suggests a relatively low immediate threat, as proximity to past fires can indicate potential risk."
           },
           {
             "index": 1,
-            "explanation": "Having 100 fires on record within the search radius indicates a moderate level of historical wildfire activity, which may suggest some risk but is not excessively high."
+            "explanation": "Having 100 fires on record within the search radius is a significant number, indicating a history of wildfire activity that could suggest a higher risk environment."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $603,686, with a 6.0% growth over the last 5 years, reflects a stable and appreciating market, which may imply a lower risk tolerance among homeowners."
+            "explanation": "A current median home value of approximately $603,686, with a 6.0% increase over the last five years, reflects moderate growth, which may imply that the area is desirable but also potentially more vulnerable to risk due to increased development."
           },
           {
             "index": 3,
-            "explanation": "An official state hazard classification of Moderate indicates a recognized level of risk, but it is not classified as high, suggesting that while there is some risk, it is manageable."
+            "explanation": "An official state hazard classification of Moderate indicates that the area is recognized as having a reasonable level of wildfire risk, suggesting that precautions and awareness are warranted."
           }
         ]
       },
-      "chart_observations": "- HOME TRENDS: The current median home value in ZIP code 95603 is $603,686, reflecting a moderate growth of 6.0% over the past five years. This indicates a steady appreciation in home values since 2000.\n  \n- RENT TRENDS: The median rent is currently $2,192.40, which has increased by 14.9% over the last five years, suggesting a significant rise in rental prices in the area.\n\n- WILDFIRE TRENDS: There have been 100 fires recorded within 30 miles, with both fire frequency and proximity trends remaining stable. The average distance to fires has slightly increased from 21.1 miles historically to 21.3 miles in the last five years.\n\n- CROSS-OBSERVATIONS: There is a weak positive correlation (0.086) between home values and fire distance, indicating that home values are not significantly influenced by proximity to wildfires. In contrast, the correlation between rent and fire distance is stronger at 0.462, suggesting that rental prices may be more affected by fire proximity than home values.",
+      "chart_observations": "- **HOME TRENDS:** The current median home value in ZIP code 95603 is approximately $603,686, reflecting a moderate growth of 6.0% over the past five years. This indicates a steady appreciation in home values since 2000.\n\n- **RENT TRENDS:** The median rent is currently around $2,192.4, with a significant increase of 14.9% over the last five years, suggesting a rising demand for rental properties in the area.\n\n- **WILDFIRE TRENDS:** There have been 100 fires recorded within 30 miles, with both fire frequency and proximity trends remaining stable. The average distance to fires has slightly increased from 21.1 miles historically to 21.3 miles in the last five years.\n\n- **CROSS-OBSERVATIONS:** The correlation between home values and fire distance is low at 0.086, indicating no significant relationship. However, the correlation between rent and fire distance is stronger at 0.462, suggesting that rental prices may be more influenced by proximity to fire activity compared to home values.",
       "dins": {
         "found": false,
         "query_point": {
@@ -7979,6 +8036,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (4)"
       ],
       [
@@ -7995,14 +8056,16 @@
       ]
     ],
     "rubric": {
-      "role_fit": 2,
+      "role_fit": 1,
       "data_grounding": 5,
       "specificity": 3,
-      "rag_source_relevance": 4,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 3,
       "safety_no_hallucination": 2,
       "overall_pass": false,
-      "notes": "The report includes mitigation recommendations and property characteristics, which are inappropriate for a buyer report, leading to a poor role fit and safety issues.",
+      "notes": "The report fails to fit the buyer role due to inappropriate mitigation recommendations and reliance on homeowner characteristics, while also lacking relevant RAG context.",
       "judge_model": "4o-mini"
     }
   },
@@ -8018,12 +8081,13 @@
       "notes": "Sierra gateway buyer case; should distinguish ZIP-level value/insurance data from property-level risk."
     },
     "response": {
-      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$427,491</strong>, which has seen a moderate growth of <strong>15.9%</strong> over the past five years, indicating a stable market despite the <strong>High</strong> fire hazard classification. The proximity of the notable Broken fire just 4.7 miles away, along with the closest recorded fire being only 1.6 miles away, suggests that while home values are appreciating, the underlying wildfire risk remains significant.",
-      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 93644 indicates a total insured value of approximately <strong>$1,140,190,426</strong>, with a substantial increase of <strong>228.1%</strong> in exposure from FY2021 to FY2025, highlighting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to the area's wildfire risks.",
-      "affordability_score": "The property appears financially viable to own given its current value and moderate growth trends, but the significant increase in FAIR Plan exposure raises concerns about potential future insurance costs, which could impact long-term affordability and lead to systemic unaffordability risks.",
-      "mitigation_recommendations": "1. Create and maintain defensible space around the property by clearing flammable vegetation and debris to reduce fire risk (Defensible Space guide). 2. Utilize fire-resistant materials for roofing and siding to enhance the property's resilience against wildfires (Safer from Wildfires program). 3. Regularly inspect and clean gutters and roofs to prevent the accumulation of combustible materials (Fire Safe Council recommendations).",
+      "home_value_impact": "The property is located in an area with a current median home value of approximately <strong>$427,491</strong>, which has experienced a moderate growth of <strong>15.9%</strong> over the past five years, indicating a stable market despite the nearby wildfire risks. The closest recorded fire being <strong>1.6 miles</strong> away, along with the classification of the area as having a <strong>High</strong> fire hazard, suggests that while there is significant risk, it has not yet severely impacted property values.",
+      "insurance_outlook": "The <strong>FAIR Plan</strong> exposure in ZIP 93644 indicates a total insured value of approximately <strong>$1,140,190,426</strong>, with a notable increase of <strong>228.1%</strong> in exposure from FY2021 to FY2025, reflecting a growing reliance on state-backed insurance options as homeowners face challenges in securing private coverage due to the area's wildfire risk.",
+      "affordability_score": "Given the moderate growth in home values and the increasing reliance on the FAIR Plan, the property appears to be financially viable, but potential increases in insurance costs due to wildfire risks should be considered.",
+      "mitigation_recommendations": "1. Implement CAL FIRE's home hardening recommendations by ensuring that your [[roof]] and [[siding]] are made of fire-resistant materials to reduce ignition risk (CAL FIRE Home Hardening). 2. Maintain a defensible space of at least 30 feet around your home by clearing flammable vegetation and debris, which is essential for reducing fire risk (Defensible Space guide). 3. Consider the CAL FIRE Low-Cost Retrofit List to identify affordable improvements that can enhance your home's fire resistance (CAL FIRE Low-Cost Retrofit List).",
       "confidence": "medium",
       "confidence_explanation": "Confidence is medium due to the availability of fire hazard data, historical fire records, and property characteristics, but specific insurance market trends and individual insurer actions were not detailed.",
+      "rag_context": "",
       "hazard_zone": "High",
       "hazard_lookup_error": null,
       "hazard_attributes": {
@@ -8766,27 +8830,27 @@
         }
       },
       "gauge_explanation": {
-        "methodology": "The risk score is determined by evaluating four key indicators that assess the likelihood of wildfire occurrence and potential impact on properties. These indicators are combined to produce a score that reflects the overall risk level, ranging from low to high.",
+        "methodology": "The risk score is determined by evaluating four key indicators that assess the likelihood of wildfire occurrence and its potential impact on properties. These indicators are combined to produce a score that reflects the overall risk level for a specific area.",
         "signal_explanations": [
           {
             "index": 0,
-            "explanation": "The closest recorded fire being 1.6 miles away indicates a nearby historical threat, which can elevate the risk level."
+            "explanation": "The closest recorded fire being 1.6 miles away indicates a moderate proximity to past wildfire activity, which can heighten the risk for nearby properties."
           },
           {
             "index": 1,
-            "explanation": "Having 100 fires on record within the search radius suggests a significant history of wildfire activity, indicating a heightened risk environment."
+            "explanation": "Having 100 fires on record within the search radius suggests a significant history of wildfire incidents, indicating a higher potential for future occurrences."
           },
           {
             "index": 2,
-            "explanation": "A current median home value of approximately $427,491, with a 15.9% increase over the last five years, reflects moderate growth, which may attract more residents and increase exposure to wildfire risk."
+            "explanation": "A current median home value of approximately $427,491, with a 15.9% increase over the last five years, reflects a moderate growth trend that may attract more residents and increase exposure to wildfire risk."
           },
           {
             "index": 3,
-            "explanation": "An official state hazard classification of High signifies a recognized and serious risk of wildfires in the area, warranting increased caution."
+            "explanation": "The official state hazard classification of High signifies a recognized elevated risk level for wildfires in the area, underscoring the importance of preparedness and mitigation efforts."
           }
         ]
       },
-      "chart_observations": "- HOME TRENDS: The current median home value in ZIP code 93644 is $427,491, reflecting a moderate growth of 15.9% over the past five years. This indicates a positive trend in home values within the area.\n  \n- RENT TRENDS: Rent data unavailable for this ZIP.\n\n- WILDFIRE TRENDS: There have been 100 fires recorded within 30 miles, with a stable trend in both fire frequency and proximity. The average distance to fires has slightly increased from 21.0 miles historically to 22.6 miles in the last five years.\n\n- CROSS-OBSERVATIONS: The correlation between home values and fire distance is -0.073, suggesting no clear relationship between the proximity of wildfires and home value trends in this area.",
+      "chart_observations": "- HOME TRENDS: The current median home value in ZIP code 93644 is $427,491, reflecting a moderate growth of 15.9% over the past five years. This trend indicates a positive trajectory in home values since 2003.\n  \n- RENT TRENDS: Rent data unavailable for this ZIP.\n\n- WILDFIRE TRENDS: There have been 100 fires within a 30-mile radius, with both fire frequency and proximity trends remaining stable. The average distance to fires has slightly increased from 21.0 miles historically to 22.6 miles over the last five years.\n\n- CROSS-OBSERVATIONS: The correlation between home values and fire distance is -0.073, suggesting no clear relationship between home prices and proximity to wildfire activity.",
       "dins": {
         "found": false,
         "query_point": {
@@ -8830,6 +8894,10 @@
       ],
       [
         true,
+        "RAG retrieved context is available for evaluation"
+      ],
+      [
+        true,
         "at least 3 risk signals available (4)"
       ],
       [
@@ -8849,7 +8917,9 @@
       "role_fit": 1,
       "data_grounding": 5,
       "specificity": 3,
-      "rag_source_relevance": 2,
+      "rag_retrieval_relevance": 1,
+      "rag_grounding_faithfulness": 1,
+      "rag_source_relevance": 1,
       "confidence_calibration": 3,
       "safety_no_hallucination": 2,
       "overall_pass": false,

@@ -279,9 +279,11 @@ def analyze(body: AnalysisRequest):
         }
 
     report = result.get("report", {})
+    rag_context = result.get("rag_context")
     if isinstance(report, dict):
         response: dict = {
             **report,
+            "rag_context": rag_context,
             "hazard_zone": hazard_zone,
             "hazard_lookup_error": hazard_error,
             "hazard_attributes": hazard.get("attributes", {}),
@@ -299,6 +301,7 @@ def analyze(body: AnalysisRequest):
     else:
         response = {
             "report": report,
+            "rag_context": rag_context,
             "hazard_zone": hazard_zone,
             "hazard_lookup_error": hazard_error,
             "hazard_attributes": hazard.get("attributes", {}),
